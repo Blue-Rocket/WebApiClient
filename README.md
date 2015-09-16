@@ -4,7 +4,7 @@ The **WebApiClient** module provides a HTTP client framework based on _routes_ c
 
 ## Client
 
-The [WebApiClient](https://github.com/Blue-Rocket/WebApiClient/blob/master/Code/WebApiClient/WebApiClient.h) protocol defines the main HTTP client entry point for applications to use. The API is purposefully simple and based on asynchronous block callbacks:
+The [WebApiClient](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiClient.h) protocol defines the main HTTP client entry point for applications to use. The API is purposefully simple and based on asynchronous block callbacks:
 
 ```objc
 - (void)requestAPI:(NSString *)name 
@@ -30,7 +30,7 @@ An example invocation of this API might look like this:
 
 ## Routing
 
-The [WebApiRoute](https://github.com/Blue-Rocket/WebApiClient/blob/master/Code/WebApiClient/WebApiRoute.h) protocol defines a single API endpoint definition, assigned a unique name. Routes are typically configured when an application starts up. Each route defines some standardized properties, such as a HTTP `method` and URL `path`. For convenience, routes support arbitrary property access via Objective-C's keyed subscript support, so the following is possible:
+The [WebApiRoute](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiRoute.h) protocol defines a single API endpoint definition, assigned a unique name. Routes are typically configured when an application starts up. Each route defines some standardized properties, such as a HTTP `method` and URL `path`. For convenience, routes support arbitrary property access via Objective-C's keyed subscript support, so the following is possible:
 
 ```objc
 id<WebApiRoute> myRoute = ...;
@@ -45,7 +45,7 @@ NSString *path2 = myRoute[@"path"];
 id something = myRoute[@"extendedProperty"];
 ```
 
-For even more convenience, WebApiRoute provides [extensions](https://github.com/Blue-Rocket/WebApiClient/blob/master/Code/WebApiClient/NSDictionary%2BWebApiClient.h) to `NSDictionary` and `NSMutableDictionary` so that they conform to `WebApiRoute` and `MutableWebApiRoute`, respectively. That means you can use dictionaries directly as routes, like this:
+For even more convenience, WebApiRoute provides [extensions](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/NSDictionary%2BWebApiClient.h) to `NSDictionary` and `NSMutableDictionary` so that they conform to `WebApiRoute` and `MutableWebApiRoute`, respectively. That means you can use dictionaries directly as routes, like this:
 
 ```objc
 // define a route
@@ -58,7 +58,7 @@ mutableRoute[@"extendedProperty"] = @"special";
 
 ## Object mapping
 
-The [WebApiDataMapper](https://github.com/Blue-Rocket/WebApiClient/blob/master/Code/WebApiClient/WebApiDataMapper.h) protocol defines an API for _encoding_ native objects into HTTP requests and _mapping_ HTTP responses into native objects. Routes can be configured with a `dataMapper` property to support this feature. The API is also pretty simple:
+The [WebApiDataMapper](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiDataMapper.h) protocol defines an API for _encoding_ native objects into HTTP requests and _mapping_ HTTP responses into native objects. Routes can be configured with a `dataMapper` property to support this feature. The API is also pretty simple:
 
 ```objc
 @protocol WebApiDataMapper <NSObject>
@@ -117,7 +117,7 @@ RKObjectMapper *userObjectMapper = ...;
 [dataMapper registerResponseObjectMapping:userObjectMapper forRouteName:@"login"];
 ```
 
-The [BRRestKitDataMapping](https://github.com/Blue-Rocket/WebApiClient/blob/master/Code/WebApiClient-RestKit/BRRestKitDataMapping.m) class is a good starting point for applications to extend: it registers object mappers for the [BRAppUser](https://github.com/Blue-Rocket/WebApiClient/blob/master/Code/Core/BRAppUser.h) domain object for the standardized `login` and `register` route names.
+The [BRRestKitDataMapping](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient-RestKit/BRRestKitDataMapping.m) class is a good starting point for applications to extend: it registers object mappers for the [BRAppUser](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/Core/BRAppUser.h) domain object for the standardized `login` and `register` route names.
 
 ## Route configuration
 
