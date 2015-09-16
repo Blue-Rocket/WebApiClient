@@ -28,6 +28,7 @@ Pod::Spec.new do |s|
 	sp.dependency 'WebApiClient/AFNetworking'
 	sp.dependency 'WebApiClient/Cache'
     sp.dependency 'WebApiClient/RestKit'
+    sp.dependency 'WebApiClient/UI'
   end
   
   s.subspec 'Core' do |sp|
@@ -56,6 +57,14 @@ Pod::Spec.new do |s|
     sp.dependency 'WebApiClient/Core'
     sp.dependency 'RestKit/ObjectMapping', '~> 0.24'
     sp.dependency 'TransformerKit/String', '~> 0.5'
+  end
+
+  s.subspec 'UI' do |sp|
+    sp.source_files = 'WebApiClient/Code/WebApiClient-UI.h', 'WebApiClient/Code/WebApiClient-UI'
+    sp.dependency 'WebApiClient/Core'
+    sp.dependency 'ImageEffects',	'~> 1.0'
+    sp.dependency 'MAObjCRuntime', 	'~> 0.0.1'
+    sp.dependency 'Masonry',		'~> 0.6'
   end
 
 end
