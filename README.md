@@ -78,7 +78,7 @@ The **AFNetworking** module provides a full implementation of the `WebApiClient`
 
 ## Route configuration
 
-Routes can be configured in code via the `registerRoute:forName:` method, but more conveniently they can be configured via the standard BRFC `config.json` file. The `webservice.api` key will be inspected by default, and can be an object representing all the routes that should be registered for the application. For example, the following JSON would register two routes, `login` and `register`:
+Routes can be configured in code via the `registerRoute:forName:` method, but more conveniently they can be configured via [BREnvironment][brenv]. The `webservice.api` key will be inspected by default, and can be a dictionary representing all the routes that should be registered for the application. For example, the following JSON would register two routes, `login` and `register`:
 
 ```json
 {
