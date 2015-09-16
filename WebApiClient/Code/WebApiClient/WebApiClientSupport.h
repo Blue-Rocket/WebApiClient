@@ -23,7 +23,7 @@ extern NSString * const WebApiClientSupportAppIdDefaultHTTPHeaderName;
 @interface WebApiClientSupport : NSObject <SupportingWebApiClient>
 
 /** A provider of authorization details. */
-@property (nonatomic, strong, nullable) id<WebApiAuthorizationProvider> authorizationProvider;
+@property (nonatomic, weak, nullable) id<WebApiAuthorizationProvider> authorizationProvider;
 
 /** An API key to add as a header value to each request. */
 @property (nonatomic, strong, nullable) NSString *appApiKey;
