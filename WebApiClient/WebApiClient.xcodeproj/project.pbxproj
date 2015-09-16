@@ -112,8 +112,9 @@
 		C9ED94631BA8DA7500DE842F /* BaseTestingSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseTestingSupport.h; sourceTree = "<group>"; };
 		C9ED94641BA8DA7500DE842F /* BaseTestingSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseTestingSupport.m; sourceTree = "<group>"; };
 		C9ED94671BA8DA7500DE842F /* Environment.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Environment.plist; sourceTree = "<group>"; };
-		C9ED94731BA8DC5600DE842F /* WebApiClient.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; name = WebApiClient.podspec; path = ../WebApiClient.podspec; sourceTree = "<group>"; };
+		C9ED94731BA8DC5600DE842F /* WebApiClient.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; name = WebApiClient.podspec; path = ../WebApiClient.podspec; sourceTree = "<group>"; };
 		C9ED94741BA8DCC400DE842F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		C9ED94761BA9450A00DE842F /* WebApiAuthorizationProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiAuthorizationProvider.h; sourceTree = "<group>"; };
 		F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient-WebApiClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -209,6 +210,7 @@
 				C9ED94211BA8DA1D00DE842F /* NSDictionary+WebApiClient.h */,
 				C9ED94221BA8DA1D00DE842F /* NSDictionary+WebApiClient.m */,
 				C9ED94231BA8DA1D00DE842F /* SupportingWebApiClient.h */,
+				C9ED94761BA9450A00DE842F /* WebApiAuthorizationProvider.h */,
 				C9ED94241BA8DA1D00DE842F /* WebApiClient.h */,
 				C9ED94251BA8DA1D00DE842F /* WebApiClient.m */,
 				C9ED94261BA8DA1D00DE842F /* WebApiClientEnvironment.h */,

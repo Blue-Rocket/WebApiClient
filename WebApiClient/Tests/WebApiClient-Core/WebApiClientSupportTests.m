@@ -9,6 +9,7 @@
 #import "BaseNetworkTestingSupport.h"
 
 #import <OCMock/OCMock.h>
+#import "WebApiAuthorizationProvider.h"
 #import "WebApiClientSupport.h"
 #import "RestKitWebApiDataMapper.h"
 
@@ -47,6 +48,17 @@
 @end
 
 @implementation TestUser
+@end
+
+@interface TestAuthorizationProvider : NSObject <WebApiAuthorizationProvider>
+@end
+
+@implementation TestAuthorizationProvider
+
+- (void)configureAuthorizationForRoute:(id<WebApiRoute>)route request:(NSMutableURLRequest *)request {
+	[request addValue:@"token foobar" forHTTPHeaderField:@"Authorization"];
+}
+
 @end
 
 #pragma mark - Unit tests
@@ -128,10 +140,12 @@
 	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/foo"]];
 	id<WebApiRoute> route = [client routeForName:@"register" error:nil];
 	client.appId = @"MyTestId";
+	client.authorizationProvider = [TestAuthorizationProvider new];
 	[client addAuthorizationHeadersToRequest:req forRoute:route];
 	NSDictionary *headers = [req allHTTPHeaderFields];
 	assertThat(headers, equalTo(@{ @"X-App-API-Key" : @"test_token",
-								   @"X-App-ID" : @"MyTestId"}));
+								   @"X-App-ID" : @"MyTestId",
+								   @"Authorization" : @"token foobar"}));
 }
 
 @end
