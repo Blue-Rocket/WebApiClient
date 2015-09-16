@@ -161,3 +161,8 @@ This can be done by adding a `dataMapperRequestRootKeyPath` property (or `dataMa
 	}
 }
 ```
+
+ [cocoapods]: https://cocoapods.org/
+ [brenv]: https://github.com/Blue-Rocket/BREnvironment
+ [afn]: https://github.com/AFNetworking/AFNetworking
+ [rk]: https://github.com/RestKit/RestKit
