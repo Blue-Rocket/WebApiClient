@@ -117,8 +117,6 @@ RKObjectMapper *userObjectMapper = ...;
 [dataMapper registerResponseObjectMapping:userObjectMapper forRouteName:@"login"];
 ```
 
-The [BRRestKitDataMapping](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient-RestKit/BRRestKitDataMapping.m) class is a good starting point for applications to extend: it registers object mappers for the [BRAppUser](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/Core/BRAppUser.h) domain object for the standardized `login` and `register` route names.
-
 ## Route configuration
 
 To use RestKit-based object mapping with a route, you configure the `dataMapper` property of the route with `RestKitWebApiDataMapper` like this:
