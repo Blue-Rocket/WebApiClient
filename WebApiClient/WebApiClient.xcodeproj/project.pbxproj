@@ -1,0 +1,678 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		829E84144DC23B6D266B1595 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */; };
+		950E0B6676F12C92DE0509B8 /* libPods-WebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */; };
+		C9ED93F11BA8D86500DE842F /* libWebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9ED93E51BA8D86500DE842F /* libWebApiClient.a */; };
+		C9ED94481BA8DA1D00DE842F /* DataWebApiResource.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED941E1BA8DA1D00DE842F /* DataWebApiResource.m */; };
+		C9ED94491BA8DA1D00DE842F /* FileWebApiResource.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94201BA8DA1D00DE842F /* FileWebApiResource.m */; };
+		C9ED944A1BA8DA1D00DE842F /* NSDictionary+WebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94221BA8DA1D00DE842F /* NSDictionary+WebApiClient.m */; };
+		C9ED944B1BA8DA1D00DE842F /* WebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94251BA8DA1D00DE842F /* WebApiClient.m */; };
+		C9ED944C1BA8DA1D00DE842F /* WebApiClientEnvironment.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94271BA8DA1D00DE842F /* WebApiClientEnvironment.m */; };
+		C9ED944D1BA8DA1D00DE842F /* WebApiClientSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94291BA8DA1D00DE842F /* WebApiClientSupport.m */; };
+		C9ED944E1BA8DA1D00DE842F /* WebApiRotue.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED942D1BA8DA1D00DE842F /* WebApiRotue.m */; };
+		C9ED944F1BA8DA1D00DE842F /* AFNetworkingWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94311BA8DA1D00DE842F /* AFNetworkingWebApiClient.m */; };
+		C9ED94501BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94361BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m */; };
+		C9ED94511BA8DA1D00DE842F /* PINCacheWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94381BA8DA1D00DE842F /* PINCacheWebApiClient.m */; };
+		C9ED94521BA8DA1D00DE842F /* WebApiClientCacheEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED943A1BA8DA1D00DE842F /* WebApiClientCacheEntry.m */; };
+		C9ED94541BA8DA1D00DE842F /* RestKitWebApiDataMapper.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94411BA8DA1D00DE842F /* RestKitWebApiDataMapper.m */; };
+		C9ED94551BA8DA1D00DE842F /* WebApiClientActivitySupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94461BA8DA1D00DE842F /* WebApiClientActivitySupport.m */; };
+		C9ED94691BA8DA7500DE842F /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = C9ED94581BA8DA7500DE842F /* config.json */; };
+		C9ED946A1BA8DA7500DE842F /* PINCacheWebApiClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED945A1BA8DA7500DE842F /* PINCacheWebApiClientTests.m */; };
+		C9ED946B1BA8DA7500DE842F /* AFNetworkingWebApiClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED945C1BA8DA7500DE842F /* AFNetworkingWebApiClientTests.m */; };
+		C9ED946C1BA8DA7500DE842F /* upload-test.txt in Resources */ = {isa = PBXBuildFile; fileRef = C9ED945D1BA8DA7500DE842F /* upload-test.txt */; };
+		C9ED946D1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED945F1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m */; };
+		C9ED946E1BA8DA7500DE842F /* WebApiClientSupportTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94601BA8DA7500DE842F /* WebApiClientSupportTests.m */; };
+		C9ED946F1BA8DA7500DE842F /* BaseNetworkTestingSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94611BA8DA7500DE842F /* BaseNetworkTestingSupport.m */; };
+		C9ED94701BA8DA7500DE842F /* BaseTestingSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94641BA8DA7500DE842F /* BaseTestingSupport.m */; };
+		C9ED94721BA8DA7500DE842F /* Environment.plist in Resources */ = {isa = PBXBuildFile; fileRef = C9ED94671BA8DA7500DE842F /* Environment.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C9ED93F21BA8D86500DE842F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C9ED93DD1BA8D86500DE842F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9ED93E41BA8D86500DE842F;
+			remoteInfo = WebApiClient;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C9ED93E31BA8D86500DE842F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		2F4030A860DEFE73C54FCEE5 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.release.xcconfig"; sourceTree = "<group>"; };
+		AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.debug.xcconfig"; sourceTree = "<group>"; };
+		C9ED93E51BA8D86500DE842F /* libWebApiClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWebApiClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9ED93F01BA8D86500DE842F /* WebApiClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebApiClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9ED941D1BA8DA1C00DE842F /* DataWebApiResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataWebApiResource.h; sourceTree = "<group>"; };
+		C9ED941E1BA8DA1D00DE842F /* DataWebApiResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataWebApiResource.m; sourceTree = "<group>"; };
+		C9ED941F1BA8DA1D00DE842F /* FileWebApiResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileWebApiResource.h; sourceTree = "<group>"; };
+		C9ED94201BA8DA1D00DE842F /* FileWebApiResource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileWebApiResource.m; sourceTree = "<group>"; };
+		C9ED94211BA8DA1D00DE842F /* NSDictionary+WebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+WebApiClient.h"; sourceTree = "<group>"; };
+		C9ED94221BA8DA1D00DE842F /* NSDictionary+WebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+WebApiClient.m"; sourceTree = "<group>"; };
+		C9ED94231BA8DA1D00DE842F /* SupportingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupportingWebApiClient.h; sourceTree = "<group>"; };
+		C9ED94241BA8DA1D00DE842F /* WebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClient.h; sourceTree = "<group>"; };
+		C9ED94251BA8DA1D00DE842F /* WebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClient.m; sourceTree = "<group>"; };
+		C9ED94261BA8DA1D00DE842F /* WebApiClientEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientEnvironment.h; sourceTree = "<group>"; };
+		C9ED94271BA8DA1D00DE842F /* WebApiClientEnvironment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientEnvironment.m; sourceTree = "<group>"; };
+		C9ED94281BA8DA1D00DE842F /* WebApiClientSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientSupport.h; sourceTree = "<group>"; };
+		C9ED94291BA8DA1D00DE842F /* WebApiClientSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientSupport.m; sourceTree = "<group>"; };
+		C9ED942A1BA8DA1D00DE842F /* WebApiDataMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiDataMapper.h; sourceTree = "<group>"; };
+		C9ED942B1BA8DA1D00DE842F /* WebApiResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiResource.h; sourceTree = "<group>"; };
+		C9ED942C1BA8DA1D00DE842F /* WebApiResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiResponse.h; sourceTree = "<group>"; };
+		C9ED942D1BA8DA1D00DE842F /* WebApiRotue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiRotue.m; sourceTree = "<group>"; };
+		C9ED942E1BA8DA1D00DE842F /* WebApiRoute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiRoute.h; sourceTree = "<group>"; };
+		C9ED94301BA8DA1D00DE842F /* AFNetworkingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkingWebApiClient.h; sourceTree = "<group>"; };
+		C9ED94311BA8DA1D00DE842F /* AFNetworkingWebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkingWebApiClient.m; sourceTree = "<group>"; };
+		C9ED94321BA8DA1D00DE842F /* WebApiClient-AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "WebApiClient-AFNetworking.h"; path = "Code/WebApiClient-AFNetworking.h"; sourceTree = "<group>"; };
+		C9ED94341BA8DA1D00DE842F /* CachingWebApiRoute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachingWebApiRoute.h; sourceTree = "<group>"; };
+		C9ED94351BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+CachingWebApiClient.h"; sourceTree = "<group>"; };
+		C9ED94361BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+CachingWebApiClient.m"; sourceTree = "<group>"; };
+		C9ED94371BA8DA1D00DE842F /* PINCacheWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PINCacheWebApiClient.h; sourceTree = "<group>"; };
+		C9ED94381BA8DA1D00DE842F /* PINCacheWebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PINCacheWebApiClient.m; sourceTree = "<group>"; };
+		C9ED94391BA8DA1D00DE842F /* WebApiClientCacheEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientCacheEntry.h; sourceTree = "<group>"; };
+		C9ED943A1BA8DA1D00DE842F /* WebApiClientCacheEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientCacheEntry.m; sourceTree = "<group>"; };
+		C9ED943B1BA8DA1D00DE842F /* WebApiClient-Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "WebApiClient-Cache.h"; path = "Code/WebApiClient-Cache.h"; sourceTree = "<group>"; };
+		C9ED943C1BA8DA1D00DE842F /* WebApiClient-Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "WebApiClient-Core.h"; path = "Code/WebApiClient-Core.h"; sourceTree = "<group>"; };
+		C9ED94401BA8DA1D00DE842F /* RestKitWebApiDataMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RestKitWebApiDataMapper.h; sourceTree = "<group>"; };
+		C9ED94411BA8DA1D00DE842F /* RestKitWebApiDataMapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RestKitWebApiDataMapper.m; sourceTree = "<group>"; };
+		C9ED94431BA8DA1D00DE842F /* WebApiClient-RestKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "WebApiClient-RestKit.h"; path = "Code/WebApiClient-RestKit.h"; sourceTree = "<group>"; };
+		C9ED94451BA8DA1D00DE842F /* WebApiClientActivitySupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientActivitySupport.h; sourceTree = "<group>"; };
+		C9ED94461BA8DA1D00DE842F /* WebApiClientActivitySupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientActivitySupport.m; sourceTree = "<group>"; };
+		C9ED94471BA8DA1D00DE842F /* WebApiClient-UI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "WebApiClient-UI.h"; path = "Code/WebApiClient-UI.h"; sourceTree = "<group>"; };
+		C9ED94571BA8DA7500DE842F /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C9ED94581BA8DA7500DE842F /* config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config.json; sourceTree = "<group>"; };
+		C9ED945A1BA8DA7500DE842F /* PINCacheWebApiClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PINCacheWebApiClientTests.m; sourceTree = "<group>"; };
+		C9ED945C1BA8DA7500DE842F /* AFNetworkingWebApiClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkingWebApiClientTests.m; sourceTree = "<group>"; };
+		C9ED945D1BA8DA7500DE842F /* upload-test.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "upload-test.txt"; sourceTree = "<group>"; };
+		C9ED945F1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionary_WebApiClientTests.m; sourceTree = "<group>"; };
+		C9ED94601BA8DA7500DE842F /* WebApiClientSupportTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientSupportTests.m; sourceTree = "<group>"; };
+		C9ED94611BA8DA7500DE842F /* BaseNetworkTestingSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseNetworkTestingSupport.m; sourceTree = "<group>"; };
+		C9ED94621BA8DA7500DE842F /* BaseNetworkTestingSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseNetworkTestingSupport.h; sourceTree = "<group>"; };
+		C9ED94631BA8DA7500DE842F /* BaseTestingSupport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseTestingSupport.h; sourceTree = "<group>"; };
+		C9ED94641BA8DA7500DE842F /* BaseTestingSupport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseTestingSupport.m; sourceTree = "<group>"; };
+		C9ED94671BA8DA7500DE842F /* Environment.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Environment.plist; sourceTree = "<group>"; };
+		C9ED94731BA8DC5600DE842F /* WebApiClient.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; name = WebApiClient.podspec; path = ../WebApiClient.podspec; sourceTree = "<group>"; };
+		C9ED94741BA8DCC400DE842F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient-WebApiClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C9ED93E21BA8D86500DE842F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				950E0B6676F12C92DE0509B8 /* libPods-WebApiClient.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9ED93ED1BA8D86500DE842F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9ED93F11BA8D86500DE842F /* libWebApiClient.a in Frameworks */,
+				829E84144DC23B6D266B1595 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A5583B26C3BE1AD6BD75D13D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */,
+				ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */,
+				2F4030A860DEFE73C54FCEE5 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */,
+				AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		C9ED93DC1BA8D86500DE842F = {
+			isa = PBXGroup;
+			children = (
+				C9ED94561BA8DA2000DE842F /* Packaging */,
+				C9ED941B1BA8DA1C00DE842F /* Code */,
+				C9ED93F41BA8D86500DE842F /* Tests */,
+				C9ED93E61BA8D86500DE842F /* Products */,
+				A5583B26C3BE1AD6BD75D13D /* Pods */,
+				E31BD3F30C244A15DBAC1806 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C9ED93E61BA8D86500DE842F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED93E51BA8D86500DE842F /* libWebApiClient.a */,
+				C9ED93F01BA8D86500DE842F /* WebApiClientTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C9ED93F41BA8D86500DE842F /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED94671BA8DA7500DE842F /* Environment.plist */,
+				C9ED94571BA8DA7500DE842F /* Info.plist */,
+				C9ED94581BA8DA7500DE842F /* config.json */,
+				C9ED94631BA8DA7500DE842F /* BaseTestingSupport.h */,
+				C9ED94641BA8DA7500DE842F /* BaseTestingSupport.m */,
+				C9ED94611BA8DA7500DE842F /* BaseNetworkTestingSupport.m */,
+				C9ED94621BA8DA7500DE842F /* BaseNetworkTestingSupport.h */,
+				C9ED94591BA8DA7500DE842F /* WebApiClient-Cache */,
+				C9ED945B1BA8DA7500DE842F /* WebApiClient-AFNetworking */,
+				C9ED945E1BA8DA7500DE842F /* WebApiClient-Core */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		C9ED941B1BA8DA1C00DE842F /* Code */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED941C1BA8DA1C00DE842F /* WebApiClient */,
+				C9ED942F1BA8DA1D00DE842F /* WebApiClient-AFNetworking */,
+				C9ED94331BA8DA1D00DE842F /* WebApiClient-Cache */,
+				C9ED943D1BA8DA1D00DE842F /* WebApiClient-RestKit */,
+				C9ED94441BA8DA1D00DE842F /* WebApiClient-UI */,
+			);
+			path = Code;
+			sourceTree = "<group>";
+		};
+		C9ED941C1BA8DA1C00DE842F /* WebApiClient */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED941D1BA8DA1C00DE842F /* DataWebApiResource.h */,
+				C9ED941E1BA8DA1D00DE842F /* DataWebApiResource.m */,
+				C9ED941F1BA8DA1D00DE842F /* FileWebApiResource.h */,
+				C9ED94201BA8DA1D00DE842F /* FileWebApiResource.m */,
+				C9ED94211BA8DA1D00DE842F /* NSDictionary+WebApiClient.h */,
+				C9ED94221BA8DA1D00DE842F /* NSDictionary+WebApiClient.m */,
+				C9ED94231BA8DA1D00DE842F /* SupportingWebApiClient.h */,
+				C9ED94241BA8DA1D00DE842F /* WebApiClient.h */,
+				C9ED94251BA8DA1D00DE842F /* WebApiClient.m */,
+				C9ED94261BA8DA1D00DE842F /* WebApiClientEnvironment.h */,
+				C9ED94271BA8DA1D00DE842F /* WebApiClientEnvironment.m */,
+				C9ED94281BA8DA1D00DE842F /* WebApiClientSupport.h */,
+				C9ED94291BA8DA1D00DE842F /* WebApiClientSupport.m */,
+				C9ED942A1BA8DA1D00DE842F /* WebApiDataMapper.h */,
+				C9ED942B1BA8DA1D00DE842F /* WebApiResource.h */,
+				C9ED942C1BA8DA1D00DE842F /* WebApiResponse.h */,
+				C9ED942D1BA8DA1D00DE842F /* WebApiRotue.m */,
+				C9ED942E1BA8DA1D00DE842F /* WebApiRoute.h */,
+			);
+			path = WebApiClient;
+			sourceTree = "<group>";
+		};
+		C9ED942F1BA8DA1D00DE842F /* WebApiClient-AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED94301BA8DA1D00DE842F /* AFNetworkingWebApiClient.h */,
+				C9ED94311BA8DA1D00DE842F /* AFNetworkingWebApiClient.m */,
+			);
+			path = "WebApiClient-AFNetworking";
+			sourceTree = "<group>";
+		};
+		C9ED94331BA8DA1D00DE842F /* WebApiClient-Cache */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED94341BA8DA1D00DE842F /* CachingWebApiRoute.h */,
+				C9ED94351BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.h */,
+				C9ED94361BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m */,
+				C9ED94371BA8DA1D00DE842F /* PINCacheWebApiClient.h */,
+				C9ED94381BA8DA1D00DE842F /* PINCacheWebApiClient.m */,
+				C9ED94391BA8DA1D00DE842F /* WebApiClientCacheEntry.h */,
+				C9ED943A1BA8DA1D00DE842F /* WebApiClientCacheEntry.m */,
+			);
+			path = "WebApiClient-Cache";
+			sourceTree = "<group>";
+		};
+		C9ED943D1BA8DA1D00DE842F /* WebApiClient-RestKit */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED94401BA8DA1D00DE842F /* RestKitWebApiDataMapper.h */,
+				C9ED94411BA8DA1D00DE842F /* RestKitWebApiDataMapper.m */,
+			);
+			path = "WebApiClient-RestKit";
+			sourceTree = "<group>";
+		};
+		C9ED94441BA8DA1D00DE842F /* WebApiClient-UI */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED94451BA8DA1D00DE842F /* WebApiClientActivitySupport.h */,
+				C9ED94461BA8DA1D00DE842F /* WebApiClientActivitySupport.m */,
+			);
+			path = "WebApiClient-UI";
+			sourceTree = "<group>";
+		};
+		C9ED94561BA8DA2000DE842F /* Packaging */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED94741BA8DCC400DE842F /* README.md */,
+				C9ED94731BA8DC5600DE842F /* WebApiClient.podspec */,
+				C9ED94321BA8DA1D00DE842F /* WebApiClient-AFNetworking.h */,
+				C9ED943B1BA8DA1D00DE842F /* WebApiClient-Cache.h */,
+				C9ED943C1BA8DA1D00DE842F /* WebApiClient-Core.h */,
+				C9ED94431BA8DA1D00DE842F /* WebApiClient-RestKit.h */,
+				C9ED94471BA8DA1D00DE842F /* WebApiClient-UI.h */,
+			);
+			name = Packaging;
+			sourceTree = "<group>";
+		};
+		C9ED94591BA8DA7500DE842F /* WebApiClient-Cache */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED945A1BA8DA7500DE842F /* PINCacheWebApiClientTests.m */,
+			);
+			path = "WebApiClient-Cache";
+			sourceTree = "<group>";
+		};
+		C9ED945B1BA8DA7500DE842F /* WebApiClient-AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED945C1BA8DA7500DE842F /* AFNetworkingWebApiClientTests.m */,
+				C9ED945D1BA8DA7500DE842F /* upload-test.txt */,
+			);
+			path = "WebApiClient-AFNetworking";
+			sourceTree = "<group>";
+		};
+		C9ED945E1BA8DA7500DE842F /* WebApiClient-Core */ = {
+			isa = PBXGroup;
+			children = (
+				C9ED945F1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m */,
+				C9ED94601BA8DA7500DE842F /* WebApiClientSupportTests.m */,
+			);
+			path = "WebApiClient-Core";
+			sourceTree = "<group>";
+		};
+		E31BD3F30C244A15DBAC1806 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */,
+				F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C9ED93E41BA8D86500DE842F /* WebApiClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9ED93F91BA8D86500DE842F /* Build configuration list for PBXNativeTarget "WebApiClient" */;
+			buildPhases = (
+				35E3F33E88DD9CDFEE6163B2 /* Check Pods Manifest.lock */,
+				C9ED93E11BA8D86500DE842F /* Sources */,
+				C9ED93E21BA8D86500DE842F /* Frameworks */,
+				C9ED93E31BA8D86500DE842F /* CopyFiles */,
+				AAF1896B578B01909C152E15 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WebApiClient;
+			productName = WebApiClient;
+			productReference = C9ED93E51BA8D86500DE842F /* libWebApiClient.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		C9ED93EF1BA8D86500DE842F /* WebApiClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9ED93FC1BA8D86500DE842F /* Build configuration list for PBXNativeTarget "WebApiClientTests" */;
+			buildPhases = (
+				A1473EC4B93142BCF298360F /* Check Pods Manifest.lock */,
+				C9ED93EC1BA8D86500DE842F /* Sources */,
+				C9ED93ED1BA8D86500DE842F /* Frameworks */,
+				C9ED93EE1BA8D86500DE842F /* Resources */,
+				7C06BE01B0919FBCA205A074 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C9ED93F31BA8D86500DE842F /* PBXTargetDependency */,
+			);
+			name = WebApiClientTests;
+			productName = WebApiClientTests;
+			productReference = C9ED93F01BA8D86500DE842F /* WebApiClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C9ED93DD1BA8D86500DE842F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0640;
+				ORGANIZATIONNAME = "Blue Rocket, Inc.";
+				TargetAttributes = {
+					C9ED93E41BA8D86500DE842F = {
+						CreatedOnToolsVersion = 6.4;
+					};
+					C9ED93EF1BA8D86500DE842F = {
+						CreatedOnToolsVersion = 6.4;
+					};
+				};
+			};
+			buildConfigurationList = C9ED93E01BA8D86500DE842F /* Build configuration list for PBXProject "WebApiClient" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = C9ED93DC1BA8D86500DE842F;
+			productRefGroup = C9ED93E61BA8D86500DE842F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C9ED93E41BA8D86500DE842F /* WebApiClient */,
+				C9ED93EF1BA8D86500DE842F /* WebApiClientTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C9ED93EE1BA8D86500DE842F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9ED94721BA8DA7500DE842F /* Environment.plist in Resources */,
+				C9ED946C1BA8DA7500DE842F /* upload-test.txt in Resources */,
+				C9ED94691BA8DA7500DE842F /* config.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		35E3F33E88DD9CDFEE6163B2 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		7C06BE01B0919FBCA205A074 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A1473EC4B93142BCF298360F /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		AAF1896B578B01909C152E15 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C9ED93E11BA8D86500DE842F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9ED944E1BA8DA1D00DE842F /* WebApiRotue.m in Sources */,
+				C9ED944D1BA8DA1D00DE842F /* WebApiClientSupport.m in Sources */,
+				C9ED944B1BA8DA1D00DE842F /* WebApiClient.m in Sources */,
+				C9ED94501BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m in Sources */,
+				C9ED944F1BA8DA1D00DE842F /* AFNetworkingWebApiClient.m in Sources */,
+				C9ED944C1BA8DA1D00DE842F /* WebApiClientEnvironment.m in Sources */,
+				C9ED94481BA8DA1D00DE842F /* DataWebApiResource.m in Sources */,
+				C9ED94541BA8DA1D00DE842F /* RestKitWebApiDataMapper.m in Sources */,
+				C9ED944A1BA8DA1D00DE842F /* NSDictionary+WebApiClient.m in Sources */,
+				C9ED94551BA8DA1D00DE842F /* WebApiClientActivitySupport.m in Sources */,
+				C9ED94491BA8DA1D00DE842F /* FileWebApiResource.m in Sources */,
+				C9ED94511BA8DA1D00DE842F /* PINCacheWebApiClient.m in Sources */,
+				C9ED94521BA8DA1D00DE842F /* WebApiClientCacheEntry.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9ED93EC1BA8D86500DE842F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9ED946E1BA8DA7500DE842F /* WebApiClientSupportTests.m in Sources */,
+				C9ED946D1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m in Sources */,
+				C9ED946A1BA8DA7500DE842F /* PINCacheWebApiClientTests.m in Sources */,
+				C9ED94701BA8DA7500DE842F /* BaseTestingSupport.m in Sources */,
+				C9ED946F1BA8DA7500DE842F /* BaseNetworkTestingSupport.m in Sources */,
+				C9ED946B1BA8DA7500DE842F /* AFNetworkingWebApiClientTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C9ED93F31BA8D86500DE842F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9ED93E41BA8D86500DE842F /* WebApiClient */;
+			targetProxy = C9ED93F21BA8D86500DE842F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C9ED93F71BA8D86500DE842F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C9ED93F81BA8D86500DE842F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C9ED93FA1BA8D86500DE842F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		C9ED93FB1BA8D86500DE842F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		C9ED93FD1BA8D86500DE842F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2F4030A860DEFE73C54FCEE5 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		C9ED93FE1BA8D86500DE842F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = Tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C9ED93E01BA8D86500DE842F /* Build configuration list for PBXProject "WebApiClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9ED93F71BA8D86500DE842F /* Debug */,
+				C9ED93F81BA8D86500DE842F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C9ED93F91BA8D86500DE842F /* Build configuration list for PBXNativeTarget "WebApiClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9ED93FA1BA8D86500DE842F /* Debug */,
+				C9ED93FB1BA8D86500DE842F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C9ED93FC1BA8D86500DE842F /* Build configuration list for PBXNativeTarget "WebApiClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9ED93FD1BA8D86500DE842F /* Debug */,
+				C9ED93FE1BA8D86500DE842F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C9ED93DD1BA8D86500DE842F /* Project object */;
+}
