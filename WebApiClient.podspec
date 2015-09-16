@@ -24,34 +24,36 @@ Pod::Spec.new do |s|
   s.default_subspecs = 'All'
   
   s.subspec 'All' do |sp|
-    sp.dependency 'WebApiClient/WebApiClient-Core'
-	sp.dependency 'WebApiClient/WebApiClient-AFNetworking'
-	sp.dependency 'WebApiClient/WebApiClient-Cache'
-    sp.dependency 'WebApiClient/WebApiClient-RestKit'
+    sp.dependency 'WebApiClient/Core'
+	sp.dependency 'WebApiClient/AFNetworking'
+	sp.dependency 'WebApiClient/Cache'
+    sp.dependency 'WebApiClient/RestKit'
   end
   
-  s.subspec 'WebApiClient-Core' do |sp|
+  s.subspec 'Core' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-Core.h', 'WebApiClient/Code/WebApiClient'
-    #sp.dependency 'WebApiClient/Core'
-	sp.dependency 'MAObjCRuntime', '~> 0.0.1'
-	sp.dependency 'SOCKit',        '~> 1.1'
+    sp.dependency 'BRCocoaLumberjack', '~> 2.0'
+    sp.dependency 'BREnvironment',     '~> 1.1'
+	sp.dependency 'BRLocalize/Core'
+	sp.dependency 'MAObjCRuntime',     '~> 0.0.1'
+	sp.dependency 'SOCKit',            '~> 1.1'
   end
 
-  s.subspec 'WebApiClient-AFNetworking' do |sp|
+  s.subspec 'AFNetworking' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-AFNetworking.h', 'WebApiClient/Code/WebApiClient-AFNetworking'
-    sp.dependency 'WebApiClient/WebApiClient-Core'
+    sp.dependency 'WebApiClient/Core'
     sp.dependency 'AFNetworking/NSURLSession', '~> 2.5'
   end
 
-  s.subspec 'WebApiClient-Cache' do |sp|
+  s.subspec 'Cache' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-Cache.h', 'WebApiClient/Code/WebApiClient-Cache'
-    sp.dependency 'WebApiClient/WebApiClient-Core'
+    sp.dependency 'WebApiClient/Core'
     sp.dependency 'PINCache', '~> 2.0'
   end
 
-  s.subspec 'WebApiClient-RestKit' do |sp|
+  s.subspec 'RestKit' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-RestKit.h', 'WebApiClient/Code/WebApiClient-RestKit'
-    sp.dependency 'WebApiClient/WebApiClient-Core'
+    sp.dependency 'WebApiClient/Core'
     sp.dependency 'RestKit/ObjectMapping', '~> 0.24'
     sp.dependency 'TransformerKit/String', '~> 0.5'
   end
