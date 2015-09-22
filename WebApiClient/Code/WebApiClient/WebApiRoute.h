@@ -25,18 +25,6 @@ typedef enum : NSUInteger {
 	WebApiSerializationNone = 3,
 } WebApiSerialization;
 
-/** A standard route name for user registration. */
-extern NSString * const WebApiRouteRegister;
-
-/** A standard route name for user login. */
-extern NSString * const WebApiRouteLogin;
-
-/** A standard route name for getting a user profile (account details). */
-extern NSString * const WebApiRouteGetUser;
-
-/** A standard route name for updating a user profile (account details). */
-extern NSString * const WebApiRouteUpdateUser;
-
 /**
  An API route configuration object.
  */
