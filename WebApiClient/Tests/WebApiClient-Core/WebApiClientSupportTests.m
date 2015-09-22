@@ -137,10 +137,11 @@
 }
 
 - (void)testAddAuthenticationHTTPHeadersWithUserService {
+	TestAuthorizationProvider *authProvider = [TestAuthorizationProvider new];
 	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/foo"]];
 	id<WebApiRoute> route = [client routeForName:@"register" error:nil];
 	client.appId = @"MyTestId";
-	client.authorizationProvider = [TestAuthorizationProvider new];
+	client.authorizationProvider = authProvider;
 	[client addAuthorizationHeadersToRequest:req forRoute:route];
 	NSDictionary *headers = [req allHTTPHeaderFields];
 	assertThat(headers, equalTo(@{ @"X-App-API-Key" : @"test_token",

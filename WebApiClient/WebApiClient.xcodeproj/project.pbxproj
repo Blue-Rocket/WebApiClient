@@ -16,7 +16,6 @@
 		C9ED944B1BA8DA1D00DE842F /* WebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94251BA8DA1D00DE842F /* WebApiClient.m */; };
 		C9ED944C1BA8DA1D00DE842F /* WebApiClientEnvironment.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94271BA8DA1D00DE842F /* WebApiClientEnvironment.m */; };
 		C9ED944D1BA8DA1D00DE842F /* WebApiClientSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94291BA8DA1D00DE842F /* WebApiClientSupport.m */; };
-		C9ED944E1BA8DA1D00DE842F /* WebApiRotue.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED942D1BA8DA1D00DE842F /* WebApiRotue.m */; };
 		C9ED944F1BA8DA1D00DE842F /* AFNetworkingWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94311BA8DA1D00DE842F /* AFNetworkingWebApiClient.m */; };
 		C9ED94501BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94361BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m */; };
 		C9ED94511BA8DA1D00DE842F /* PINCacheWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94381BA8DA1D00DE842F /* PINCacheWebApiClient.m */; };
@@ -80,7 +79,6 @@
 		C9ED942A1BA8DA1D00DE842F /* WebApiDataMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiDataMapper.h; sourceTree = "<group>"; };
 		C9ED942B1BA8DA1D00DE842F /* WebApiResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiResource.h; sourceTree = "<group>"; };
 		C9ED942C1BA8DA1D00DE842F /* WebApiResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiResponse.h; sourceTree = "<group>"; };
-		C9ED942D1BA8DA1D00DE842F /* WebApiRotue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiRotue.m; sourceTree = "<group>"; };
 		C9ED942E1BA8DA1D00DE842F /* WebApiRoute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiRoute.h; sourceTree = "<group>"; };
 		C9ED94301BA8DA1D00DE842F /* AFNetworkingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkingWebApiClient.h; sourceTree = "<group>"; };
 		C9ED94311BA8DA1D00DE842F /* AFNetworkingWebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkingWebApiClient.m; sourceTree = "<group>"; };
@@ -220,7 +218,6 @@
 				C9ED942A1BA8DA1D00DE842F /* WebApiDataMapper.h */,
 				C9ED942B1BA8DA1D00DE842F /* WebApiResource.h */,
 				C9ED942C1BA8DA1D00DE842F /* WebApiResponse.h */,
-				C9ED942D1BA8DA1D00DE842F /* WebApiRotue.m */,
 				C9ED942E1BA8DA1D00DE842F /* WebApiRoute.h */,
 			);
 			path = WebApiClient;
@@ -474,7 +471,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C9ED944E1BA8DA1D00DE842F /* WebApiRotue.m in Sources */,
 				C9ED944D1BA8DA1D00DE842F /* WebApiClientSupport.m in Sources */,
 				C9ED944B1BA8DA1D00DE842F /* WebApiClient.m in Sources */,
 				C9ED94501BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m in Sources */,

@@ -1,6 +1,6 @@
 //
 //  NSObject+BRLocalizableUI.m
-//  WebApiClient
+//  BlueRocketFuelCore
 //
 //  Created by Matt on 17/08/15.
 //  Copyright (c) 2015 Blue Rocket. Distributable under the terms of the Apache License, Version 2.0.
@@ -8,7 +8,7 @@
 
 #import "NSObject+BRLocalize.h"
 
-#import <objc/objc-runtime.h>
+#import <objc/runtime.h>
 #import "BRLocalizable.h"
 #import "NSBundle+BRLocalize.h"
 
