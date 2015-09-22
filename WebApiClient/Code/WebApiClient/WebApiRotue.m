@@ -12,4 +12,6 @@ NSString * const WebApiRouteRegister = @"register";
 
 NSString * const WebApiRouteLogin = @"login";
 
+NSString * const WebApiRouteGetUser = @"profileView";
 
+NSString * const WebApiRouteUpdateUser = @"profileEdit";
