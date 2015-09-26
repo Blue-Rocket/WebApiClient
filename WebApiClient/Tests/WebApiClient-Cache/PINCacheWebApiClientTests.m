@@ -132,6 +132,7 @@
 	
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
 	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		assertThat(response.responseObject[@"success"], equalTo(@YES));
 		assertThat(error, nilValue());
 		[requestExpectation fulfill];

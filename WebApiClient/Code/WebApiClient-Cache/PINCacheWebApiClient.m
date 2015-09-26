@@ -112,6 +112,15 @@ static id<WebApiClient> SharedGlobalClient;
 
 - (void)requestAPI:(NSString * __nonnull)name withPathVariables:(nullable id)pathVariables parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data finished:(void (^ __nonnull)(id<WebApiResponse> __nonnull, NSError * __nullable))callback {
+	void (^doCallback)(id<WebApiResponse> __nonnull, NSError * __nullable) = ^(id<WebApiResponse> __nonnull response, NSError * __nullable error){
+		if ( [NSThread isMainThread] ) {
+			callback(response, error);
+		} else {
+			dispatch_async(dispatch_get_main_queue(), ^{
+				callback(response, error);
+			});
+		}
+	};
 	id<WebApiRoute> route = [self.client routeForName:name error:nil];
 	NSTimeInterval cacheTTL = 0;
 	NSString *cacheKey = nil;
@@ -134,7 +143,7 @@ static id<WebApiClient> SharedGlobalClient;
 					[weakEntryCache setObject:entry forKey:cacheKey block:nil];
 				}];
 			}
-			callback(response, error);
+			doCallback(response, error);
 		}];
 	};
 	if ( cacheKey ) {
@@ -146,7 +155,7 @@ static id<WebApiClient> SharedGlobalClient;
 					[dataCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
 						id<WebApiResponse> response = object;
 						if ( response ) {
-							callback(response, nil);
+							doCallback(response, nil);
 						} else {
 							// cached data missing from cache; make request
 							delegateRequest();
