@@ -69,8 +69,17 @@ static id<WebApiClient> SharedGlobalClient;
 	}
 	NSMutableString *key = [[NSMutableString alloc] initWithCapacity:64];
 	[key appendString:route.method];
-	[key appendString:[url host]];
-	[key appendString:[[url port] stringValue]];
+	if ( url.scheme ) {
+		[key appendString:url.scheme];
+	}
+	[key appendString:@"://"];
+	if ( url.host ) {
+		[key appendString:url.host];
+	}
+	if ( url.port ) {
+		[key appendString:@":"];
+		[key appendString:[[url port] stringValue]];
+	}
 	[key appendString:[url path]];
 	
 	if ( [[url query] length] > 0 ) {
