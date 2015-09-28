@@ -210,6 +210,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 		
 		__block NSURLSessionDataTask *task = [manager dataTaskWithRequest:req completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
 			NSMutableDictionary *apiResponse = [[NSMutableDictionary alloc] initWithCapacity:4];
+			apiResponse.routeName = name;
 			if ( [response isKindOfClass:[NSHTTPURLResponse class]] ) {
 				NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
 				apiResponse.statusCode = httpResponse.statusCode;

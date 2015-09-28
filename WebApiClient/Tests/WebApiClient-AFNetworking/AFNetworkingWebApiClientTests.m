@@ -101,6 +101,7 @@
 		assertThat(error, notNilValue());
 		assertThat([error.userInfo[NSURLErrorFailingURLErrorKey] absoluteString], equalTo([[self httpURLForRelativePath:@"test"] absoluteString]));
 		assertThat(response.responseObject, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -118,6 +119,7 @@
 		assertThat(response.responseObject, notNilValue());
 		assertThat([response.responseObject valueForKeyPath:@"code"], equalTo(@123));
 		assertThat([response.responseObject valueForKeyPath:@"message"], equalTo(@"Your request failed."));
+		assertThat(response.routeName, equalTo(@"test"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -132,6 +134,7 @@
 	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -146,6 +149,7 @@
 	[client requestAPI:@"doc" withPathVariables:@{@"uniqueId" : @123 } parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"doc"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -165,6 +169,7 @@
 	[client requestAPI:@"doc" withPathVariables:docRef parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"doc"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -181,6 +186,7 @@
 	[client requestAPI:@"test" withPathVariables:nil parameters:@{@"foo" : @"bar"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -203,6 +209,7 @@
 	[client requestAPI:@"test" withPathVariables:nil parameters:docRef data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -227,6 +234,7 @@
 	[client requestAPI:@"saveDoc" withPathVariables:docRef parameters:docRef data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"saveDoc"));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -248,6 +256,7 @@
 	[client requestAPI:@"file" withPathVariables:r parameters:nil data:r finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"file"));
 		[requestExpectation fulfill];
 	}];
 	
@@ -266,6 +275,7 @@
 	[client requestAPI:@"form-post" withPathVariables:nil parameters:formParameters data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"form-post"));
 		[requestExpectation fulfill];
 	}];
 	
@@ -274,6 +284,7 @@
 	[client requestAPI:@"form-post-alt" withPathVariables:nil parameters:formParameters data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"form-post-alt"));
 		[requestAltExpectation fulfill];
 	}];
 	
