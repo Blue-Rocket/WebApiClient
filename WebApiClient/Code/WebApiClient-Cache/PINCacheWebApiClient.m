@@ -45,6 +45,7 @@ static id<WebApiClient> SharedGlobalClient;
 	if ( (self = [super init]) ) {
 		entryCache = theEntryCache;
 		dataCache = theDataCache;
+		log4Debug(@"WebApiClient entry cache dir: %@", [theEntryCache.diskCache.cacheURL path]);
 	}
 	return self;
 }
