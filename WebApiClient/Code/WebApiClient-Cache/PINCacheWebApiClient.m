@@ -111,6 +111,10 @@ static id<WebApiClient> SharedGlobalClient;
 	return [self MD5Hash:key];
 }
 
+- (NSArray<NSHTTPCookie *> *)cookiesForAPI:(NSString *)name inCookieStorage:(NSHTTPCookieStorage *)cookieJar {
+	return [self.client cookiesForAPI:name inCookieStorage:cookieJar];
+}
+
 - (void)requestAPI:(NSString * __nonnull)name withPathVariables:(nullable id)pathVariables parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data finished:(void (^ __nonnull)(id<WebApiResponse> __nonnull, NSError * __nullable))callback {
 	void (^doCallback)(id<WebApiResponse> __nonnull, NSError * __nullable) = ^(id<WebApiResponse> __nonnull response, NSError * __nullable error){
