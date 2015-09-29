@@ -149,4 +149,26 @@
 								   @"Authorization" : @"token foobar"}));
 }
 
+/**
+ Hmm, testing with NSHTTPCookieStorage doesn't seem to work, so this is commented out for now.
+ I'm not alone in this assessment: http://stackoverflow.com/questions/20134621/unit-testing-nshttpcookiestore
+ 
+- (void)testCookiesAccessForBaseApiURL {
+	NSHTTPCookieStorage *jar = [[NSHTTPCookieStorage alloc] init];
+	jar.cookieAcceptPolicy = NSHTTPCookieAcceptPolicyAlways;
+	NSDictionary *cookieData = @{
+								 NSHTTPCookieName : @"test",
+								 NSHTTPCookieExpires : [NSDate distantFuture],
+								 NSHTTPCookieOriginURL : [[client baseApiURL] absoluteString],
+								 NSHTTPCookiePath : @"/",
+								 NSHTTPCookieValue : @"test-value",
+								 };
+	NSHTTPCookie *cookie = [[NSHTTPCookie alloc] initWithProperties:cookieData];
+	[jar setCookie:cookie];
+	assertThat(jar.cookies, hasCountOf(1));
+	NSArray<NSHTTPCookie *> *found = [client cookiesForAPI:nil inCookieStorage:jar];
+	assertThat(found, contains(cookie, nil));
+}
+*/
+
 @end
