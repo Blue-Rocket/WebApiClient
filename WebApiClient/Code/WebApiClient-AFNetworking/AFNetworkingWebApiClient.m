@@ -19,6 +19,9 @@
 	NSLock *lock;
 	// a mapping of NSURLSessionTask identifiers to associated WebApiRoute objects, to support notifications
 	NSMutableDictionary *tasksToRoutes;
+	
+	// to support callbacks on arbitrary queues, our manager must NOT use the main thread
+	dispatch_queue_t completionQueue;
 }
 
 - (id)initWithEnvironment:(BREnvironment *)environment {
@@ -47,6 +50,12 @@
 	NSURLSessionConfiguration *sessConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
 	AFHTTPSessionManager *mgr = [[AFHTTPSessionManager alloc] initWithBaseURL:[self baseApiURL] sessionConfiguration:sessConfig];
 	manager = mgr;
+	if ( completionQueue ) {
+		completionQueue = nil;
+	}
+	NSString *callbackQueueName = [@"WebApiClient-" stringByAppendingString:[[self baseApiURL] absoluteString]];
+	completionQueue = dispatch_queue_create([callbackQueueName UTF8String], DISPATCH_QUEUE_CONCURRENT);
+	manager.completionQueue = completionQueue;
 }
 
 - (AFHTTPRequestSerializer *)requestSerializationForRoute:(id<WebApiRoute>)route URL:(NSURL *)url parameters:(id)parameters data:(id)data error:(NSError * __autoreleasing *)error {
@@ -150,10 +159,21 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 
 - (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters data:(id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse>, NSError *))callback {
-	
+	[self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() finished:callback];
+}
+
+- (void)requestAPI:(NSString *)name
+ withPathVariables:(nullable id)pathVariables
+		parameters:(nullable id)parameters
+			  data:(nullable id<WebApiResource>)data
+			 queue:(dispatch_queue_t)callbackQueue
+		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback {
+
 	void (^doCallback)(id<WebApiResponse>, NSError *) = ^(id<WebApiResponse> response, NSError *error) {
 		if ( callback ) {
-			callback(response, error);
+			dispatch_async(callbackQueue, ^{
+				callback(response, error);
+			});
 		}
 	};
 

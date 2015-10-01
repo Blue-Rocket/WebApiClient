@@ -52,6 +52,7 @@
 		NSURLResponse *res = [note userInfo][WebApiClientURLResponseNotificationKey];
 		assertThat(req.URL.absoluteString, equalTo([self httpURLForRelativePath:@"test"].absoluteString));
 		assertThat(res, nilValue());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		willBegin = YES;
 		return YES;
 	}];
@@ -63,6 +64,7 @@
 		NSURLResponse *res = [note userInfo][WebApiClientURLResponseNotificationKey];
 		assertThat(req.URL.absoluteString, equalTo([self httpURLForRelativePath:@"test"].absoluteString));
 		assertThat(res, nilValue());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		
 		// make sure task identifier is tracked appropriately
 		assertThat(client.activeTaskIdentifiers, hasCountOf(1));
@@ -76,6 +78,7 @@
 		NSURLResponse *res = [note userInfo][WebApiClientURLResponseNotificationKey];
 		assertThat(req.URL.absoluteString, equalTo([self httpURLForRelativePath:@"test"].absoluteString));
 		assertThat(res, notNilValue());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 
 		// make sure task identifier is released appropriately
 		assertThat(client.activeTaskIdentifiers, isEmpty());
@@ -88,6 +91,7 @@
 		assertThatBool(willBegin, isTrue());
 		assertThatBool(didBegin, isTrue());
 		assertThatBool(didSucceed, isFalse());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		[requestExpectation fulfill];
 	}];
 	
@@ -102,6 +106,7 @@
 		assertThat([error.userInfo[NSURLErrorFailingURLErrorKey] absoluteString], equalTo([[self httpURLForRelativePath:@"test"] absoluteString]));
 		assertThat(response.responseObject, nilValue());
 		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -120,6 +125,7 @@
 		assertThat([response.responseObject valueForKeyPath:@"code"], equalTo(@123));
 		assertThat([response.responseObject valueForKeyPath:@"message"], equalTo(@"Your request failed."));
 		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -135,6 +141,24 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		called = YES;
+	}];
+	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
+}
+
+- (void)testInvokeSimpleGETOnBackgroundThread {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	__block BOOL called = NO;
+	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+			  finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -150,6 +174,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"doc"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -187,6 +212,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -210,6 +236,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -235,6 +262,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"saveDoc"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
@@ -257,6 +285,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"file"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		[requestExpectation fulfill];
 	}];
 	
@@ -276,6 +305,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"form-post"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		[requestExpectation fulfill];
 	}];
 	
@@ -285,6 +315,7 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"form-post-alt"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		[requestAltExpectation fulfill];
 	}];
 	

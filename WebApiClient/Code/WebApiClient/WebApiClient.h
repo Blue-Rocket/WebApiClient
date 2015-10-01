@@ -67,12 +67,33 @@ extern NSString * const WebApiClientURLResponseNotificationKey;
  @param pathVariables Optional path variables to replace in the API's route URL.
  @param parameters Optional request parameters to add to the URL.
  @param data Optional data to send as the request content.
- @param callback A callback block to invoke with the response.
+ @param callback A callback block to invoke with the response. The callback will be on the main thread.
  */
 - (void)requestAPI:(NSString *)name
  withPathVariables:(nullable id)pathVariables
 		parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data
+		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback;
+
+/**
+ Request a web API endpoint for a named URL route, using a specific queue for the result callback.
+ 
+ As the request is processed, the various @c WebApiClientRequest* notifications will be sent. For each notification
+ the notification object will be the @c WebApiRoute associated with the request. The @c WebApiClientURLRequestNotificationKey
+ key will be populated in the notification @c userInfo dictionary with the original @c NSURLRequest.
+ 
+ @param name The name of the API endpoint route to invoke.
+ @param pathVariables Optional path variables to replace in the API's route URL.
+ @param parameters Optional request parameters to add to the URL.
+ @param data Optional data to send as the request content.
+ @param callbackQueue A queue to use for the callback block.
+ @param callback A callback block to invoke with the response. The callback will be on the @c callbackQueue queue.
+ */
+- (void)requestAPI:(NSString *)name
+ withPathVariables:(nullable id)pathVariables
+		parameters:(nullable id)parameters
+			  data:(nullable id<WebApiResource>)data
+			 queue:(dispatch_queue_t)callbackQueue
 		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback;
 
 /**
