@@ -242,9 +242,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 				dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 					NSError *decodeError = nil;
 					id decoded = [dataMapper performMappingWithSourceObject:responseObject route:route error:&decodeError];
-					dispatch_async(dispatch_get_main_queue(), ^{
-						handleResponse(decoded, decodeError);
-					});
+					handleResponse(decoded, decodeError);
 				});
 			} else {
 				handleResponse(responseObject, error);
