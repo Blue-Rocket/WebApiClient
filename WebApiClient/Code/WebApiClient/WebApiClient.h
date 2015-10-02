@@ -18,6 +18,9 @@ extern NSString * const WebApiClientErrorDomain;
 /** Error code when attempting to use a route that has no configuration available. */
 extern const NSInteger WebApiClientErrorRouteNotAvailable;
 
+/** Error code when a timeout is reached waiting for a client response. */
+extern const NSInteger WebApiClientErrorResponseTimeout;
+
 /** A notification name for when a request will be initiated. */
 extern NSString * const WebApiClientRequestWillBeginNotification;
 
@@ -67,13 +70,58 @@ extern NSString * const WebApiClientURLResponseNotificationKey;
  @param pathVariables Optional path variables to replace in the API's route URL.
  @param parameters Optional request parameters to add to the URL.
  @param data Optional data to send as the request content.
- @param callback A callback block to invoke with the response.
+ @param callback A callback block to invoke with the response. The callback will be on the main thread.
  */
 - (void)requestAPI:(NSString *)name
  withPathVariables:(nullable id)pathVariables
 		parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback;
+
+/**
+ Request a web API endpoint for a named URL route, using a specific queue for the result callback.
+ 
+ As the request is processed, the various @c WebApiClientRequest* notifications will be sent. For each notification
+ the notification object will be the @c WebApiRoute associated with the request. The @c WebApiClientURLRequestNotificationKey
+ key will be populated in the notification @c userInfo dictionary with the original @c NSURLRequest.
+ 
+ @param name The name of the API endpoint route to invoke.
+ @param pathVariables Optional path variables to replace in the API's route URL.
+ @param parameters Optional request parameters to add to the URL.
+ @param data Optional data to send as the request content.
+ @param callbackQueue A queue to use for the callback block.
+ @param callback A callback block to invoke with the response. The callback will be on the @c callbackQueue queue.
+ */
+- (void)requestAPI:(NSString *)name
+ withPathVariables:(nullable id)pathVariables
+		parameters:(nullable id)parameters
+			  data:(nullable id<WebApiResource>)data
+			 queue:(dispatch_queue_t)callbackQueue
+		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback;
+
+/**
+ Make a synchronous request to a web API endpoint, blocking the calling thread until a response is available
+ or a timeout occurs.
+ 
+ Generally the asynchronous @c requestAPI:withPathVariables:parameters:data:finished: is a better option. Use this
+ method when you really do need to block the calling thread until a result is available.
+ 
+ @param name          The name of the API endpoint route to invoke.
+ @param pathVariables Optional path variables to replace in the API's route URL.
+ @param parameters    Optional request parameters to add to the URL.
+ @param data          Optional data to send as the request content.
+ @param maximumWait   The maximum number of seconds to wait for a response before returning a @c WebApiClientErrorResponseTimeout error.
+					  Pass @c 0 to wait forever.
+ @param error         Optional error output parameter.
+ 
+ @return The response, or @c nil if a timeout or other error occurs.
+ */
+- (nullable id<WebApiResponse>)blockingRequestAPI:(NSString *)name
+								withPathVariables:(nullable id)pathVariables
+									   parameters:(nullable id)parameters
+											 data:(nullable id<WebApiResource>)data
+									  maximumWait:(NSTimeInterval)maximumWait
+											error:(NSError **)error;
 
 /**
  Get all available cookies for a single request or all requests.

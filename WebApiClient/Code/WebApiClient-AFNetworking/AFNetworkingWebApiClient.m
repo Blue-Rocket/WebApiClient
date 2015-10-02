@@ -11,6 +11,7 @@
 #import <AFNetworking/AFHTTPSessionManager.h>
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <BREnvironment/BREnvironment.h>
+#import "DataWebApiResource.h"
 #import "WebApiDataMapper.h"
 #import "WebApiResource.h"
 
@@ -19,6 +20,9 @@
 	NSLock *lock;
 	// a mapping of NSURLSessionTask identifiers to associated WebApiRoute objects, to support notifications
 	NSMutableDictionary *tasksToRoutes;
+	
+	// to support callbacks on arbitrary queues, our manager must NOT use the main thread
+	dispatch_queue_t completionQueue;
 }
 
 - (id)initWithEnvironment:(BREnvironment *)environment {
@@ -47,6 +51,12 @@
 	NSURLSessionConfiguration *sessConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
 	AFHTTPSessionManager *mgr = [[AFHTTPSessionManager alloc] initWithBaseURL:[self baseApiURL] sessionConfiguration:sessConfig];
 	manager = mgr;
+	if ( completionQueue ) {
+		completionQueue = nil;
+	}
+	NSString *callbackQueueName = [@"WebApiClient-" stringByAppendingString:[[self baseApiURL] absoluteString]];
+	completionQueue = dispatch_queue_create([callbackQueueName UTF8String], DISPATCH_QUEUE_CONCURRENT);
+	manager.completionQueue = completionQueue;
 }
 
 - (AFHTTPRequestSerializer *)requestSerializationForRoute:(id<WebApiRoute>)route URL:(NSURL *)url parameters:(id)parameters data:(id)data error:(NSError * __autoreleasing *)error {
@@ -148,12 +158,18 @@
 
 static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClientTaskStateContext;
 
-- (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters data:(id<WebApiResource>)data
-		  finished:(void (^)(id<WebApiResponse>, NSError *))callback {
-	
+- (void)requestAPI:(NSString *)name
+ withPathVariables:(nullable id)pathVariables
+		parameters:(nullable id)parameters
+			  data:(nullable id<WebApiResource>)data
+			 queue:(dispatch_queue_t)callbackQueue
+		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback {
+
 	void (^doCallback)(id<WebApiResponse>, NSError *) = ^(id<WebApiResponse> response, NSError *error) {
 		if ( callback ) {
-			callback(response, error);
+			dispatch_async(callbackQueue, ^{
+				callback(response, error);
+			});
 		}
 	};
 
@@ -179,7 +195,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		NSError *error = nil;
 		NSDictionary *reqParameters = nil;
-		id reqData = data;
+		id<WebApiResource> reqData = data;
 		if ( parameters ) {
 			if ( dataMapper ) {
 				id encoded = [dataMapper performEncodingWithObject:parameters route:route error:&error];
@@ -188,18 +204,20 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 				}
 				if ( [encoded isKindOfClass:[NSDictionary class]] ) {
 					reqParameters = encoded;
-				} else {
+				} else if ( [encoded conformsToProtocol:@protocol(WebApiResource)] ) {
 					reqData = encoded;
+				} else if ( [encoded isKindOfClass:[NSData class]] ) {
+					reqData = [[DataWebApiResource alloc] initWithData:encoded name:@"data" fileName:@"data.dat" MIMEType:@"application/octet-stream"];
 				}
 			} else {
 				reqParameters = [self dictionaryForParametersObject:parameters];
 			}
 		}
 		NSMutableURLRequest *req = nil;
-		if ( route.serialization == WebApiSerializationForm || (route.serialization != WebApiSerializationNone && data != nil) ) {
+		if ( route.serialization == WebApiSerializationForm || (route.serialization != WebApiSerializationNone && reqData != nil) ) {
 			req = [ser multipartFormRequestWithMethod:route.method URLString:[url absoluteString] parameters:reqParameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-				if ( data ) {
-					[formData appendPartWithInputStream:data.inputStream name:data.name fileName:data.fileName length:data.length mimeType:data.MIMEType];
+				if ( reqData ) {
+					[formData appendPartWithInputStream:reqData.inputStream name:reqData.name fileName:reqData.fileName length:reqData.length mimeType:reqData.MIMEType];
 				}
 			} error:&error];
 		} else {

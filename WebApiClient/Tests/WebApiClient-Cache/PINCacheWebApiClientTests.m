@@ -183,6 +183,125 @@
 	assertThatInt(count, equalToInt(2));
 }
 
+- (void)testInvokeSimpleGETBackgroundThread {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"count\":%@}", @(++count)] response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
+		assertThat(response.responseObject[@"success"], equalTo(@YES));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(3));
+	
+	assertThat(cachedData, hasCountOf(1));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+}
+
+- (void)testInvokeSimpleGETBackgroundThreadCached {
+	[self testInvokeSimpleGET];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
+		assertThat(response.responseObject[@"success"], equalTo(@YES));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should STILL have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	assertThat(cachedData, hasCountOf(1));
+	
+	// only ONE HTTP request processed
+	assertThatInt(count, equalToInt(1));
+}
+
+- (void)testInvokeSimpleGETBlockingThread {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"count\":%@}", @(++count)] response:response status:200];
+	}];
+	
+	NSTimeInterval maxWait = 2;
+	NSError *error = nil;
+	id<WebApiResponse> response = [cachingClient blockingRequestAPI:@"test" withPathVariables:nil parameters:nil data:nil maximumWait:maxWait error:&error];
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+	assertThat(error, nilValue());
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(3));
+	
+	assertThat(cachedData, hasCountOf(1));
+	response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+}
+
+- (void)testInvokeSimpleGETBlockingThreadCached {
+	[self testInvokeSimpleGET];
+	
+	NSTimeInterval maxWait = 2;
+	NSError *error = nil;
+	id<WebApiResponse> response = [cachingClient blockingRequestAPI:@"test" withPathVariables:nil parameters:nil data:nil maximumWait:maxWait error:&error];
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+	assertThat(error, nilValue());
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should STILL have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	assertThat(cachedData, hasCountOf(1));
+	
+	// only ONE HTTP request processed
+	assertThatInt(count, equalToInt(1));
+}
+
+- (void)testInvokeSimpleGETBlockingThreadTimeout {
+	NSTimeInterval maxWait = 0.2;
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[NSThread sleepForTimeInterval:maxWait + 0.2];
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"count\":%@}", @(++count)] response:response status:200];
+	}];
+	
+	NSError *error = nil;
+	id<WebApiResponse> response = [cachingClient blockingRequestAPI:@"test" withPathVariables:nil parameters:nil data:nil maximumWait:maxWait error:&error];
+	assertThat(response, nilValue());
+	assertThat(error, notNilValue());
+	assertThat(error.domain, equalTo(WebApiClientErrorDomain));
+	assertThatInteger(error.code, equalToInteger(WebApiClientErrorResponseTimeout));
+
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+}
+
 - (void)testInvokeGETWithPathVariable {
 	[self.http handleMethod:@"GET" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];

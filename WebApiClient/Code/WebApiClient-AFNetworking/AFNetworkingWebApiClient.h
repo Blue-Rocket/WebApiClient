@@ -8,6 +8,13 @@
 
 #import "WebApiClientSupport.h"
 
+/**
+ Implementation of @c WebApiClient using AFNetworking with NSURLSessionManager.
+ 
+ @b Note: the @c blockingRequestAPI:withPathVariables:parameters:data:maximumWait:error: method uses
+          background threads to complete the HTTP request. It simply blocks the calling thread and
+          waits for the background work to complete.
+ */
 @interface AFNetworkingWebApiClient : WebApiClientSupport
 
 /** An array of active task identifiers, as @c NSNumber instances. */

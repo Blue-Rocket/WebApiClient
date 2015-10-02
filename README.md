@@ -30,6 +30,36 @@ An example invocation of this API might look like this:
 }];
 ```
 
+## Background callback support
+
+By default the @c callback block is called on the main thread (queue). If you prefer to have the callabck on a specific queue, you
+can use an alternate method that accepts a dispatch queue as a parameter. In that case, the passed in queue will be used for the
+callback:
+
+```objc
+- (void)requestAPI:(NSString *)name 
+ withPathVariables:(id)pathVariables 
+        parameters:(id)parameters 
+              data:(id)data
+             queue:(dispatch_queue_t)callbackQueue
+		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
+```
+
+## Synchronous request support
+
+Sometimes it can be useful to make a blocking, synchronous request to get a HTTP resource. WebApiClient supports that as well:
+
+```objc
+- (id<WebApiResponse>)blockingRequestAPI:(NSString *)name
+                       withPathVariables:(id)pathVariables
+                              parameters:(id)parameters
+                                    data:(id<WebApiResource>)data
+                             maximumWait:(NSTimeInterval)maximumWait
+                                   error:(NSError **)error;
+```
+
+Calling this method will block the calling thread until either the response is available or `maximumWait` seconds have elapsed.
+
 ## Routing
 
 The [WebApiRoute](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiRoute.h) protocol defines a single API endpoint definition, assigned a unique name. Routes are typically configured when an application starts up. Each route defines some standardized properties, such as a HTTP `method` and URL `path`. For convenience, routes support arbitrary property access via Objective-C's keyed subscript support, so the following is possible:

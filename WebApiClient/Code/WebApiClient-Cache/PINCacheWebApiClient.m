@@ -115,16 +115,75 @@ static id<WebApiClient> SharedGlobalClient;
 	return [self.client cookiesForAPI:name inCookieStorage:cookieJar];
 }
 
+- (nullable id<WebApiResponse>)blockingRequestAPI:(NSString *)name
+								withPathVariables:(nullable id)pathVariables
+									   parameters:(nullable id)parameters
+											 data:(nullable id<WebApiResource>)data
+									  maximumWait:(NSTimeInterval)maximumWait
+											error:(NSError **)error {
+	id<WebApiRoute> route = [self.client routeForName:name error:nil];
+	NSTimeInterval cacheTTL = 0;
+	NSString *cacheKey = nil;
+	if ( [route respondsToSelector:@selector(cacheTTL)] ) {
+		cacheTTL = ((id<CachingWebApiRoute>)route).cacheTTL;
+		if ( cacheTTL > 0 ) {
+			// look in cache for this data
+			cacheKey = [self cacheKeyForRoute:route pathVariables:pathVariables parameters:parameters];
+		}
+	}
+	id<WebApiResponse> (^delegateRequest)(void) = ^{
+		__weak PINCache *weakDataCache = dataCache;
+		__weak PINCache *weakEntryCache = entryCache;
+		NSError *clientError = nil;
+		id<WebApiResponse> response = [self.client blockingRequestAPI:name withPathVariables:pathVariables parameters:parameters data:data maximumWait:maximumWait error:&clientError];
+		if ( cacheKey && response && clientError == nil && response.statusCode >= 200 && response.statusCode < 300 && [response conformsToProtocol:@protocol(NSCoding)]) {
+			// valid response; cache the data
+			WebApiClientCacheEntry *entry = [[WebApiClientCacheEntry alloc] initWithCreationTime:[NSDate timeIntervalSinceReferenceDate]
+																					  expireTime:[[NSDate dateWithTimeIntervalSinceNow:cacheTTL] timeIntervalSinceReferenceDate]];
+			[weakDataCache setObject:(id<NSCoding>)response forKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
+				[weakEntryCache setObject:entry forKey:cacheKey block:nil];
+			}];
+		}
+		if ( error && clientError ) {
+			*error = clientError;
+		}
+		return response;
+	};
+	if ( cacheKey ) {
+		WebApiClientCacheEntry *entry = [entryCache objectForKey:cacheKey];
+		if ( [NSDate timeIntervalSinceReferenceDate] < entry.expires ) {
+			// entry valid; return cached data
+			id<WebApiResponse> response = [dataCache objectForKey:cacheKey];
+			if ( !response ) {
+				// cached data missing from cache; make request
+				return delegateRequest();
+			}
+			return response;
+		} else {
+			// entry expired: clean out entry from cache
+			[entryCache removeObjectForKey:cacheKey block:nil];
+			[dataCache removeObjectForKey:cacheKey block:nil];
+		}
+		
+		// not found in cache, or expired from cache
+		return delegateRequest();
+	} else {
+		return delegateRequest();
+	}
+}
+
 - (void)requestAPI:(NSString * __nonnull)name withPathVariables:(nullable id)pathVariables parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data finished:(void (^ __nonnull)(id<WebApiResponse> __nonnull, NSError * __nullable))callback {
+	return [self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() finished:callback];
+}
+
+- (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters
+			  data:(id<WebApiResource>)data queue:(dispatch_queue_t)callbackQueue
+		  finished:(void (^)(id<WebApiResponse> _Nonnull, NSError * _Nullable))callback {
 	void (^doCallback)(id<WebApiResponse> __nonnull, NSError * __nullable) = ^(id<WebApiResponse> __nonnull response, NSError * __nullable error){
-		if ( [NSThread isMainThread] ) {
+		dispatch_async(callbackQueue, ^{
 			callback(response, error);
-		} else {
-			dispatch_async(dispatch_get_main_queue(), ^{
-				callback(response, error);
-			});
-		}
+		});
 	};
 	id<WebApiRoute> route = [self.client routeForName:name error:nil];
 	NSTimeInterval cacheTTL = 0;
@@ -139,7 +198,7 @@ static id<WebApiClient> SharedGlobalClient;
 	void (^delegateRequest)(void) = ^{
 		__weak PINCache *weakDataCache = dataCache;
 		__weak PINCache *weakEntryCache = entryCache;
-		[self.client requestAPI:name withPathVariables:pathVariables parameters:parameters data:data finished:^(id<WebApiResponse> __nonnull response, NSError * __nullable error) {
+		[self.client requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:callbackQueue finished:^(id<WebApiResponse> __nonnull response, NSError * __nullable error) {
 			if ( cacheKey && response && error == nil && response.statusCode >= 200 && response.statusCode < 300 && [response conformsToProtocol:@protocol(NSCoding)]) {
 				// valid response; cache the data
 				WebApiClientCacheEntry *entry = [[WebApiClientCacheEntry alloc] initWithCreationTime:[NSDate timeIntervalSinceReferenceDate]

@@ -11,6 +11,7 @@
 NSString * const WebApiClientErrorDomain = @"WebApiClientError";
 
 const NSInteger WebApiClientErrorRouteNotAvailable = 2000;
+const NSInteger WebApiClientErrorResponseTimeout = 2001;
 
 NSString * const WebApiClientRequestWillBeginNotification = @"WebApiClientRequestWillBegin";
 
