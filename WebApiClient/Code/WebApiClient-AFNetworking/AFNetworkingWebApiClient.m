@@ -11,7 +11,6 @@
 #import <AFNetworking/AFHTTPSessionManager.h>
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <BREnvironment/BREnvironment.h>
-#import <BRLocalize/BRLocalize.h>
 #import "DataWebApiResource.h"
 #import "WebApiDataMapper.h"
 #import "WebApiResource.h"
