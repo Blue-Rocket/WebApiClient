@@ -109,6 +109,12 @@
 	assertThat([url absoluteString], equalTo(@"http://localhost/user/1234"));
 }
 
+- (void)testURLPathVariableAbsoluteURL {
+	id<WebApiRoute> route = [client routeForName:@"elsewhere" error:nil];
+	NSURL *url = [client URLForRoute:route pathVariables:@{ @"baseURL" : @"https://example.com" } parameters:nil error:nil];
+	assertThat([url absoluteString], equalTo(@"https://example.com/yes/i/can"));
+}
+
 - (void)testDictionaryFromUserObject {
 	TestUser *user = [TestUser new];
 	user.subclassProp = @"subclass";

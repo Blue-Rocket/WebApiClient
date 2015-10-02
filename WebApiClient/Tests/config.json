@@ -47,6 +47,10 @@
 				"method" : "POST",
 				"path" : "form",
 				"serializationName" : "form"
+			},
+			"elsewhere" : {
+				"method" : "GET",
+				"path" : ":baseURL/yes/i/can"
 			}
 		}
 	}

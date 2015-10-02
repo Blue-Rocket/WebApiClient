@@ -123,6 +123,10 @@ Routes can be configured in code via the `registerRoute:forName:` method, but mo
 			"login" : {
 				"method" : "POST",
 				"path" : "user/login",
+			},
+			"absolute" : {
+				"method" : "GET",
+				"path" : "https://example.com/something"
 			}
 		}
 	}
