@@ -164,6 +164,35 @@
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
 }
 
+- (void)testInvokeSimpleGETBlockingThread {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	NSTimeInterval maxWait = 2;
+	NSError *error = nil;
+	id<WebApiResponse> response = [client blockingRequestAPI:@"test" withPathVariables:nil parameters:nil data:nil maximumWait:maxWait error:&error];
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+	assertThat(error, nilValue());
+	assertThat(response.routeName, equalTo(@"test"));
+}
+
+- (void)testInvokeSimpleGETBlockingThreadTimeout {
+	NSTimeInterval maxWait = 2;
+
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[NSThread sleepForTimeInterval:maxWait + 0.2];
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	NSError *error = nil;
+	id<WebApiResponse> response = [client blockingRequestAPI:@"test" withPathVariables:nil parameters:nil data:nil maximumWait:maxWait error:&error];
+	assertThat(response, nilValue());
+	assertThat(error, notNilValue());
+	assertThat(error.domain, equalTo(WebApiClientErrorDomain));
+	assertThatInteger(error.code, equalToInteger(WebApiClientErrorResponseTimeout));
+}
+
 - (void)testInvokeGETWithPathVariable {
 	[self.http handleMethod:@"GET" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];

@@ -11,6 +11,7 @@
 #import <AFNetworking/AFHTTPSessionManager.h>
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <BREnvironment/BREnvironment.h>
+#import <BRLocalize/BRLocalize.h>
 #import "WebApiDataMapper.h"
 #import "WebApiResource.h"
 
@@ -156,6 +157,59 @@
 #pragma mark - Public API
 
 static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClientTaskStateContext;
+
+- (nullable id<WebApiResponse>)blockingRequestAPI:(NSString *)name
+								withPathVariables:(nullable id)pathVariables
+									   parameters:(nullable id)parameters
+											 data:(nullable id<WebApiResource>)data
+									  maximumWait:(const NSTimeInterval)maximumWait
+											error:(NSError **)error {
+	
+	// results
+	__block id<WebApiResponse> clientResponse = nil;
+	__block NSError *clientError = nil;
+	
+	// we're going to block the calling thread here, for up to maximumWait seconds
+	NSCondition *condition = [NSCondition new];
+	[condition lock];
+
+	dispatch_queue_t bgQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+	__block BOOL finished = NO;
+	[self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:bgQueue finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
+		[condition lock];
+		finished = YES;
+		clientResponse = response;
+		clientError = error;
+		[condition signal];
+		[condition unlock];
+	}];
+	
+	// block and wait for our response now...
+	BOOL timeout = NO;
+	if ( maximumWait > 0 ) {
+		NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:maximumWait];
+		while ( !finished && [timeoutDate timeIntervalSinceNow] > 0 ) {
+			timeout = ![condition waitUntilDate:timeoutDate];
+		}
+	} else {
+		while ( !finished ) {
+			[condition wait];
+		}
+	}
+	[condition unlock];
+	
+	if ( timeout && !clientError ) {
+		log4Warn(@"No response returned from route %@ within %0.1f seconds", name, maximumWait);
+		NSString *message = [NSString stringWithFormat:[@"{web.api.responseTimeout}" localizedString], @(maximumWait)];
+		clientError = [NSError errorWithDomain:WebApiClientErrorDomain code:WebApiClientErrorResponseTimeout userInfo:
+					   @{@"name" : name, NSLocalizedDescriptionKey : message }];
+	}
+	
+	if ( error && clientError ) {
+		*error = clientError;
+	}
+	return clientResponse;
+}
 
 - (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters data:(id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse>, NSError *))callback {

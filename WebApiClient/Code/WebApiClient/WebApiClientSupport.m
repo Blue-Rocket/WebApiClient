@@ -107,7 +107,7 @@ static NSString * const kRoutePropertyDataMapperInstance = @"_dataMapper";
 	id<WebApiRoute> result = routes[name];
 	if ( !result && error ) {
 		*error = [NSError errorWithDomain:WebApiClientErrorDomain code:WebApiClientErrorRouteNotAvailable userInfo:
-				  @{@"name" : name, NSLocalizedDescriptionKey : [@"web.api.missingRoute" localizedString] }];
+				  @{@"name" : name, NSLocalizedDescriptionKey : [@"{web.api.missingRoute}" localizedString] }];
 	}
 	return result;
 }
@@ -165,7 +165,7 @@ static NSString * const kRoutePropertyDataMapperInstance = @"_dataMapper";
 		DDLogError(@"No API path defined for route %@", route);
 		if ( error ) {
 			*error = [NSError errorWithDomain:WebApiClientErrorDomain code:WebApiClientErrorRouteNotAvailable userInfo:
-					  @{@"route" : route, NSLocalizedDescriptionKey : [@"web.api.missingRoutePath" localizedString] }];
+					  @{@"route" : route, NSLocalizedDescriptionKey : [@"{web.api.missingRoutePath}" localizedString] }];
 		}
 		return nil;
 	}
