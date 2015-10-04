@@ -28,6 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** The @c SupportingWebApiClient implementation to delegate all calls to. */
 @property (nonatomic, strong) id<SupportingWebApiClient> client;
 
+/** The cache used for @c WebApiClientCacheEntry objects. */
+@property (nonatomic, readonly) PINCache *entryCache;
+
+/** The cache used for actual response data. */
+@property (nonatomic, readonly) PINCache *dataCache;
+
 /**
  Set the shared client delegate to use.
  

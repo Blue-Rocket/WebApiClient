@@ -22,6 +22,8 @@ static id<WebApiClient> SharedGlobalClient;
 	PINCache *dataCache;
 }
 
+@synthesize entryCache, dataCache;
+
 + (void)setSharedClient:(id<WebApiClient>)sharedClient {
 	SharedGlobalClient = sharedClient;
 }
