@@ -8,6 +8,7 @@
 
 #import "RestKitWebApiDataMapper.h"
 
+#import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <RestKit/ObjectMapping.h>
 #import <RestKit/ObjectMapping/RKObjectMappingOperationDataSource.h>
 #import "WebApiRoute.h"
@@ -129,7 +130,9 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 	if ( blockMapper ) {
 		encoded = blockMapper(encoded, route, error);
 	}
-	
+
+	log4Debug(@"Encoded %@ into %@", domainObject, encoded);
+
 	return encoded;
 }
 
@@ -157,6 +160,8 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 	if ( blockMapper ) {
 		result = blockMapper(result, route, error);
 	}
+	
+	log4Debug(@"Mapped %@ into %@", sourceObject, result);
 	
 	return result;
 }
