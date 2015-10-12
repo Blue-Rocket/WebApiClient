@@ -4,7 +4,7 @@
 
 # Module: Core
 
-The **Core** module provides a HTTP client framework based on _routes_ with support for _object mapping_ for transforming requests and responses between native objects and serialized forms, such as JSON. This module provides just a protocol based API and some scaffolding classes to support the API, but does not provide an actual full implementation itself, so that different HTTP back-ends can be used as needed (see the **AFNetworking** module provides a full implementation).
+The **Core** module provides a HTTP client framework based on _routes_ with support for _object mapping_ for transforming requests and responses between native objects and serialized forms, such as JSON. This module provides just a protocol based API and some scaffolding classes to support the API, but does not provide an actual full implementation itself, so that different HTTP back-ends can be used as needed (the **AFNetworking** module provides a full implementation).
 
 The [WebApiClient](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiClient.h) protocol defines the main HTTP client entry point for applications to use. The API is purposefully simple and based on asynchronous block callbacks:
 
@@ -32,9 +32,7 @@ An example invocation of this API might look like this:
 
 ## Background callback support
 
-By default the @c callback block is called on the main thread (queue). If you prefer to have the callabck on a specific queue, you
-can use an alternate method that accepts a dispatch queue as a parameter. In that case, the passed in queue will be used for the
-callback:
+By default the callback block is called on the main thread (queue). If you prefer to have the callabck on a specific queue, you can use an alternate method that accepts a dispatch queue as a parameter. In that case, the passed in queue will be used for the callback:
 
 ```objc
 - (void)requestAPI:(NSString *)name 
@@ -123,6 +121,10 @@ Routes can be configured in code via the `registerRoute:forName:` method, but mo
 			"login" : {
 				"method" : "POST",
 				"path" : "user/login",
+			},
+			"absolute" : {
+				"method" : "GET",
+				"path" : "https://example.com/something"
 			}
 		}
 	}
