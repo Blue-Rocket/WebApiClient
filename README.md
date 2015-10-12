@@ -108,10 +108,13 @@ The **AFNetworking** module provides a full implementation of the `WebApiClient`
 
 ## Route configuration
 
-Routes can be configured in code via the `registerRoute:forName:` method, but more conveniently they can be configured via [BREnvironment][brenv]. The `webservice.api` key will be inspected by default, and can be a dictionary representing all the routes that should be registered for the application. For example, the following JSON would register two routes, `login` and `register`:
+Routes can be configured in code via the `registerRoute:forName:` method, but more conveniently they can be configured via [BREnvironment][brenv]. The `webservice.api` key will be inspected by default, and can be a dictionary representing all the routes that should be registered for the application. For example, the following JSON would register three routes, `login`, `register`, and `absolute`:
 
 ```json
 {
+	"App_webservice_protocol" : "https",
+	"App_webservice_host" : "example.com",
+	"App_webservice_port" : 443,
 	"webservice" : {
 		"api" : {
 			"register" : {
@@ -131,6 +134,7 @@ Routes can be configured in code via the `registerRoute:forName:` method, but mo
 }
 ```
 
+You'll notice that the `register` and `login` routes have relative paths. All webservice URLs are constructed as relative to a configurable `baseApiURL` property, which by default is configured via the various `App_webservice_*` [BREnvironment][brenv] keys you can see in the previous example JSON.
 
 # Module: Cache
 
