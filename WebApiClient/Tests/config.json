@@ -30,9 +30,22 @@
 				"path" : "document/:uniqueId",
 				"cacheTTL" : 3,
 			},
+			"docGzip" : {
+				"method" : "GET",
+				"path" : "document/:uniqueId",
+				"cacheTTL" : 3,
+				"requestHeaders" : {
+					"Accept-Encoding" : "gzip"
+				}
+			},
 			"saveDoc" : {
 				"method" : "PUT",
 				"path" : "document/:uniqueId"
+			},
+			"saveDocGzip" : {
+				"method" : "PUT",
+				"path" : "document/:uniqueId",
+				"gzip" : true
 			},
 			"file" : {
 				"method" : "POST",

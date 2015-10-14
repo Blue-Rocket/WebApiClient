@@ -9,6 +9,7 @@
 #import "BaseNetworkTestingSupport.h"
 
 #import <AFNetworking/AFURLSessionManager.h>
+#import <Godzippa/Godzippa.h>
 #import "AFNetworkingWebApiClient.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
@@ -348,6 +349,63 @@
 		[requestAltExpectation fulfill];
 	}];
 	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testInvokeGETWithGzipEncoding {
+	[self.http handleMethod:@"GET" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat([request header:@"Accept-Encoding"], equalTo(@"gzip"));
+
+		NSError *error = nil;
+		NSData *compressed = [[@"{\"success\":true}" dataUsingEncoding:NSUTF8StringEncoding] dataByGZipCompressingWithError:&error];
+		assertThat(error, nilValue());
+		
+		[response setStatusCode:200];
+		[response setHeader:@"Content-Type" value:@"application/json; charset=utf-8"];
+		[response setHeader:@"Content-Encoding" value:@"gzip"];
+		[response respondWithData:compressed];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"docGzip" withPathVariables:@{@"uniqueId" : @123 } parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"docGzip"));
+		assertThat(response.responseHeaders[@"Content-Encoding"], equalTo(@"gzip"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+
+- (void)testInvokePUTWithGzipEncoding {
+	[self.http handleMethod:@"PUT" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat([request header:@"Content-Encoding"], equalTo(@"gzip"));
+		NSError *error = nil;
+		NSData *decompressed = [[request body] dataByGZipDecompressingDataWithError:&error];
+		assertThat(error, nilValue());
+		NSDictionary *postParams = [NSJSONSerialization JSONObjectWithData:decompressed options:0 error:nil];
+		assertThat(postParams[@"uniqueId"], equalTo(@"123"));
+		assertThat(postParams[@"displayName"], equalTo(@"Top Secret"));
+		assertThat([postParams valueForKeyPath:@"info.password"], equalTo(@"secret"));
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	// instead of a dictionary, pass an arbitrary object for the query params; all declared properties will be available as parameters
+	AFNetworkingWebApiClientTestsBean *docRef = [AFNetworkingWebApiClientTestsBean new];
+	docRef.uniqueId = @"123";
+	docRef.displayName = @"Top Secret";
+	docRef.info = @{@"password" : @"secret"};
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"saveDocGzip" withPathVariables:docRef parameters:docRef data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"saveDocGzip"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
 	[self waitForExpectationsWithTimeout:2 handler:nil];
 }
 

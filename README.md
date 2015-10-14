@@ -112,29 +112,54 @@ Routes can be configured in code via the `registerRoute:forName:` method, but mo
 
 ```json
 {
-	"App_webservice_protocol" : "https",
-	"App_webservice_host" : "example.com",
-	"App_webservice_port" : 443,
-	"webservice" : {
-		"api" : {
-			"register" : {
-				"method" : "POST",
-				"path" : "user/register",
-			},
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-			},
-			"absolute" : {
-				"method" : "GET",
-				"path" : "https://example.com/something"
-			}
-		}
-	}
+  "App_webservice_protocol" : "https",
+  "App_webservice_host" : "example.com",
+  "App_webservice_port" : 443,
+  "webservice" : {
+    "api" : {
+      "register" : {
+        "method" : "POST",
+        "path" : "user/register",
+      },
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+      },
+      "absolute" : {
+        "method" : "GET",
+        "path" : "https://example.com/something"
+      }
+    }
+  }
 }
 ```
 
 You'll notice that the `register` and `login` routes have relative paths. All webservice URLs are constructed as relative to a configurable `baseApiURL` property, which by default is configured via the various `App_webservice_*` [BREnvironment][brenv] keys you can see in the previous example JSON.
+
+### GZip compression support
+
+The `gzip` property on routes is supported. When set to `true` any _request_ data will be compressed and a request HTTP header of `Content-Encoding: gzip` will be added.
+
+To support compressed _response_ data (highly recommended!) you only need to configure an `Accept-Encoding: gzip` HTTP header, either individually on routes via the `requestHeaders` property or via the `globalHTTPRequestHeaders` property available on `AFNetworkingWebApiClient`.
+
+Here's an example route that configures both request and response compression:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "trim" : {
+        "method" : "POST",
+        "path" : "upload/jumbo",
+        "gzip" : true,
+        "requestHeaders" : {
+          "Accept-Encoding" : "gzip"
+        }
+      }
+    }
+  }
+}
+```
 
 # Module: Cache
 
@@ -142,15 +167,15 @@ The **Cache** module provides response caching support to the `WebApiClient` API
 
 ```json
 {
-	"webservice" : {
-		"api" : {
-			"info" : {
-				"method" : "GET",
-				"path" : "infrequentlyupdated/info",
-				"cacheTTL" : 3600
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "info" : {
+        "method" : "GET",
+        "path" : "infrequentlyupdated/info",
+        "cacheTTL" : 3600
+      }
+    }
+  }
 }
 ```
 
@@ -178,23 +203,23 @@ RKObjectMapper *userObjectMapper = ...;
 
 To use RestKit-based object mapping with a route, you configure the `dataMapper` property of the route with `RestKitWebApiDataMapper` like this:
 
-```JSON
+```json
 {
-	"webservice" : {
-		"api" : {
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-				"dataMapper" : "RestKitWebApiDataMapper"
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+        "dataMapper" : "RestKitWebApiDataMapper"
+      }
+    }
+  }
 }
 ```
 
 Sometimes the request or response JSON needs to be nested in some top-level object. For example imagine that the register endpoint expects the user object to be posted as JSON like this:
 
-```JSON
+```json
 {
   "user" : { "email" : "joe@example.com", "name" : "Joe" }
 }
@@ -202,18 +227,18 @@ Sometimes the request or response JSON needs to be nested in some top-level obje
 
 This can be done by adding a `dataMapperRequestRootKeyPath` property (or `dataMapperResponseRootKeyPath` for mapping responses), like this:
 
-```JSON
+```json
 {
-	"webservice" : {
-		"api" : {
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-				"dataMapper" : "RestKitWebApiDataMapper",
-				"dataMapperRequestRootKeyPath" : "user"
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+        "dataMapper" : "RestKitWebApiDataMapper",
+        "dataMapperRequestRootKeyPath" : "user"
+      }
+    }
+  }
 }
 ```
 
@@ -222,17 +247,17 @@ This can be done by adding a `dataMapperRequestRootKeyPath` property (or `dataMa
 
 The **UI** module provides some UI utilities, such as the `WebApiClientActivitySupport` class that listens to route requests and for those that specify `preventUserInteraction` with a truthy value will throw up a full-screen "request taking too long" view to let the user of the app know it's waiting for a response. For example, a route can be configured like:
 
-```JSON
+```json
 {
-	"webservice" : {
-		"api" : {
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-				"preventUserInteraction" : true
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+        "preventUserInteraction" : true
+      }
+    }
+  }
 }
 ```
 

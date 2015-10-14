@@ -9,6 +9,7 @@
 #import "AFNetworkingWebApiClient.h"
 
 #import <AFNetworking/AFHTTPSessionManager.h>
+#import <AFgzipRequestSerializer/AFgzipRequestSerializer.h>
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <BREnvironment/BREnvironment.h>
 #import "DataWebApiResource.h"
@@ -80,6 +81,11 @@
 			break;
 			
 	}
+	
+	if ( ser && route.gzip ) {
+		ser = [AFgzipRequestSerializer serializerWithSerializer:ser];
+	}
+	
 	return ser;
 }
 
