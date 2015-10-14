@@ -177,4 +177,49 @@
 }
 */
 
+- (void)testAddGlobalHTTPHeadersToRequest {
+	client.globalHTTPRequestHeaders = @{ @"Accept-Encoding" : @"gzip" };
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/foo"]];
+	id<WebApiRoute> route = [client routeForName:@"register" error:nil];
+	[client addRequestHeadersToRequest:req forRoute:route];
+	NSDictionary *headers = [req allHTTPHeaderFields];
+	assertThat(headers, equalTo(client.globalHTTPRequestHeaders));
+}
+
+- (void)testAddRouteHTTPHeadersToRequest {
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/foo"]];
+	id<WebApiRoute> route = [client routeForName:@"heady" error:nil];
+	[client addRequestHeadersToRequest:req forRoute:route];
+	NSDictionary *headers = [req allHTTPHeaderFields];
+	assertThat(headers, equalTo(@{
+								  @"Accept-Encoding" : @"gzip",
+								  @"X-Whoo" : @"Hoo!"
+								  }));
+}
+
+- (void)testAddGlobalAndRouteHTTPHeadersToRequest {
+	client.globalHTTPRequestHeaders = @{ @"X-Bam" : @"Bam" };
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/foo"]];
+	id<WebApiRoute> route = [client routeForName:@"heady" error:nil];
+	[client addRequestHeadersToRequest:req forRoute:route];
+	NSDictionary *headers = [req allHTTPHeaderFields];
+	assertThat(headers, equalTo(@{
+								  @"Accept-Encoding" : @"gzip",
+								  @"X-Bam" : @"Bam",
+								  @"X-Whoo" : @"Hoo!"
+								  }));
+}
+
+- (void)testAddGlobalAndRouteWithOverrideHTTPHeadersToRequest {
+	client.globalHTTPRequestHeaders = @{ @"Accept-Encoding" : @"deflate" };
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/foo"]];
+	id<WebApiRoute> route = [client routeForName:@"heady" error:nil];
+	[client addRequestHeadersToRequest:req forRoute:route];
+	NSDictionary *headers = [req allHTTPHeaderFields];
+	assertThat(headers, equalTo(@{
+								  @"Accept-Encoding" : @"gzip",
+								  @"X-Whoo" : @"Hoo!"
+								  }));
+}
+
 @end

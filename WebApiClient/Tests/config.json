@@ -51,6 +51,14 @@
 			"elsewhere" : {
 				"method" : "GET",
 				"path" : ":baseURL/yes/i/can"
+			},
+			"heady" : {
+				"method" : "POST",
+				"path" : "nowhere",
+				"requestHeaders" : {
+					"Accept-Encoding" : "gzip",
+					"X-Whoo" : "Hoo!"
+				}
 			}
 		}
 	}

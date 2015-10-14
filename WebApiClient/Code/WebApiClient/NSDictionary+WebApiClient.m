@@ -55,6 +55,15 @@ static CFStringRef CreateURLEncodedQueryParameterString(CFStringRef string) {
 	return [val boolValue];
 }
 
+- (BOOL)isGzip {
+	NSNumber *val = self[@"gzip"];
+	return [val boolValue];
+}
+
+- (NSDictionary<NSString *, NSString *> *)requestHeaders {
+	return self[NSStringFromSelector(@selector(requestHeaders))];
+}
+
 - (NSString *)asURLQueryParameterString {
 	NSMutableString *str = [NSMutableString new];
 	[self enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -122,7 +131,7 @@ static CFStringRef CreateURLEncodedQueryParameterString(CFStringRef string) {
 
 @end
 
-@implementation NSMutableDictionary (WebApiClient)
+@implementation NSMutableDictionary (MutableWebApiClient)
 
 /**
  Set an object on the receiver if non-nil, otherwise remove that key.
@@ -174,6 +183,14 @@ static CFStringRef CreateURLEncodedQueryParameterString(CFStringRef string) {
 
 - (void)setPreventUserInteraction:(BOOL)preventUserInteraction {
 	[self setOrRemoveObject:@(preventUserInteraction) forKey:@"preventUserInteraction"];
+}
+
+- (void)setGzip:(BOOL)gzip {
+	[self setOrRemoveObject:@(gzip) forKey:@"gzip"];
+}
+
+- (void)setRequestHeaders:(NSDictionary<NSString *,NSString *> *)requestHeaders {
+	[self setOrRemoveObject:requestHeaders forKey:NSStringFromSelector(@selector(requestHeaders))];
 }
 
 #pragma mark - WebApiResponse
