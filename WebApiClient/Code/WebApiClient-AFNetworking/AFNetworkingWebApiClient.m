@@ -224,6 +224,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 			req = [ser requestWithMethod:route.method URLString:[url absoluteString] parameters:reqParameters error:&error];
 		}
 		
+		[self addRequestHeadersToRequest:req forRoute:route];
 		[self addAuthorizationHeadersToRequest:req forRoute:route];
 		
 		__block NSURLSessionDataTask *task = [manager dataTaskWithRequest:req completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
