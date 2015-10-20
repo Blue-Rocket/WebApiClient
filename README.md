@@ -161,6 +161,32 @@ Here's an example route that configures both request and response compression:
 }
 ```
 
+### Upload data (multipart/form-data)
+
+You can upload data as attachments encoded using the `multipart/form-data` MIME scheme by passing a `WebApiResource` instance on the `data` parameter in the WebApiClient API. WebApiClient provides two implementations of `WebApiResource`: `DataWebApiResource` for in-memory data and `FileWebApiResource` for file-based data.
+
+The `parameters` object, if provided, will also be included in the request, serialized into additional parts of the request body.
+
+### Upload raw data
+
+Instead of uploading data as a _multipart/form-data_ attachment encoding, raw data can be uploaded directly in the body of the HTTP request. This can be useful, for example, when you need to upload images, or any other type of data, and the URL contains sufficient information to identify the content. To perform a raw data upload, configure a route with a serialization type of `none`:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "trim" : {
+        "method" : "POST",
+        "path" : "upload/image",
+        "serializationName" : none
+      }
+    }
+  }
+}
+```
+Then the `WebApiResource` instance you pass on your request as the `data` parameter will be sent directly in the body of the request. This means the `parameters` object is ignored. If you need to post both parameters _and_ a file, use the `multipart/form-data` upload method described in the previous section.
+
+
 # Module: Cache
 
 The **Cache** module provides response caching support to the `WebApiClient` API by providing the `PINCacheWebApiClient` proxy  that can cache result objects using [PINCache][pcache]. Caching support is enabled by configuring a `cacheTTL` property on routes, for example:

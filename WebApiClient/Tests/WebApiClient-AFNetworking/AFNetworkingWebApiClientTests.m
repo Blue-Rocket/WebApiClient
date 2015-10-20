@@ -9,6 +9,7 @@
 #import "BaseNetworkTestingSupport.h"
 
 #import <AFNetworking/AFURLSessionManager.h>
+#import <CocoaHTTPServer/DDData.h>
 #import <Godzippa/Godzippa.h>
 #import "AFNetworkingWebApiClient.h"
 #import "DataWebApiResource.h"
@@ -302,6 +303,7 @@
 	NSURL *fileURL = [self.bundle URLForResource:@"upload-test.txt" withExtension:nil];
 	[self.http handleMethod:@"POST" withPath:@"/file/test_file" block:^(RouteRequest *request, RouteResponse *response) {
 		NSDictionary *bodyParts = [self extractMultipartFormParts:request];
+		assertThat(bodyParts, hasCountOf(1));
 		DataWebApiResource *rsrc = bodyParts[@"test_file"];
 		assertThat(rsrc.MIMEType, equalTo(@"text/plain"));
 		assertThat(rsrc.fileName, equalTo(@"upload-test.txt"));
@@ -315,6 +317,61 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"file"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testFileAndParametersUpload {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-test.txt" withExtension:nil];
+	[self.http handleMethod:@"POST" withPath:@"/file/test_file" block:^(RouteRequest *request, RouteResponse *response) {
+		NSDictionary *bodyParts = [self extractMultipartFormParts:request];
+		assertThat(bodyParts, hasCountOf(2));
+		DataWebApiResource *rsrc = bodyParts[@"test_file"];
+		assertThat(rsrc.MIMEType, equalTo(@"text/plain"));
+		assertThat(rsrc.fileName, equalTo(@"upload-test.txt"));
+		assertThat([[NSString alloc] initWithData:rsrc.data encoding:NSUTF8StringEncoding], equalTo(@"Hello, server!\n"));
+		
+		NSString *fooValue = bodyParts[@"foo"];
+		assertThat(fooValue, equalTo(@"bar"));
+		
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"test_file" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"file" withPathVariables:r parameters:@{@"foo" : @"bar"} data:r finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"file"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testRawDataUpload {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSNumber *fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[fileURL path] error:nil][NSFileSize];
+	NSString *fileMD5 = [[[NSData dataWithContentsOfURL:fileURL] md5Digest] hexStringValue];
+	[self.http handleMethod:@"POST" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		NSData *bodyData = [request body];
+		NSString *md5 = [[bodyData md5Digest] hexStringValue];
+		assertThat(md5, equalTo(fileMD5));
+		assertThat([request header:@"Content-Length"], equalTo([NSString stringWithFormat:@"%llu", [fileSize unsignedLongLongValue]]));
+		assertThat([request header:@"Content-Type"], equalTo(@"image/png"));
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"upload-image" withPathVariables:r parameters:nil data:r finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"upload-image"));
 		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		[requestExpectation fulfill];
 	}];

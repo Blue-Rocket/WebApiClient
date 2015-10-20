@@ -61,6 +61,11 @@
 				"path" : "form",
 				"serializationName" : "form"
 			},
+			"upload-image" : {
+				"method" : "POST",
+				"path" : "image",
+				"serializationName" : "none"
+			},
 			"elsewhere" : {
 				"method" : "GET",
 				"path" : ":baseURL/yes/i/can"
