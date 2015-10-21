@@ -9,6 +9,7 @@
 #import "AFNetworkingWebApiClient.h"
 
 #import <AFNetworking/AFHTTPSessionManager.h>
+#import <AFgzipRequestSerializer/AFgzipRequestSerializer.h>
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <BREnvironment/BREnvironment.h>
 #import "DataWebApiResource.h"
@@ -80,6 +81,11 @@
 			break;
 			
 	}
+	
+	if ( ser && route.gzip ) {
+		ser = [AFgzipRequestSerializer serializerWithSerializer:ser];
+	}
+	
 	return ser;
 }
 
@@ -196,6 +202,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 		NSError *error = nil;
 		NSDictionary *reqParameters = nil;
 		id<WebApiResource> reqData = data;
+		BOOL uploadStream = NO;
 		if ( parameters ) {
 			if ( dataMapper ) {
 				id encoded = [dataMapper performEncodingWithObject:parameters route:route error:&error];
@@ -222,11 +229,21 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 			} error:&error];
 		} else {
 			req = [ser requestWithMethod:route.method URLString:[url absoluteString] parameters:reqParameters error:&error];
+			if ( reqData != nil ) {
+				uploadStream = YES;
+				req.HTTPBodyStream = reqData.inputStream;
+				[req setValue:reqData.MIMEType forHTTPHeaderField:@"Content-Type"];
+				[req setValue:[NSString stringWithFormat:@"%llu", (unsigned long long)reqData.length] forHTTPHeaderField:@"Content-Length"];
+				if ( reqData.MD5 ) {
+					[req setValue:reqData.MD5 forHTTPHeaderField:@"Content-MD5"];
+				}
+			}
 		}
 		
+		[self addRequestHeadersToRequest:req forRoute:route];
 		[self addAuthorizationHeadersToRequest:req forRoute:route];
 		
-		__block NSURLSessionDataTask *task = [manager dataTaskWithRequest:req completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+		void (^responseHandler)(NSURLResponse *, id, NSError *) = ^(NSURLResponse *response, id responseObject, NSError *error) {
 			NSMutableDictionary *apiResponse = [[NSMutableDictionary alloc] initWithCapacity:4];
 			apiResponse.routeName = name;
 			if ( [response isKindOfClass:[NSHTTPURLResponse class]] ) {
@@ -247,7 +264,16 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 			} else {
 				handleResponse(responseObject, error);
 			}
-		}];
+		};
+		
+		NSURLSessionDataTask *task;
+		if ( uploadStream ) {
+			NSProgress *progress = nil;
+			task = [manager uploadTaskWithStreamedRequest:req progress:&progress completionHandler:responseHandler];
+			progress.totalUnitCount = reqData.length;
+		} else {
+			task = [manager dataTaskWithRequest:req completionHandler:responseHandler];
+		}
 		[self setRoute:route forTask:task];
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientRequestWillBeginNotification object:route

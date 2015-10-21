@@ -52,7 +52,8 @@
 @property (nonatomic, readwrite) NSString *contentType;
 @property (nonatomic, readwrite) NSString *dataMapper;
 @property (nonatomic, readwrite, getter=isPreventUserInteraction) BOOL preventUserInteraction;
-
+@property (nonatomic, readwrite, getter=isGzip) BOOL gzip;
+@property (nonatomic, readwrite) NSDictionary<NSString *, NSString *> *requestHeaders;
 @end
 
 /**

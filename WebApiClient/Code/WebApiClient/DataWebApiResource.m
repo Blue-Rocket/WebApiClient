@@ -9,12 +9,14 @@
 #import "DataWebApiResource.h"
 
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "WebApiClientDigestUtils.h"
 
 @implementation DataWebApiResource {
 	NSData *data;
 	NSString *name;
 	NSString *fileName;
 	NSString *MIMEType;
+	NSString *MD5;
 }
 
 @synthesize data;
@@ -54,5 +56,13 @@
 	return [[NSInputStream alloc] initWithData:data];
 }
 
+- (NSString *)MD5 {
+	NSString *result = MD5;
+	if ( !result && data ) {
+		result = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData(WebApiClientMD5DigestCreateWithData((__bridge CFDataRef)data)));
+		MD5 = result;
+	}
+	return result;
+}
 
 @end

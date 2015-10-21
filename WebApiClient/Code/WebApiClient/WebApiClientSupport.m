@@ -267,6 +267,18 @@ static NSString * const kRoutePropertyDataMapperInstance = @"_dataMapper";
 	return clientResponse;
 }
 
+- (void)addRequestHeadersToRequest:(NSMutableURLRequest *)request forRoute:(id<WebApiRoute>)route {
+	NSDictionary<NSString *, NSString *> *routeHeaders = route.requestHeaders;
+	[self.globalHTTPRequestHeaders enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+		if ( !routeHeaders[key] ) {
+			[request addValue:obj forHTTPHeaderField:key];
+		}
+	}];
+	[routeHeaders enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+		[request addValue:obj forHTTPHeaderField:key];
+	}];
+}
+
 - (void)addAuthorizationHeadersToRequest:(NSMutableURLRequest *)request forRoute:(id<WebApiRoute>)route {
 	if ( self.appApiKey ) {
 		[request setValue:self.appApiKey forHTTPHeaderField:self.appApiKeyHTTPHeaderName];

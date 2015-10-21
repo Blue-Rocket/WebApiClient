@@ -9,6 +9,8 @@
 #import "BaseNetworkTestingSupport.h"
 
 #import <AFNetworking/AFURLSessionManager.h>
+#import <CocoaHTTPServer/DDData.h>
+#import <Godzippa/Godzippa.h>
 #import "AFNetworkingWebApiClient.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
@@ -301,6 +303,7 @@
 	NSURL *fileURL = [self.bundle URLForResource:@"upload-test.txt" withExtension:nil];
 	[self.http handleMethod:@"POST" withPath:@"/file/test_file" block:^(RouteRequest *request, RouteResponse *response) {
 		NSDictionary *bodyParts = [self extractMultipartFormParts:request];
+		assertThat(bodyParts, hasCountOf(1));
 		DataWebApiResource *rsrc = bodyParts[@"test_file"];
 		assertThat(rsrc.MIMEType, equalTo(@"text/plain"));
 		assertThat(rsrc.fileName, equalTo(@"upload-test.txt"));
@@ -314,6 +317,62 @@
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"file"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testFileAndParametersUpload {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-test.txt" withExtension:nil];
+	[self.http handleMethod:@"POST" withPath:@"/file/test_file" block:^(RouteRequest *request, RouteResponse *response) {
+		NSDictionary *bodyParts = [self extractMultipartFormParts:request];
+		assertThat(bodyParts, hasCountOf(2));
+		DataWebApiResource *rsrc = bodyParts[@"test_file"];
+		assertThat(rsrc.MIMEType, equalTo(@"text/plain"));
+		assertThat(rsrc.fileName, equalTo(@"upload-test.txt"));
+		assertThat([[NSString alloc] initWithData:rsrc.data encoding:NSUTF8StringEncoding], equalTo(@"Hello, server!\n"));
+		
+		NSString *fooValue = bodyParts[@"foo"];
+		assertThat(fooValue, equalTo(@"bar"));
+		
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"test_file" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"file" withPathVariables:r parameters:@{@"foo" : @"bar"} data:r finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"file"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testRawDataUpload {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSNumber *fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[fileURL path] error:nil][NSFileSize];
+	NSString *fileMD5 = [[[NSData dataWithContentsOfURL:fileURL] md5Digest] hexStringValue];
+	[self.http handleMethod:@"POST" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		NSData *bodyData = [request body];
+		NSString *md5 = [[bodyData md5Digest] hexStringValue];
+		assertThat(md5, equalTo(fileMD5));
+		assertThat([request header:@"Content-Length"], equalTo([NSString stringWithFormat:@"%llu", [fileSize unsignedLongLongValue]]));
+		assertThat([request header:@"Content-Type"], equalTo(@"image/png"));
+		assertThat([request header:@"Content-MD5"], equalTo(@"7166135eb596e03ad359f2dfb91f5ed4"));
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"upload-image" withPathVariables:r parameters:nil data:r finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"upload-image"));
 		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 		[requestExpectation fulfill];
 	}];
@@ -348,6 +407,63 @@
 		[requestAltExpectation fulfill];
 	}];
 	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testInvokeGETWithGzipEncoding {
+	[self.http handleMethod:@"GET" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat([request header:@"Accept-Encoding"], equalTo(@"gzip"));
+
+		NSError *error = nil;
+		NSData *compressed = [[@"{\"success\":true}" dataUsingEncoding:NSUTF8StringEncoding] dataByGZipCompressingWithError:&error];
+		assertThat(error, nilValue());
+		
+		[response setStatusCode:200];
+		[response setHeader:@"Content-Type" value:@"application/json; charset=utf-8"];
+		[response setHeader:@"Content-Encoding" value:@"gzip"];
+		[response respondWithData:compressed];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"docGzip" withPathVariables:@{@"uniqueId" : @123 } parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"docGzip"));
+		assertThat(response.responseHeaders[@"Content-Encoding"], equalTo(@"gzip"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+
+- (void)testInvokePUTWithGzipEncoding {
+	[self.http handleMethod:@"PUT" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat([request header:@"Content-Encoding"], equalTo(@"gzip"));
+		NSError *error = nil;
+		NSData *decompressed = [[request body] dataByGZipDecompressingDataWithError:&error];
+		assertThat(error, nilValue());
+		NSDictionary *postParams = [NSJSONSerialization JSONObjectWithData:decompressed options:0 error:nil];
+		assertThat(postParams[@"uniqueId"], equalTo(@"123"));
+		assertThat(postParams[@"displayName"], equalTo(@"Top Secret"));
+		assertThat([postParams valueForKeyPath:@"info.password"], equalTo(@"secret"));
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	// instead of a dictionary, pass an arbitrary object for the query params; all declared properties will be available as parameters
+	AFNetworkingWebApiClientTestsBean *docRef = [AFNetworkingWebApiClientTestsBean new];
+	docRef.uniqueId = @"123";
+	docRef.displayName = @"Top Secret";
+	docRef.info = @{@"password" : @"secret"};
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"saveDocGzip" withPathVariables:docRef parameters:docRef data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"saveDocGzip"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
 	[self waitForExpectationsWithTimeout:2 handler:nil];
 }
 

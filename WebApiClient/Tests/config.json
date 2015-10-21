@@ -30,9 +30,22 @@
 				"path" : "document/:uniqueId",
 				"cacheTTL" : 3,
 			},
+			"docGzip" : {
+				"method" : "GET",
+				"path" : "document/:uniqueId",
+				"cacheTTL" : 3,
+				"requestHeaders" : {
+					"Accept-Encoding" : "gzip"
+				}
+			},
 			"saveDoc" : {
 				"method" : "PUT",
 				"path" : "document/:uniqueId"
+			},
+			"saveDocGzip" : {
+				"method" : "PUT",
+				"path" : "document/:uniqueId",
+				"gzip" : true
 			},
 			"file" : {
 				"method" : "POST",
@@ -48,9 +61,22 @@
 				"path" : "form",
 				"serializationName" : "form"
 			},
+			"upload-image" : {
+				"method" : "POST",
+				"path" : "image",
+				"serializationName" : "none"
+			},
 			"elsewhere" : {
 				"method" : "GET",
 				"path" : ":baseURL/yes/i/can"
+			},
+			"heady" : {
+				"method" : "POST",
+				"path" : "nowhere",
+				"requestHeaders" : {
+					"Accept-Encoding" : "gzip",
+					"X-Whoo" : "Hoo!"
+				}
 			}
 		}
 	}

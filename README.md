@@ -12,7 +12,7 @@ The [WebApiClient](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebAp
 - (void)requestAPI:(NSString *)name 
  withPathVariables:(id)pathVariables 
         parameters:(id)parameters 
-              data:(id)data
+              data:(id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
 
@@ -38,7 +38,7 @@ By default the callback block is called on the main thread (queue). If you prefe
 - (void)requestAPI:(NSString *)name 
  withPathVariables:(id)pathVariables 
         parameters:(id)parameters 
-              data:(id)data
+              data:(id<WebApiResource>)data
              queue:(dispatch_queue_t)callbackQueue
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
@@ -108,28 +108,83 @@ The **AFNetworking** module provides a full implementation of the `WebApiClient`
 
 ## Route configuration
 
-Routes can be configured in code via the `registerRoute:forName:` method, but more conveniently they can be configured via [BREnvironment][brenv]. The `webservice.api` key will be inspected by default, and can be a dictionary representing all the routes that should be registered for the application. For example, the following JSON would register two routes, `login` and `register`:
+Routes can be configured in code via the `registerRoute:forName:` method, but more conveniently they can be configured via [BREnvironment][brenv]. The `webservice.api` key will be inspected by default, and can be a dictionary representing all the routes that should be registered for the application. For example, the following JSON would register three routes, `login`, `register`, and `absolute`:
 
 ```json
 {
-	"webservice" : {
-		"api" : {
-			"register" : {
-				"method" : "POST",
-				"path" : "user/register",
-			},
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-			},
-			"absolute" : {
-				"method" : "GET",
-				"path" : "https://example.com/something"
-			}
-		}
-	}
+  "App_webservice_protocol" : "https",
+  "App_webservice_host" : "example.com",
+  "App_webservice_port" : 443,
+  "webservice" : {
+    "api" : {
+      "register" : {
+        "method" : "POST",
+        "path" : "user/register",
+      },
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+      },
+      "absolute" : {
+        "method" : "GET",
+        "path" : "https://example.com/something"
+      }
+    }
+  }
 }
 ```
+
+You'll notice that the `register` and `login` routes have relative paths. All webservice URLs are constructed as relative to a configurable `baseApiURL` property, which by default is configured via the various `App_webservice_*` [BREnvironment][brenv] keys you can see in the previous example JSON.
+
+### GZip compression support
+
+The `gzip` property on routes is supported. When set to `true` any _request_ data will be compressed and a request HTTP header of `Content-Encoding: gzip` will be added.
+
+To support compressed _response_ data (highly recommended!) you only need to configure an `Accept-Encoding: gzip` HTTP header, either individually on routes via the `requestHeaders` property or via the `globalHTTPRequestHeaders` property available on `AFNetworkingWebApiClient`.
+
+Here's an example route that configures both request and response compression:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "trim" : {
+        "method" : "POST",
+        "path" : "upload/jumbo",
+        "gzip" : true,
+        "requestHeaders" : {
+          "Accept-Encoding" : "gzip"
+        }
+      }
+    }
+  }
+}
+```
+
+### Upload data (multipart/form-data)
+
+You can upload data as attachments encoded using the `multipart/form-data` MIME scheme by passing a `WebApiResource` instance on the `data` parameter in the WebApiClient API. WebApiClient provides two implementations of `WebApiResource`: `DataWebApiResource` for in-memory data and `FileWebApiResource` for file-based data.
+
+The `parameters` object, if provided, will also be included in the request, serialized into additional parts of the request body.
+
+### Upload raw data
+
+Instead of uploading data as a _multipart/form-data_ attachment encoding, raw data can be uploaded directly in the body of the HTTP request. This can be useful, for example, when you need to upload images, or any other type of data, and the URL contains sufficient information to identify the content. To perform a raw data upload, configure a route with a serialization type of `none`:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "trim" : {
+        "method" : "POST",
+        "path" : "upload/image",
+        "serializationName" : "none"
+      }
+    }
+  }
+}
+```
+Then the `WebApiResource` instance you pass on your request as the `data` parameter will be sent directly in the body of the request. This means the `parameters` object is ignored. If you need to post both parameters _and_ a file, use the `multipart/form-data` upload method described in the previous section.
 
 
 # Module: Cache
@@ -138,15 +193,15 @@ The **Cache** module provides response caching support to the `WebApiClient` API
 
 ```json
 {
-	"webservice" : {
-		"api" : {
-			"info" : {
-				"method" : "GET",
-				"path" : "infrequentlyupdated/info",
-				"cacheTTL" : 3600
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "info" : {
+        "method" : "GET",
+        "path" : "infrequentlyupdated/info",
+        "cacheTTL" : 3600
+      }
+    }
+  }
 }
 ```
 
@@ -174,23 +229,23 @@ RKObjectMapper *userObjectMapper = ...;
 
 To use RestKit-based object mapping with a route, you configure the `dataMapper` property of the route with `RestKitWebApiDataMapper` like this:
 
-```JSON
+```json
 {
-	"webservice" : {
-		"api" : {
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-				"dataMapper" : "RestKitWebApiDataMapper"
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+        "dataMapper" : "RestKitWebApiDataMapper"
+      }
+    }
+  }
 }
 ```
 
 Sometimes the request or response JSON needs to be nested in some top-level object. For example imagine that the register endpoint expects the user object to be posted as JSON like this:
 
-```JSON
+```json
 {
   "user" : { "email" : "joe@example.com", "name" : "Joe" }
 }
@@ -198,18 +253,18 @@ Sometimes the request or response JSON needs to be nested in some top-level obje
 
 This can be done by adding a `dataMapperRequestRootKeyPath` property (or `dataMapperResponseRootKeyPath` for mapping responses), like this:
 
-```JSON
+```json
 {
-	"webservice" : {
-		"api" : {
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-				"dataMapper" : "RestKitWebApiDataMapper",
-				"dataMapperRequestRootKeyPath" : "user"
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+        "dataMapper" : "RestKitWebApiDataMapper",
+        "dataMapperRequestRootKeyPath" : "user"
+      }
+    }
+  }
 }
 ```
 
@@ -218,17 +273,17 @@ This can be done by adding a `dataMapperRequestRootKeyPath` property (or `dataMa
 
 The **UI** module provides some UI utilities, such as the `WebApiClientActivitySupport` class that listens to route requests and for those that specify `preventUserInteraction` with a truthy value will throw up a full-screen "request taking too long" view to let the user of the app know it's waiting for a response. For example, a route can be configured like:
 
-```JSON
+```json
 {
-	"webservice" : {
-		"api" : {
-			"login" : {
-				"method" : "POST",
-				"path" : "user/login",
-				"preventUserInteraction" : true
-			}
-		}
-	}
+  "webservice" : {
+    "api" : {
+      "login" : {
+        "method" : "POST",
+        "path" : "user/login",
+        "preventUserInteraction" : true
+      }
+    }
+  }
 }
 ```
 

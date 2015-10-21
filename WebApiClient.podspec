@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'WebApiClient'
-  s.version      = '0.9.6'
+  s.version      = '0.10.0'
   s.summary      = 'A HTTP client API based on configured routes.'
 
   s.description        = <<-DESC
@@ -44,6 +44,7 @@ Pod::Spec.new do |s|
     sp.source_files = 'WebApiClient/Code/WebApiClient-AFNetworking.h', 'WebApiClient/Code/WebApiClient-AFNetworking'
     sp.dependency 'WebApiClient/Core'
     sp.dependency 'AFNetworking/NSURLSession', '~> 2.5'
+	sp.dependency 'AFgzipRequestSerializer',   '~> 0.0.2'
   end
 
   s.subspec 'Cache' do |sp|
