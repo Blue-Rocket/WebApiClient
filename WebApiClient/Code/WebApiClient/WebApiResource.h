@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** The MIME type of the resource. */
 @property (nonatomic, readonly) NSString *MIMEType;
 
-/** Get the MD5 digest of the data stream, or @c nil if not known. */
+/** Get the hex-encoded MD5 digest of the data stream, or @c nil if not known. */
 @property (nonatomic, readonly, nullable) NSString *MD5;
 
 @end
