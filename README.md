@@ -12,7 +12,7 @@ The [WebApiClient](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebAp
 - (void)requestAPI:(NSString *)name 
  withPathVariables:(id)pathVariables 
         parameters:(id)parameters 
-              data:(id)data
+              data:(id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
 
@@ -38,7 +38,7 @@ By default the callback block is called on the main thread (queue). If you prefe
 - (void)requestAPI:(NSString *)name 
  withPathVariables:(id)pathVariables 
         parameters:(id)parameters 
-              data:(id)data
+              data:(id<WebApiResource>)data
              queue:(dispatch_queue_t)callbackQueue
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
