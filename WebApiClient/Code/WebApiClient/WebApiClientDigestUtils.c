@@ -82,14 +82,16 @@ CFDataRef WebApiClientMD5DigestCreateWithFilePath(CFStringRef filePath, size_t b
 
 CFStringRef WebApiClientHexEncodedStringCreateWithData(CFDataRef data) {
 	CFStringRef result = NULL;
-	const CFIndex len = CFDataGetLength(data);
-	if ( len > 0 ) {
-		char hash[2 * CFDataGetLength(data) + 1];
-		const UInt8 * bytes = CFDataGetBytePtr(data);
-		for ( CFIndex i = 0; i < len; ++i ) {
-			snprintf(hash + (2 * i), 3, "%02x", (int)(bytes[i]));
+	if ( data ) {
+		const CFIndex len = CFDataGetLength(data);
+		if ( len > 0 ) {
+			char hash[2 * CFDataGetLength(data) + 1];
+			const UInt8 * bytes = CFDataGetBytePtr(data);
+			for ( CFIndex i = 0; i < len; ++i ) {
+				snprintf(hash + (2 * i), 3, "%02x", (int)(bytes[i]));
+			}
+			result = CFStringCreateWithCString(kCFAllocatorDefault, (const char *)hash, kCFStringEncodingUTF8);
 		}
-		result = CFStringCreateWithCString(kCFAllocatorDefault, (const char *)hash, kCFStringEncodingUTF8);
 	}
 	return result;
 }

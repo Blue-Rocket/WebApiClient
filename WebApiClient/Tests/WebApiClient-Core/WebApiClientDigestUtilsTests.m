@@ -29,6 +29,7 @@
 		assertThatUnsignedInt(bytes[i], equalToUnsignedInt(expected[i]));
 	}
 	
+	CFRelease(data);
 	CFRelease(digest);
 }
 

@@ -11,6 +11,8 @@
 		950E0B6676F12C92DE0509B8 /* libPods-WebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */; };
 		C96C6BA71BD7FD3000311868 /* WebApiClientDigestUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BA51BD7FD3000311868 /* WebApiClientDigestUtils.c */; settings = {ASSET_TAGS = (); }; };
 		C96C6BA91BD8011300311868 /* WebApiClientDigestUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */; settings = {ASSET_TAGS = (); }; };
+		C96C6BAB1BD80ABF00311868 /* DataWebApiResourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */; settings = {ASSET_TAGS = (); }; };
+		C96C6BAD1BD80C2800311868 /* FileWebApiResourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BAC1BD80C2800311868 /* FileWebApiResourceTests.m */; settings = {ASSET_TAGS = (); }; };
 		C98F24901BD6D885000A6D6F /* upload-icon-test.png in Resources */ = {isa = PBXBuildFile; fileRef = C98F248F1BD6D87F000A6D6F /* upload-icon-test.png */; settings = {ASSET_TAGS = (); }; };
 		C9ED93F11BA8D86500DE842F /* libWebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9ED93E51BA8D86500DE842F /* libWebApiClient.a */; };
 		C9ED94481BA8DA1D00DE842F /* DataWebApiResource.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED941E1BA8DA1D00DE842F /* DataWebApiResource.m */; };
@@ -67,6 +69,8 @@
 		C96C6BA51BD7FD3000311868 /* WebApiClientDigestUtils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WebApiClientDigestUtils.c; sourceTree = "<group>"; };
 		C96C6BA61BD7FD3000311868 /* WebApiClientDigestUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientDigestUtils.h; sourceTree = "<group>"; };
 		C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientDigestUtilsTests.m; sourceTree = "<group>"; };
+		C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataWebApiResourceTests.m; sourceTree = "<group>"; };
+		C96C6BAC1BD80C2800311868 /* FileWebApiResourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileWebApiResourceTests.m; sourceTree = "<group>"; };
 		C98F248F1BD6D87F000A6D6F /* upload-icon-test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "upload-icon-test.png"; sourceTree = "<group>"; };
 		C9ED93E51BA8D86500DE842F /* libWebApiClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWebApiClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9ED93F01BA8D86500DE842F /* WebApiClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebApiClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -308,6 +312,8 @@
 		C9ED945E1BA8DA7500DE842F /* WebApiClient-Core */ = {
 			isa = PBXGroup;
 			children = (
+				C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */,
+				C96C6BAC1BD80C2800311868 /* FileWebApiResourceTests.m */,
 				C9ED945F1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m */,
 				C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */,
 				C9ED94601BA8DA7500DE842F /* WebApiClientSupportTests.m */,
@@ -520,6 +526,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9ED946E1BA8DA7500DE842F /* WebApiClientSupportTests.m in Sources */,
+				C96C6BAD1BD80C2800311868 /* FileWebApiResourceTests.m in Sources */,
+				C96C6BAB1BD80ABF00311868 /* DataWebApiResourceTests.m in Sources */,
 				C9ED946D1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m in Sources */,
 				C9ED946A1BA8DA7500DE842F /* PINCacheWebApiClientTests.m in Sources */,
 				C9ED94701BA8DA7500DE842F /* BaseTestingSupport.m in Sources */,
