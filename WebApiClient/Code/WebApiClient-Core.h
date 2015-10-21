@@ -10,6 +10,7 @@
 #import <WebApiClient/NSDictionary+WebApiClient.h>
 #import <WebApiClient/WebApiAuthorizationProvider.h>
 #import <WebApiClient/WebApiClient.h>
+#import <WebApiClient/WebApiClientDigestUtils.h>
 #import <WebApiClient/WebApiClientEnvironment.h>
 #import <WebApiClient/WebApiClientSupport.h>
 #import <WebApiClient/WebApiDataMapper.h>
