@@ -178,7 +178,7 @@ Instead of uploading data as a _multipart/form-data_ attachment encoding, raw da
       "trim" : {
         "method" : "POST",
         "path" : "upload/image",
-        "serializationName" : none
+        "serializationName" : "none"
       }
     }
   }
