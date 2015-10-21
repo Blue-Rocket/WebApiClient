@@ -363,6 +363,7 @@
 		assertThat(md5, equalTo(fileMD5));
 		assertThat([request header:@"Content-Length"], equalTo([NSString stringWithFormat:@"%llu", [fileSize unsignedLongLongValue]]));
 		assertThat([request header:@"Content-Type"], equalTo(@"image/png"));
+		assertThat([request header:@"Content-MD5"], equalTo(@"7166135eb596e03ad359f2dfb91f5ed4"));
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
 	}];
 	

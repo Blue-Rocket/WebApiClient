@@ -234,6 +234,9 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 				req.HTTPBodyStream = reqData.inputStream;
 				[req setValue:reqData.MIMEType forHTTPHeaderField:@"Content-Type"];
 				[req setValue:[NSString stringWithFormat:@"%llu", (unsigned long long)reqData.length] forHTTPHeaderField:@"Content-Length"];
+				if ( reqData.MD5 ) {
+					[req setValue:reqData.MD5 forHTTPHeaderField:@"Content-MD5"];
+				}
 			}
 		}
 		
