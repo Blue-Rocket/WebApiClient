@@ -40,8 +40,21 @@ By default the callback block is called on the main thread (queue). If you prefe
         parameters:(id)parameters 
               data:(id<WebApiResource>)data
              queue:(dispatch_queue_t)callbackQueue
+          progress:(nullable WebApiClientRequestProgressBlock)progressCallback
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
+
+## Progress callback support
+
+The same method that accepts an explicit callback block shown in the previous section also accepts an optional `WebApiClientRequestProgressBlock`, which is defined as this:
+
+```objc
+typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName, 
+                                                 NSProgress * _Nullable uploadProgress, 
+                                                 NSProgress * _Nullable downloadProgress);
+```
+
+By passing in this type of block to the `progress` parameter, you can monitor both the upload and download progress of the HTTP request. In addition the `WebApiClientRequestDidProgressNotification` and `WebApiClientResponseDidProgressNotification` notifications can be used to listen for progress updates as well. The `WebApiClientProgressNotificationKey` notification user info key will contain the relevant `NSProgress` object.
 
 ## Synchronous request support
 
