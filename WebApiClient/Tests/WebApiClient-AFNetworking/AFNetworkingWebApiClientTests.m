@@ -409,6 +409,7 @@
 			downloadProgressed = YES;
 		}
 		assertThat(routeName, equalTo(@"upload-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 	} finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
@@ -676,6 +677,7 @@
 			downloadProgressed = YES;
 		}
 		assertThat(routeName, equalTo(@"download-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
 	} finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
 		assertThat(response.responseObject, instanceOf([FileWebApiResource class]));
 		assertThat(error, nilValue());
