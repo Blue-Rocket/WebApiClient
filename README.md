@@ -253,6 +253,31 @@ The **Cache** module provides response caching support to the `WebApiClient` API
 }
 ```
 
+## Routes that invalidate cached data for other routes
+
+You can also configure a route so that it invalidates any cached data for _other_ routes. A good example of where this is useful is when you define a _list_ route that returns a list of objects, and another _add_ route to add to that same list of objects. We can make the latter route invalidate the cached data of the former like this:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "list" : {
+        "method" : "GET",
+        "path" : "stuff/list",
+        "cacheTTL" : 3600
+      },
+      "add" : {
+        "method" : "PUT",
+        "path" : "stuff/:thingId",
+        "invalidatesCachedRouteNames" : [ "list" ]
+      }
+    }
+  }
+}
+```
+
+The `invalidatesCachedRouteNames` is configured as an array of route names that should be invalidated when that route is called successfully.
+
 
 # Module: RestKit
 
