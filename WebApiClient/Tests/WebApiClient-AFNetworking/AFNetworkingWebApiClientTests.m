@@ -678,7 +678,7 @@
 		}
 		assertThat(routeName, equalTo(@"download-image"));
 		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
-	} finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
+	} finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
 		assertThat(response.responseObject, instanceOf([FileWebApiResource class]));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"download-image"));
@@ -689,6 +689,7 @@
 		assertThat(resource.MIMEType, equalTo(@"image/png"));
 		assertThat(resource.MD5, equalTo(fileMD5));
 		assertThatLongLong(resource.length, equalTo(fileSize));
+		assertThat([resource URLValue], notNilValue());
 		
 		[requestExpectation fulfill];
 	}];
