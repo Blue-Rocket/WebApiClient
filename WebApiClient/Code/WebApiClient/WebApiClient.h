@@ -93,7 +93,7 @@ typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName, NSProgress
  withPathVariables:(nullable id)pathVariables
 		parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data
-		  finished:(void (^)(id<WebApiResponse> response, NSError * _Nullable error))callback;
+		  finished:(void (^)(id<WebApiResponse> _Nullable response, NSError * _Nullable error))callback;
 
 /**
  Request a web API endpoint for a named URL route, using a specific queue for the result callback.
@@ -118,7 +118,7 @@ typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName, NSProgress
 			  data:(nullable id<WebApiResource>)data
 			 queue:(dispatch_queue_t)callbackQueue
 		  progress:(nullable WebApiClientRequestProgressBlock)progressCallback
-		  finished:(void (^)(id<WebApiResponse> response, NSError * _Nullable error))callback;
+		  finished:(void (^)(id<WebApiResponse> _Nullable response, NSError * _Nullable error))callback;
 
 /**
  Make a synchronous request to a web API endpoint, blocking the calling thread until a response is available
