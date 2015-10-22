@@ -176,7 +176,7 @@ Here's an example route that configures both request and response compression:
 
 ### Upload data (multipart/form-data)
 
-You can upload data as attachments encoded using the `multipart/form-data` MIME scheme by passing a `WebApiResource` instance on the `data` parameter in the WebApiClient API. WebApiClient provides two implementations of `WebApiResource`: `DataWebApiResource` for in-memory data and `FileWebApiResource` for file-based data.
+You can upload data as attachments encoded using the `multipart/form-data` MIME scheme by passing a [WebApiResource][WebApiResource] instance on the `data` parameter in the WebApiClient API. WebApiClient provides two implementations of `WebApiResource`: `DataWebApiResource` for in-memory data and `FileWebApiResource` for file-based data.
 
 The `parameters` object, if provided, will also be included in the request, serialized into additional parts of the request body.
 
@@ -197,7 +197,42 @@ Instead of uploading data as a _multipart/form-data_ attachment encoding, raw da
   }
 }
 ```
+
 Then the `WebApiResource` instance you pass on your request as the `data` parameter will be sent directly in the body of the request. This means the `parameters` object is ignored. If you need to post both parameters _and_ a file, use the `multipart/form-data` upload method described in the previous section.
+
+
+### Download raw data
+
+You can configure a route to save the response data into a file, instead of the default of loading the response in RAM, by adding a `saveAsResource` property with a _truthy_ value, like this:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "download" : {
+        "method" : "GET",
+        "path" : "download/image",
+        "saveAsResource" : true
+      }
+    }
+  }
+}
+```
+
+Then the `responseObject` returned in the `WebApiResponse` will be a [WebApiResource][WebApiResource] which you can then move to an appropriate location as needed, for example:
+
+```objc
+[client requestAPI:@"download" withPathVariables:nil parameters:nil data:nil 
+             queue:dispatch_get_main_queue() 
+          progress:nil
+          finished:^(id<WebApiResponse> response, NSError *error) {
+    if ( !error ) {
+        id<WebApiResource> resource = response.responseObject;
+        NSURL *dest = [NSURL fileURLWithPath:@"/some/path"];
+        [[NSFileManager defaultManager] moveItemAtURL:[resource URLValue] toURL:dest error:nil];
+    }
+}];
+```
 
 
 # Module: Cache
@@ -306,3 +341,4 @@ The **UI** module provides some UI utilities, such as the `WebApiClientActivityS
  [afn]: https://github.com/AFNetworking/AFNetworking
  [rk]: https://github.com/RestKit/RestKit
  [pcache]: https://github.com/pinterest/PINCache
+ [WebApiResource]: https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiResource.h
