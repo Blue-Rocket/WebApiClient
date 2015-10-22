@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<AFURLResponseSerialization> responseSerializer;
 
 /** An array of active task identifiers, as @c NSNumber instances. */
-@property (nonatomic, readonly) NSArray *activeTaskIdentifiers;
+@property (nonatomic, readonly) NSArray<NSNumber *> *activeTaskIdentifiers;
 
 /**
  Get a route associated with an active task identifer.
