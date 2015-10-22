@@ -12,6 +12,15 @@
 #include <CoreFoundation/CoreFoundation.h>
 
 /**
+ Compute the MD5 hash of a string.
+ 
+ @param string       The string to compute the digest for.
+ 
+ @return The computed MD5 digest, or NULL if could not be created.
+ */
+CFDataRef WebApiClientMD5DigestCreateWithString(CFStringRef string);
+
+/**
  Compute the MD5 hash of in-memory data.
  
  @param data       The data to compute the digest for.
