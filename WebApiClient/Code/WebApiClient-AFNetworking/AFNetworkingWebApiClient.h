@@ -8,6 +8,10 @@
 
 #import "WebApiClientSupport.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol AFURLResponseSerialization;
+
 /**
  Implementation of @c WebApiClient using AFNetworking with NSURLSessionManager.
  
@@ -16,6 +20,9 @@
           waits for the background work to complete.
  */
 @interface AFNetworkingWebApiClient : WebApiClientSupport
+
+/** A URL response serialization object to use. This will default to one that accepts any type of data. */
+@property (nonatomic, strong) id<AFURLResponseSerialization> responseSerializer;
 
 /** An array of active task identifiers, as @c NSNumber instances. */
 @property (nonatomic, readonly) NSArray *activeTaskIdentifiers;
@@ -30,3 +37,5 @@
 - (id<WebApiRoute>)routeForActiveTaskIdentifier:(NSUInteger)identifier;
 
 @end
+
+NS_ASSUME_NONNULL_END

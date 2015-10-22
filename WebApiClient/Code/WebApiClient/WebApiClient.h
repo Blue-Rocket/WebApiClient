@@ -30,6 +30,9 @@ extern NSString * const WebApiClientRequestDidBeginNotification;
 /** A notification name for when a request did make progress. */
 extern NSString * const WebApiClientRequestDidProgressNotification;
 
+/** A notification name for when the response to a request did make progress. */
+extern NSString * const WebApiClientResponseDidProgressNotification;
+
 /** A notification name for when a request did succeed. */
 extern NSString * const WebApiClientRequestDidSucceedNotification;
 
@@ -44,6 +47,9 @@ extern NSString * const WebApiClientURLRequestNotificationKey;
 
 /** A notification user info key for a @c NSURLResponse object representing the response from an API endpoint. */
 extern NSString * const WebApiClientURLResponseNotificationKey;
+
+/** A notification user info key for a @c NSProgress object representing the progress of an API endpoint transaction. */
+extern NSString * const WebApiClientProgressNotificationKey;
 
 @protocol WebApiResource;
 

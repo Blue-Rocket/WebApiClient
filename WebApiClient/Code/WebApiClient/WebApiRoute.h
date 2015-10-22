@@ -54,6 +54,9 @@ typedef enum : NSUInteger {
 /** Flag to indicate that the @i request data should be compressed via GZip. */
 @property (nonatomic, readonly, getter=isGzip) BOOL gzip;
 
+/** Flag to indicate that the response data should be saved to a temporary resource. The response object will then be a @c WebApiResource. */
+@property (nonatomic, readonly, getter=isSaveAsResource) BOOL saveAsResource;
+
 /** A set of HTTP headers names with associated values to add to HTTP requests made for this route. */
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *requestHeaders;
 

@@ -66,6 +66,17 @@
 				"path" : "image",
 				"serializationName" : "none"
 			},
+			"image" : {
+				"method" : "GET",
+				"path" : "image",
+				"serializationName" : "none"
+			},
+			"download-image" : {
+				"method" : "GET",
+				"path" : "image",
+				"serializationName" : "none",
+				"saveAsResource" : true
+			},
 			"elsewhere" : {
 				"method" : "GET",
 				"path" : ":baseURL/yes/i/can"
