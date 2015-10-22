@@ -14,6 +14,7 @@
 #import "NSDictionary+CachingWebApiClient.h"
 #import "SupportingWebApiClient.h"
 #import "WebApiClientCacheEntry.h"
+#import "WebApiClientDigestUtils.h"
 
 static id<WebApiClient> SharedGlobalClient;
 
@@ -50,19 +51,6 @@ static id<WebApiClient> SharedGlobalClient;
 		log4Debug(@"WebApiClient entry cache dir: %@", [theEntryCache.diskCache.cacheURL path]);
 	}
 	return self;
-}
-
-- (NSString *)MD5Hash:(NSString *)str {
-	const char *cstr = [str UTF8String];
-	unsigned char result[16];
-	CC_MD5(cstr, (CC_LONG)strlen(cstr), result);
-	return [NSString stringWithFormat:
-			@"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
-			result[0], result[1], result[2], result[3],
-			result[4], result[5], result[6], result[7],
-			result[8], result[9], result[10], result[11],
-			result[12], result[13], result[14], result[15]
-			];
 }
 
 - (nullable NSString *)cacheKeyForRoute:(id<WebApiRoute>)route pathVariables:(nullable id)pathVariables parameters:(nullable id)parameters {
@@ -110,7 +98,8 @@ static id<WebApiClient> SharedGlobalClient;
 		}
 	}
 	
-	return [self MD5Hash:key];
+	NSString *digest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key)));
+	return [NSString stringWithFormat:@"%@:%@", route.name, digest];
 }
 
 - (NSArray<NSHTTPCookie *> *)cookiesForAPI:(NSString *)name inCookieStorage:(NSHTTPCookieStorage *)cookieJar {
@@ -145,6 +134,9 @@ static id<WebApiClient> SharedGlobalClient;
 			[weakDataCache setObject:(id<NSCoding>)response forKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
 				[weakEntryCache setObject:entry forKey:cacheKey block:nil];
 			}];
+		}
+		if ( error == nil && response.statusCode >= 200 && response.statusCode < 300 ) {
+			[self handleInvalidatedCachedDataForRoute:route];
 		}
 		if ( error && clientError ) {
 			*error = clientError;
@@ -210,6 +202,9 @@ static id<WebApiClient> SharedGlobalClient;
 					[weakEntryCache setObject:entry forKey:cacheKey block:nil];
 				}];
 			}
+			if ( error == nil && response.statusCode >= 200 && response.statusCode < 300 ) {
+				[self handleInvalidatedCachedDataForRoute:route];
+			}
 			doCallback(response, error);
 		}];
 	};
@@ -242,6 +237,39 @@ static id<WebApiClient> SharedGlobalClient;
 	} else {
 		delegateRequest();
 	}
+}
+
+- (void)handleInvalidatedCachedDataForRoute:(id<WebApiRoute>)route {
+	if ( ![route respondsToSelector:@selector(invalidatesCachedRouteNames)] ) {
+		return;
+	}
+	id<CachingWebApiRoute> cachingRoute = (id<CachingWebApiRoute>)route;
+	NSArray<NSString *> *invalidatedRouteNames = cachingRoute.invalidatesCachedRouteNames;
+	if ( invalidatedRouteNames.count < 1 ) {
+		return;
+	}
+	NSMutableSet<NSString *> *invalidCacheKeyPrefixes = [[NSMutableSet alloc] initWithCapacity:invalidatedRouteNames.count];
+	for ( NSString *routeName in invalidatedRouteNames ) {
+		[invalidCacheKeyPrefixes addObject:[routeName stringByAppendingString:@":"]];
+	}
+	[entryCache.memoryCache enumerateObjectsWithBlock:^(PINMemoryCache * _Nonnull cache, NSString * _Nonnull key, id  _Nullable object) {
+		for ( NSString *prefix in invalidCacheKeyPrefixes ) {
+			if ( [key hasPrefix:prefix] ) {
+				log4Debug(@"Route %@ has invalidated memory cached data for key %@", route.name, key);
+				[cache removeObjectForKey:key block:nil];
+				return;
+			}
+		}
+	}];
+	[entryCache.diskCache enumerateObjectsWithBlock:^(PINDiskCache * _Nonnull cache, NSString * _Nonnull key, id<NSCoding>  _Nullable object, NSURL * _Nonnull fileURL) {
+		for ( NSString *prefix in invalidCacheKeyPrefixes ) {
+			if ( [key hasPrefix:prefix] ) {
+				log4Debug(@"Route %@ has invalidated disk cached data for key %@", route.name, key);
+				[cache removeObjectForKey:key block:nil];
+				return;
+			}
+		}
+	}];
 }
 
 @end

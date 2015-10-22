@@ -40,7 +40,7 @@
 			},
 			"saveDoc" : {
 				"method" : "PUT",
-				"path" : "document/:uniqueId"
+				"path" : "document/:uniqueId",
 			},
 			"saveDocGzip" : {
 				"method" : "PUT",
@@ -88,6 +88,16 @@
 					"Accept-Encoding" : "gzip",
 					"X-Whoo" : "Hoo!"
 				}
+			},
+			"documentList" : {
+				"method" : "GET",
+				"path" : "documents/list",
+				"cacheTTL" : 600
+			},
+			"deleteDocument" : {
+				"method" : "DELETE",
+				"path" : "documents/:documentId",
+				"invalidatesCachedRouteNames" : ["documentList"]
 			}
 		}
 	}

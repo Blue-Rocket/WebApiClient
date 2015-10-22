@@ -20,4 +20,7 @@
 /** A maximum cache time, in seconds. */
 @property (nonatomic, readwrite) NSTimeInterval cacheTTL;
 
+/** A list of route names that should have any cached data invalidated when this route is requested. */
+@property (nonatomic, readwrite) NSArray<NSString *> *invalidatesCachedRouteNames;
+
 @end
