@@ -54,6 +54,15 @@ extern NSString * const WebApiClientProgressNotificationKey;
 @protocol WebApiResource;
 
 /**
+ A block for monitoring the progress of an API request.
+ 
+ @param routeName        The name of the route associated with the progress.
+ @param uploadProgress   The upload progress, if any.
+ @param downloadProgress The download progress, if any.
+ */
+typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress);
+
+/**
  A WebApiClient provides a centralized way for an application to interact with a web-based API based on named URL routes.
  */
 @protocol WebApiClient <NSObject>
@@ -72,17 +81,19 @@ extern NSString * const WebApiClientProgressNotificationKey;
  the notification object will be the @c WebApiRoute associated with the request. The @c WebApiClientURLRequestNotificationKey
  key will be populated in the notification @c userInfo dictionary with the original @c NSURLRequest.
  
- @param name The name of the API endpoint route to invoke.
+ @param name          The name of the API endpoint route to invoke.
  @param pathVariables Optional path variables to replace in the API's route URL.
- @param parameters Optional request parameters to add to the URL.
- @param data Optional data to send as the request content.
- @param callback A callback block to invoke with the response. The callback will be on the main thread.
+ @param parameters    Optional request parameters to add to the URL.
+ @param data          Optional data to send as the request content.
+ @param callback      A callback block to invoke with the response. The callback will be on the main thread.
+ 
+ @return A unique identifier that can be used to monitor the progress of the request, or @c nil if none available.
  */
 - (void)requestAPI:(NSString *)name
  withPathVariables:(nullable id)pathVariables
 		parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data
-		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback;
+		  finished:(void (^)(id<WebApiResponse> response, NSError * _Nullable error))callback;
 
 /**
  Request a web API endpoint for a named URL route, using a specific queue for the result callback.
@@ -91,19 +102,23 @@ extern NSString * const WebApiClientProgressNotificationKey;
  the notification object will be the @c WebApiRoute associated with the request. The @c WebApiClientURLRequestNotificationKey
  key will be populated in the notification @c userInfo dictionary with the original @c NSURLRequest.
  
- @param name The name of the API endpoint route to invoke.
- @param pathVariables Optional path variables to replace in the API's route URL.
- @param parameters Optional request parameters to add to the URL.
- @param data Optional data to send as the request content.
- @param callbackQueue A queue to use for the callback block.
- @param callback A callback block to invoke with the response. The callback will be on the @c callbackQueue queue.
+ @param name             The name of the API endpoint route to invoke.
+ @param pathVariables    Optional path variables to replace in the API's route URL.
+ @param parameters       Optional request parameters to add to the URL.
+ @param data             Optional data to send as the request content.
+ @param callbackQueue    A queue to use for the callback block.
+ @param progressCallback Optional callback block to monitor the progress of the request. The callback will be on the @c callbackQueue.
+ @param callback         A callback block to invoke with the response. The callback will be on the @c callbackQueue queue.
+ 
+ @return A unique identifier that can be used to monitor the progress of the request, or @c nil if none available.
  */
 - (void)requestAPI:(NSString *)name
  withPathVariables:(nullable id)pathVariables
 		parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data
 			 queue:(dispatch_queue_t)callbackQueue
-		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback;
+		  progress:(nullable WebApiClientRequestProgressBlock)progressCallback
+		  finished:(void (^)(id<WebApiResponse> response, NSError * _Nullable error))callback;
 
 /**
  Make a synchronous request to a web API endpoint, blocking the calling thread until a response is available

@@ -189,7 +189,7 @@
 	}];
 	
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
-	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) finished:^(id<WebApiResponse> response, NSError *error) {
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) progress:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
 		assertThat(response.responseObject[@"success"], equalTo(@YES));
 		assertThat(error, nilValue());
@@ -216,7 +216,7 @@
 	[self testInvokeSimpleGET];
 	
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
-	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) finished:^(id<WebApiResponse> response, NSError *error) {
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) progress:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
 		assertThat(response.responseObject[@"success"], equalTo(@YES));
 		assertThat(error, nilValue());

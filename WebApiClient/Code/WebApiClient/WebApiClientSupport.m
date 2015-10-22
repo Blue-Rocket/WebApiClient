@@ -207,10 +207,13 @@ static NSString * const kRoutePropertyDataMapperInstance = @"_dataMapper";
 
 - (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(NSDictionary *)parameters data:(id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse>, NSError *))callback {
-	[self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() finished:callback];
+	[self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() progress:nil finished:callback];
 }
 
-- (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters data:(id<WebApiResource>)data queue:(dispatch_queue_t)callbackQueue finished:(void (^)(id<WebApiResponse> _Nonnull, NSError * _Nullable))callback {
+- (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters data:(id<WebApiResource>)data
+			 queue:(dispatch_queue_t)callbackQueue
+		  progress:(nullable WebApiClientRequestProgressBlock)progressCallback
+		  finished:(nonnull void (^)(id<WebApiResponse> _Nonnull, NSError * _Nullable))callback {
 	// extending classes probably want to do something useful here
 }
 
@@ -231,7 +234,7 @@ static NSString * const kRoutePropertyDataMapperInstance = @"_dataMapper";
 	
 	dispatch_queue_t bgQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 	__block BOOL finished = NO;
-	[self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:bgQueue finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
+	[self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:bgQueue progress:nil finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
 		[condition lock];
 		finished = YES;
 		clientResponse = response;

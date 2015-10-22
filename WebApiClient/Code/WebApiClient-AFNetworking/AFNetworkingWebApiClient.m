@@ -12,6 +12,7 @@
 #import <AFgzipRequestSerializer/AFgzipRequestSerializer.h>
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <BREnvironment/BREnvironment.h>
+#import "AFNetworkingWebApiClientTask.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
 #import "WebApiDataMapper.h"
@@ -21,11 +22,8 @@
 	AFHTTPSessionManager *manager;
 	NSLock *lock;
 	
-	// a mapping of NSURLSessionTask identifiers to associated WebApiRoute objects, to support notifications
-	NSMutableDictionary<NSNumber *, id<WebApiRoute>> *tasksToRoutes;
-	
-	// a mapping of NSURLSessionTask identifiers to associated NSProgress objects, to support notifications
-	NSMutableDictionary<NSNumber *, NSProgress *> *tasksToProgress;
+	// a mapping of NSURLSessionTask identifiers to associated task objects, to support notifications
+	NSMutableDictionary<NSNumber *, AFNetworkingWebApiClientTask *> *tasks;
 	
 	// to support callbacks on arbitrary queues, our manager must NOT use the main thread
 	dispatch_queue_t completionQueue;
@@ -33,8 +31,7 @@
 
 - (id)initWithEnvironment:(BREnvironment *)environment {
 	if ( (self = [super initWithEnvironment:environment]) ) {
-		tasksToRoutes = [[NSMutableDictionary alloc] initWithCapacity:8];
-		tasksToProgress = [[NSMutableDictionary alloc] initWithCapacity:8];
+		tasks = [[NSMutableDictionary alloc] initWithCapacity:8];
 		lock = [[NSLock alloc] init];
 		lock.name = @"AFNetworkingApiClientLock";
 		[self initializeURLSessionManager];
@@ -79,25 +76,18 @@
 
 - (void (^)(NSURLSession *session, NSURLSessionTask *task, int64_t bytesSent, int64_t totalBytesSent, int64_t totalBytesExpectedToSend))taskDidSendBodyDataBlock {
 	return ^(NSURLSession * _Nonnull session, NSURLSessionTask * _Nonnull task, int64_t bytesSent, int64_t totalBytesSent, int64_t totalBytesExpectedToSend) {
-		id<WebApiRoute> route;
-		NSProgress *progress = [self progressForTask:task];
-		if ( !progress ) {
-			route = [self routeForTask:task];
-			if ( route ) {
-				NSProgress *prog = [NSProgress progressWithTotalUnitCount:totalBytesExpectedToSend];
-				prog.completedUnitCount = totalBytesSent;
-				[prog setUserInfoObject:route forKey:NSStringFromProtocol(@protocol(WebApiRoute))];
-				[self setRoute:route progress:progress forTask:task];
-				progress = prog;
-			}
-		} else {
-			route = progress.userInfo[NSStringFromProtocol(@protocol(WebApiRoute))];
+		AFNetworkingWebApiClientTask *clientTask = [self clientTaskForTask:task];
+		if ( clientTask && !clientTask.uploadProgress ) {
+			NSProgress *prog = [NSProgress progressWithTotalUnitCount:totalBytesExpectedToSend];
+			prog.completedUnitCount = totalBytesSent;
+			clientTask.uploadProgress = prog;
 		}
-		if ( route && progress ) {
+		if ( clientTask ) {
+			[self handleProgressCallbackForClientTask:clientTask];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientRequestDidProgressNotification object:route
+				[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientRequestDidProgressNotification object:clientTask.route
 																  userInfo:@{WebApiClientURLRequestNotificationKey : task.originalRequest,
-																			 WebApiClientProgressNotificationKey : progress}];
+																			 WebApiClientProgressNotificationKey : clientTask.uploadProgress}];
 			});
 		}
 	};
@@ -105,34 +95,42 @@
 
 - (void (^)(NSURLSession *session, NSURLSessionDataTask *dataTask, NSURLSessionDownloadTask *downloadTask))dataTaskDidBecomeDownloadTaskBlock {
 	return ^(NSURLSession * _Nonnull session, NSURLSessionDataTask * _Nonnull dataTask, NSURLSessionDownloadTask * _Nonnull downloadTask) {
-		id<WebApiRoute> route = [self routeForTask:dataTask];
-		[self setRoute:route progress:nil forTask:downloadTask];
-		[self setRoute:nil progress:nil forTask:dataTask];
+		AFNetworkingWebApiClientTask *clientTask = [self clientTaskForTask:dataTask];
+		AFNetworkingWebApiClientTask *newClientTask = [[AFNetworkingWebApiClientTask alloc] initWithTaskIdentifier:@(downloadTask.taskIdentifier)
+																											 route:clientTask.route
+																											 queue:clientTask.callbackQueue
+																									 progressBlock:clientTask.progressBlock];
+		newClientTask.uploadProgress = clientTask.uploadProgress;
+		newClientTask.downloadProgress = clientTask.downloadProgress;
+		[self setClientTask:newClientTask forTask:downloadTask];
+		[self setClientTask:nil forTask:dataTask];
 	};
+}
+
+- (void)handleProgressCallbackForClientTask:(AFNetworkingWebApiClientTask *)clientTask {
+	WebApiClientRequestProgressBlock progressBlock = clientTask.progressBlock;
+	if ( progressBlock ) {
+		dispatch_async(clientTask.callbackQueue, ^{
+			progressBlock(clientTask.route.name, clientTask.uploadProgress, clientTask.downloadProgress);
+		});
+	}
 }
 
 - (void (^)(NSURLSession *session, NSURLSessionDataTask *dataTask, NSData *data))dataTaskDidReceiveDataBlock {
 	return ^(NSURLSession * _Nonnull session, NSURLSessionDataTask * _Nonnull task, NSData * _Nonnull data) {
-		id<WebApiRoute> route;
-		NSProgress *progress = [self progressForTask:task];
-		if ( !progress ) {
-			route = [self routeForTask:task];
-			if ( route ) {
-				NSProgress *prog = [NSProgress progressWithTotalUnitCount:task.countOfBytesExpectedToReceive];
-				[prog setUserInfoObject:route forKey:NSStringFromProtocol(@protocol(WebApiRoute))];
-				[self setRoute:route progress:progress forTask:task];
-				progress = prog;
-			}
-		} else {
-			route = progress.userInfo[NSStringFromProtocol(@protocol(WebApiRoute))];
+		AFNetworkingWebApiClientTask *clientTask = [self clientTaskForTask:task];
+		if ( clientTask && !clientTask.downloadProgress ) {
+			NSProgress *prog = [NSProgress progressWithTotalUnitCount:task.countOfBytesExpectedToReceive];
+			clientTask.downloadProgress = prog;
 		}
-		progress.totalUnitCount = task.countOfBytesExpectedToReceive;
-		progress.completedUnitCount = task.countOfBytesReceived;
-		if ( route && progress ) {
+		clientTask.downloadProgress.totalUnitCount = task.countOfBytesExpectedToReceive;
+		clientTask.downloadProgress.completedUnitCount = task.countOfBytesReceived;
+		if ( clientTask ) {
+			[self handleProgressCallbackForClientTask:clientTask];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientResponseDidProgressNotification object:route
+				[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientResponseDidProgressNotification object:clientTask.route
 																  userInfo:@{WebApiClientURLRequestNotificationKey : task.originalRequest,
-																			 WebApiClientProgressNotificationKey : progress}];
+																			 WebApiClientProgressNotificationKey : clientTask.downloadProgress}];
 			});
 		}
 	};
@@ -140,26 +138,19 @@
 
 - (void (^)(NSURLSession *session, NSURLSessionDownloadTask *downloadTask, int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite))downloadTaskDidWriteDataBlock {
 	return ^(NSURLSession * _Nonnull session, NSURLSessionDownloadTask * _Nonnull task, int64_t bytesWritten, int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite) {
-		id<WebApiRoute> route;
-		NSProgress *progress = [self progressForTask:task];
-		if ( !progress ) {
-			route = [self routeForTask:task];
-			if ( route ) {
-				NSProgress *prog = [NSProgress progressWithTotalUnitCount:task.countOfBytesExpectedToReceive];
-				[prog setUserInfoObject:route forKey:NSStringFromProtocol(@protocol(WebApiRoute))];
-				[self setRoute:route progress:progress forTask:task];
-				progress = prog;
-			}
-		} else {
-			route = progress.userInfo[NSStringFromProtocol(@protocol(WebApiRoute))];
+		AFNetworkingWebApiClientTask *clientTask = [self clientTaskForTask:task];
+		if ( clientTask && !clientTask.downloadProgress ) {
+			NSProgress *prog = [NSProgress progressWithTotalUnitCount:task.countOfBytesExpectedToReceive];
+			clientTask.downloadProgress = prog;
 		}
-		progress.totalUnitCount = totalBytesExpectedToWrite;
-		progress.completedUnitCount = totalBytesWritten;
-		if ( route && progress ) {
+		clientTask.downloadProgress.totalUnitCount = totalBytesExpectedToWrite;
+		clientTask.downloadProgress.completedUnitCount = totalBytesWritten;
+		if ( clientTask ) {
+			[self handleProgressCallbackForClientTask:clientTask];
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientResponseDidProgressNotification object:route
+				[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientResponseDidProgressNotification object:clientTask.route
 																  userInfo:@{WebApiClientURLRequestNotificationKey : task.originalRequest,
-																			 WebApiClientProgressNotificationKey : progress}];
+																			 WebApiClientProgressNotificationKey : clientTask.downloadProgress}];
 			});
 		}
 	};
@@ -195,46 +186,30 @@
 - (NSArray *)activeTaskIdentifiers {
 	NSArray *idents = nil;
 	[lock lock];
-	idents = [tasksToRoutes allKeys];
+	idents = [tasks allKeys];
 	[lock unlock];
 	return idents;
 }
 
-- (id<WebApiRoute>)routeForActiveTaskIdentifier:(NSUInteger)identifier {
-	id<WebApiRoute> route = nil;
+- (AFNetworkingWebApiClientTask *)clientTaskForActiveTaskIdentifier:(NSUInteger)identifier {
+	AFNetworkingWebApiClientTask *clientTask = nil;
 	[lock lock];
-	route = tasksToRoutes[@(identifier)];
+	clientTask = tasks[@(identifier)];
 	[lock unlock];
-	return route;
+	return clientTask;
 }
 
-- (NSProgress *)progressForActiveTaskIdentifier:(NSUInteger)identifier {
-	NSProgress *progress = nil;
-	[lock lock];
-	progress = tasksToProgress[@(identifier)];
-	[lock unlock];
-	return progress;
+- (AFNetworkingWebApiClientTask *)clientTaskForTask:(NSURLSessionTask *)task {
+	return [self clientTaskForActiveTaskIdentifier:task.taskIdentifier];
 }
 
-- (id<WebApiRoute>)routeForTask:(NSURLSessionTask *)task {
-	return [self routeForActiveTaskIdentifier:task.taskIdentifier];
-}
-
-- (NSProgress *)progressForTask:(NSURLSessionTask *)task {
-	return [self progressForActiveTaskIdentifier:task.taskIdentifier];
-}
-
-- (void)setRoute:(id<WebApiRoute>)route progress:(nullable NSProgress *)progress forTask:(NSURLSessionTask *)task {
+- (void)setClientTask:(AFNetworkingWebApiClientTask *)clientTask forTask:(NSURLSessionTask *)task {
 	[lock lock];
 	NSNumber *key = @(task.taskIdentifier);
-	if ( route == nil ) {
-		[tasksToRoutes removeObjectForKey:key];
-		[tasksToProgress removeObjectForKey:key];
+	if ( clientTask == nil ) {
+		[tasks removeObjectForKey:key];
 	} else {
-		tasksToRoutes[key] = route;
-		if ( progress ) {
-			tasksToProgress[key] = progress;
-		}
+		tasks[key] = clientTask;
 	}
 	[lock unlock];
 }
@@ -243,20 +218,20 @@
 
 - (void)taskDidResume:(NSNotification *)note {
 	NSURLSessionTask *task = note.object;
-	id<WebApiRoute> route = [self routeForTask:task];
-	if ( route ) {
-		[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientRequestDidBeginNotification object:route
+	AFNetworkingWebApiClientTask *clientTask = [self clientTaskForTask:task];
+	if ( clientTask ) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientRequestDidBeginNotification object:clientTask.route
 														  userInfo:@{WebApiClientURLRequestNotificationKey : task.originalRequest}];
 	}
 }
 
 - (void)taskDidComplete:(NSNotification *)notification {
 	NSURLSessionTask *task = notification.object;
-	id<WebApiRoute> route = [self routeForTask:task];
-	if ( !route ) {
+	AFNetworkingWebApiClientTask *clientTask = [self clientTaskForTask:task];
+	if ( !clientTask ) {
 		return;
 	}
-	[self setRoute:nil progress:nil forTask:task];
+	[self setClientTask:nil forTask:task];
 	NSError *error = notification.userInfo[AFNetworkingTaskDidCompleteErrorKey];
 	NSNotification *note = nil;
 	if ( error ) {
@@ -268,10 +243,10 @@
 		if ( task.response ) {
 			info[WebApiClientURLResponseNotificationKey] = task.response;
 		}
-		note = [[NSNotification alloc] initWithName:WebApiClientRequestDidFailNotification object:route
+		note = [[NSNotification alloc] initWithName:WebApiClientRequestDidFailNotification object:clientTask.route
 										   userInfo:info];
 	} else {
-		note = [[NSNotification alloc] initWithName:WebApiClientRequestDidSucceedNotification object:route
+		note = [[NSNotification alloc] initWithName:WebApiClientRequestDidSucceedNotification object:clientTask.route
 										   userInfo:@{WebApiClientURLRequestNotificationKey : task.originalRequest,
 													  WebApiClientURLResponseNotificationKey : task.response}];
 	}
@@ -289,7 +264,8 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 		parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data
 			 queue:(dispatch_queue_t)callbackQueue
-		  finished:(void (^)(id<WebApiResponse> response, NSError * __nullable error))callback {
+		  progress:(nullable WebApiClientRequestProgressBlock)progressCallback
+		  finished:(nonnull void (^)(id<WebApiResponse> _Nonnull, NSError * _Nullable))callback {
 
 	void (^doCallback)(id<WebApiResponse>, NSError *) = ^(id<WebApiResponse> response, NSError *error) {
 		if ( callback ) {
@@ -420,7 +396,11 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 		} else {
 			task = [manager dataTaskWithRequest:req completionHandler:responseHandler];
 		}
-		[self setRoute:route progress:progress forTask:task];
+		AFNetworkingWebApiClientTask *clientTask = [[AFNetworkingWebApiClientTask alloc] initWithTaskIdentifier:@(task.taskIdentifier)
+																										  route:route
+																										  queue:callbackQueue
+																								  progressBlock:progressCallback];
+		[self setClientTask:clientTask forTask:task];
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[[NSNotificationCenter defaultCenter] postNotificationName:WebApiClientRequestWillBeginNotification object:route
 															  userInfo:@{WebApiClientURLRequestNotificationKey : req}];

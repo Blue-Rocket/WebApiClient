@@ -176,12 +176,13 @@ static id<WebApiClient> SharedGlobalClient;
 
 - (void)requestAPI:(NSString * __nonnull)name withPathVariables:(nullable id)pathVariables parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data finished:(void (^ __nonnull)(id<WebApiResponse> __nonnull, NSError * __nullable))callback {
-	return [self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() finished:callback];
+	return [self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() progress:nil finished:callback];
 }
 
 - (void)requestAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters
 			  data:(id<WebApiResource>)data queue:(dispatch_queue_t)callbackQueue
-		  finished:(void (^)(id<WebApiResponse> _Nonnull, NSError * _Nullable))callback {
+		  progress:(nullable WebApiClientRequestProgressBlock)progressCallback
+		  finished:(nonnull void (^)(id<WebApiResponse> _Nonnull, NSError * _Nullable))callback {
 	void (^doCallback)(id<WebApiResponse> __nonnull, NSError * __nullable) = ^(id<WebApiResponse> __nonnull response, NSError * __nullable error){
 		dispatch_async(callbackQueue, ^{
 			callback(response, error);
@@ -200,7 +201,7 @@ static id<WebApiClient> SharedGlobalClient;
 	void (^delegateRequest)(void) = ^{
 		__weak PINCache *weakDataCache = dataCache;
 		__weak PINCache *weakEntryCache = entryCache;
-		[self.client requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:callbackQueue finished:^(id<WebApiResponse> __nonnull response, NSError * __nullable error) {
+		[self.client requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:callbackQueue progress:progressCallback finished:^(id<WebApiResponse> __nonnull response, NSError * __nullable error) {
 			if ( cacheKey && response && error == nil && response.statusCode >= 200 && response.statusCode < 300 && [response conformsToProtocol:@protocol(NSCoding)]) {
 				// valid response; cache the data
 				WebApiClientCacheEntry *entry = [[WebApiClientCacheEntry alloc] initWithCreationTime:[NSDate timeIntervalSinceReferenceDate]
