@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		829E84144DC23B6D266B1595 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */; };
 		950E0B6676F12C92DE0509B8 /* libPods-WebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */; };
+		C942F63D1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C942F63C1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m */; settings = {ASSET_TAGS = (); }; };
 		C96C6BA71BD7FD3000311868 /* WebApiClientDigestUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BA51BD7FD3000311868 /* WebApiClientDigestUtils.c */; settings = {ASSET_TAGS = (); }; };
 		C96C6BA91BD8011300311868 /* WebApiClientDigestUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */; settings = {ASSET_TAGS = (); }; };
 		C96C6BAB1BD80ABF00311868 /* DataWebApiResourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */; settings = {ASSET_TAGS = (); }; };
@@ -66,6 +67,8 @@
 		ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.release.xcconfig"; sourceTree = "<group>"; };
 		AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.release.xcconfig"; sourceTree = "<group>"; };
 		B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.debug.xcconfig"; sourceTree = "<group>"; };
+		C942F63B1BD8862200E06A8C /* AFNetworkingWebApiClientTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkingWebApiClientTask.h; sourceTree = "<group>"; };
+		C942F63C1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkingWebApiClientTask.m; sourceTree = "<group>"; };
 		C96C6BA51BD7FD3000311868 /* WebApiClientDigestUtils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WebApiClientDigestUtils.c; sourceTree = "<group>"; };
 		C96C6BA61BD7FD3000311868 /* WebApiClientDigestUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientDigestUtils.h; sourceTree = "<group>"; };
 		C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientDigestUtilsTests.m; sourceTree = "<group>"; };
@@ -241,6 +244,8 @@
 			children = (
 				C9ED94301BA8DA1D00DE842F /* AFNetworkingWebApiClient.h */,
 				C9ED94311BA8DA1D00DE842F /* AFNetworkingWebApiClient.m */,
+				C942F63B1BD8862200E06A8C /* AFNetworkingWebApiClientTask.h */,
+				C942F63C1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m */,
 			);
 			path = "WebApiClient-AFNetworking";
 			sourceTree = "<group>";
@@ -379,7 +384,7 @@
 		C9ED93DD1BA8D86500DE842F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Blue Rocket, Inc.";
 				TargetAttributes = {
 					C9ED93E41BA8D86500DE842F = {
@@ -511,6 +516,7 @@
 				C96C6BA71BD7FD3000311868 /* WebApiClientDigestUtils.c in Sources */,
 				C9ED944F1BA8DA1D00DE842F /* AFNetworkingWebApiClient.m in Sources */,
 				C9ED944C1BA8DA1D00DE842F /* WebApiClientEnvironment.m in Sources */,
+				C942F63D1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m in Sources */,
 				C9ED94481BA8DA1D00DE842F /* DataWebApiResource.m in Sources */,
 				C9ED94541BA8DA1D00DE842F /* RestKitWebApiDataMapper.m in Sources */,
 				C9ED944A1BA8DA1D00DE842F /* NSDictionary+WebApiClient.m in Sources */,
@@ -568,6 +574,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -659,6 +666,7 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "us.bluerocket.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -674,6 +682,7 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "us.bluerocket.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

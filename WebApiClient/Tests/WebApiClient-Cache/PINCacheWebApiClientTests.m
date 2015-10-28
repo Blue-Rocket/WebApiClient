@@ -35,6 +35,7 @@
 	PINCache *entryCache;
 	PINCache *dataCache;
 	NSMutableArray *cachedEntries;
+	NSMutableArray *removedEntries;
 	NSMutableArray *cachedData;
 	int count;
 }
@@ -48,12 +49,17 @@
 	
 	// dictionaries to collect cache objects
 	cachedEntries = [[NSMutableArray alloc] initWithCapacity:8];
+	removedEntries = [[NSMutableArray alloc] initWithCapacity:8];
 	cachedData = [[NSMutableArray alloc] initWithCapacity:8];
 	
 	entryCache = [[PINCache alloc] initWithName:@"PINCacheWebApiClientTests-EntryCache"];
 	entryCache.memoryCache.willAddObjectBlock = ^(PINMemoryCache *cache, NSString *key, id __nullable object) {
 		[cachedEntries addObject:@{@"key" : key, @"value" : object}];
 	};
+	entryCache.memoryCache.willRemoveObjectBlock = ^(PINMemoryCache *cache, NSString *key, id __nullable object) {
+		[removedEntries addObject:key];
+	};
+	
 	dataCache = [[PINCache alloc] initWithName:@"PINCacheWebApiClientTests-DataCache"];
 	dataCache.memoryCache.willAddObjectBlock = ^(PINMemoryCache *cache, NSString *key, id __nullable object) {
 		[cachedData addObject:@{@"key" : key, @"value" : object}];
@@ -189,7 +195,7 @@
 	}];
 	
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
-	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) finished:^(id<WebApiResponse> response, NSError *error) {
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) progress:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
 		assertThat(response.responseObject[@"success"], equalTo(@YES));
 		assertThat(error, nilValue());
@@ -216,7 +222,7 @@
 	[self testInvokeSimpleGET];
 	
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
-	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) finished:^(id<WebApiResponse> response, NSError *error) {
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) progress:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThatBool([NSThread isMainThread], describedAs(@"Should NOT be on main thread", isFalse(), nil));
 		assertThat(response.responseObject[@"success"], equalTo(@YES));
 		assertThat(error, nilValue());
@@ -469,6 +475,58 @@
 	id<WebApiResponse> response = [cachedData firstObject][@"value"];
 	assertThatInt(response.statusCode, equalToInt(200));
 	assertThat(response.responseObject[@"success"], equalTo(@YES));
+}
+
+- (void)testInvalidatingRequest {
+	[self.http handleMethod:@"GET" withPath:@"/documents/list" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	// first get list, which should cache the results
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"documentList" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(600));
+	
+	assertThat(cachedData, hasCountOf(1));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+
+	// and nothing deleted yet
+	assertThat(removedEntries, hasCountOf(0));
+	
+	// now, call DELETE endpoint, which should invalidate and remove that cached data
+	[self.http handleMethod:@"DELETE" withPath:@"/documents/123" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"Delete"];
+	[cachingClient requestAPI:@"deleteDocument" withPathVariables:@{@"documentId" : @123} parameters:nil data:nil finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[deleteExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// and now we should have deleted
+	assertThat(removedEntries, hasCountOf(1));
+	assertThat([removedEntries firstObject], startsWith(@"documentList:"));
 }
 
 @end

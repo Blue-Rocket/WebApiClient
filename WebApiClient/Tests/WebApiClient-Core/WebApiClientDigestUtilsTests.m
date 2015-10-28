@@ -16,6 +16,21 @@
 
 @implementation WebApiClientDigestUtilsTests
 
+- (void)testMD5DigestString {
+	NSString *input = @"test string";
+	CFDataRef digest = WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)input);
+	
+	UInt8 expected[16] = {0x6f, 0x8d, 0xb5, 0x99, 0xde, 0x98, 0x6f, 0xab, 0x7a, 0x21, 0x62, 0x5b, 0x79, 0x16, 0x58, 0x9c};
+	assertThatInt(CFDataGetLength(digest), equalToInt(16));
+	
+	const UInt8 *bytes = CFDataGetBytePtr(digest);
+	for ( CFIndex i = 0; i < 16; i++ ) {
+		assertThatUnsignedInt(bytes[i], equalToUnsignedInt(expected[i]));
+	}
+	
+	CFRelease(digest);
+}
+
 - (void)testMD5DigestData {
 	const unsigned char input[4] = {4, 8, 12, 24};
 	CFDataRef data = CFDataCreate(kCFAllocatorDefault, input, 4);

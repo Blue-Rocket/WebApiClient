@@ -13,6 +13,14 @@
 // In bytes
 #define FileHashDefaultChunkSizeForReadingData 4096
 
+CFDataRef WebApiClientMD5DigestCreateWithString(CFStringRef string) {
+	CFDataRef data = CFStringCreateExternalRepresentation(kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0);
+	if ( data ) {
+		data = WebApiClientMD5DigestCreateWithData(data);
+	}
+	return data;
+}
+
 CFDataRef WebApiClientMD5DigestCreateWithData(CFDataRef data) {
 	unsigned char result[CC_MD5_DIGEST_LENGTH];
 	CC_MD5(CFDataGetBytePtr(data), (CC_LONG)CFDataGetLength(data), result);

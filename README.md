@@ -40,8 +40,21 @@ By default the callback block is called on the main thread (queue). If you prefe
         parameters:(id)parameters 
               data:(id<WebApiResource>)data
              queue:(dispatch_queue_t)callbackQueue
+          progress:(nullable WebApiClientRequestProgressBlock)progressCallback
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
+
+## Progress callback support
+
+The same method that accepts an explicit callback block shown in the previous section also accepts an optional `WebApiClientRequestProgressBlock`, which is defined as this:
+
+```objc
+typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName, 
+                                                 NSProgress * _Nullable uploadProgress, 
+                                                 NSProgress * _Nullable downloadProgress);
+```
+
+By passing in this type of block to the `progress` parameter, you can monitor both the upload and download progress of the HTTP request. In addition the `WebApiClientRequestDidProgressNotification` and `WebApiClientResponseDidProgressNotification` notifications can be used to listen for progress updates as well. The `WebApiClientProgressNotificationKey` notification user info key will contain the relevant `NSProgress` object.
 
 ## Synchronous request support
 
@@ -161,15 +174,13 @@ Here's an example route that configures both request and response compression:
 }
 ```
 
-### Upload data (multipart/form-data)
-
-You can upload data as attachments encoded using the `multipart/form-data` MIME scheme by passing a `WebApiResource` instance on the `data` parameter in the WebApiClient API. WebApiClient provides two implementations of `WebApiResource`: `DataWebApiResource` for in-memory data and `FileWebApiResource` for file-based data.
-
-The `parameters` object, if provided, will also be included in the request, serialized into additional parts of the request body.
-
 ### Upload raw data
 
-Instead of uploading data as a _multipart/form-data_ attachment encoding, raw data can be uploaded directly in the body of the HTTP request. This can be useful, for example, when you need to upload images, or any other type of data, and the URL contains sufficient information to identify the content. To perform a raw data upload, configure a route with a serialization type of `none`:
+Raw data can be uploaded directly in the body of the HTTP request. This can be useful, for example, when you need to upload images, or any other type of data, and the URL contains sufficient information to identify the content. To perform a raw data upload, pass a [WebApiResource][WebApiResource] instance on the `data` parameter in the WebApiClient API. WebApiClient provides two implementations of `WebApiResource`: `DataWebApiResource` for in-memory data and `FileWebApiResource` for file-based data. The `WebApiResource` instance you pass in will be sent directly in the body of the request, and appropriate `Content-Type` and `Content-MD5` HTTP headers will be included. This means the `parameters` object is ignored. If you need to post both parameters _and_ a file, use the `multipart/form-data` upload method described in the next section.
+
+### Upload data (multipart/form-data)
+
+Instead of uploading raw data, you can also upload using a `multipart/form-data` attachment encoding by passing a [WebApiResource][WebApiResource] instance on the `data` parameter in the WebApiClient API and configuring the route with a serialization type of `form`, like this:
 
 ```json
 {
@@ -178,13 +189,47 @@ Instead of uploading data as a _multipart/form-data_ attachment encoding, raw da
       "trim" : {
         "method" : "POST",
         "path" : "upload/image",
-        "serializationName" : "none"
+        "serializationName" : "form"
       }
     }
   }
 }
 ```
-Then the `WebApiResource` instance you pass on your request as the `data` parameter will be sent directly in the body of the request. This means the `parameters` object is ignored. If you need to post both parameters _and_ a file, use the `multipart/form-data` upload method described in the previous section.
+
+The WebApiClient API `parameters` object, if provided, will also be included in the request, serialized into additional parts of the request body.
+
+### Download raw data
+
+You can configure a route to save the response data into a file, instead of the default of loading the response in RAM, by adding a `saveAsResource` property with a _truthy_ value, like this:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "download" : {
+        "method" : "GET",
+        "path" : "download/image",
+        "saveAsResource" : true
+      }
+    }
+  }
+}
+```
+
+Then the `responseObject` returned in the `WebApiResponse` will be a [WebApiResource][WebApiResource] which you can then move to an appropriate location as needed, for example:
+
+```objc
+[client requestAPI:@"download" withPathVariables:nil parameters:nil data:nil 
+             queue:dispatch_get_main_queue() 
+          progress:nil
+          finished:^(id<WebApiResponse> response, NSError *error) {
+    if ( !error ) {
+        id<WebApiResource> resource = response.responseObject;
+        NSURL *dest = [NSURL fileURLWithPath:@"/some/path"];
+        [[NSFileManager defaultManager] moveItemAtURL:[resource URLValue] toURL:dest error:nil];
+    }
+}];
+```
 
 
 # Module: Cache
@@ -204,6 +249,31 @@ The **Cache** module provides response caching support to the `WebApiClient` API
   }
 }
 ```
+
+## Routes that invalidate cached data for other routes
+
+You can also configure a route so that it invalidates any cached data for _other_ routes. A good example of where this is useful is when you define a _list_ route that returns a list of objects, and another _add_ route to add to that same list of objects. We can make the latter route invalidate the cached data of the former like this:
+
+```json
+{
+  "webservice" : {
+    "api" : {
+      "list" : {
+        "method" : "GET",
+        "path" : "stuff/list",
+        "cacheTTL" : 3600
+      },
+      "add" : {
+        "method" : "PUT",
+        "path" : "stuff/:thingId",
+        "invalidatesCachedRouteNames" : [ "list" ]
+      }
+    }
+  }
+}
+```
+
+The `invalidatesCachedRouteNames` is configured as an array of route names that should be invalidated when that route is called successfully.
 
 
 # Module: RestKit
@@ -293,3 +363,4 @@ The **UI** module provides some UI utilities, such as the `WebApiClientActivityS
  [afn]: https://github.com/AFNetworking/AFNetworking
  [rk]: https://github.com/RestKit/RestKit
  [pcache]: https://github.com/pinterest/PINCache
+ [WebApiResource]: https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiResource.h

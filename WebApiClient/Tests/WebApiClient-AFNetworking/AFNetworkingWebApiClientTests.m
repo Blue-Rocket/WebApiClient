@@ -156,6 +156,7 @@
 	
 	__block BOOL called = NO;
 	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+			  progress:nil 
 			  finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
@@ -369,7 +370,7 @@
 	
 	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
-	[client requestAPI:@"upload-image" withPathVariables:r parameters:nil data:r finished:^(id<WebApiResponse> response, NSError *error) {
+	[client requestAPI:@"upload-image" withPathVariables:nil parameters:nil data:r finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"upload-image"));
@@ -378,6 +379,138 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testRawDataUploadWithProgress {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSNumber *fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[fileURL path] error:nil][NSFileSize];
+	NSString *fileMD5 = [[[NSData dataWithContentsOfURL:fileURL] md5Digest] hexStringValue];
+	[self.http handleMethod:@"POST" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		NSData *bodyData = [request body];
+		NSString *md5 = [[bodyData md5Digest] hexStringValue];
+		assertThat(md5, equalTo(fileMD5));
+		assertThat([request header:@"Content-Length"], equalTo([NSString stringWithFormat:@"%llu", [fileSize unsignedLongLongValue]]));
+		assertThat([request header:@"Content-Type"], equalTo(@"image/png"));
+		assertThat([request header:@"Content-MD5"], equalTo(@"7166135eb596e03ad359f2dfb91f5ed4"));
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	__block BOOL uploadProgressed = NO;
+	__block BOOL downloadProgressed = NO;
+	[client requestAPI:@"upload-image" withPathVariables:nil parameters:nil data:r queue:dispatch_get_main_queue() progress:^(NSString * _Nonnull routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress) {
+		if ( uploadProgress ) {
+			assertThatDouble(uploadProgress.fractionCompleted, greaterThan(@0));
+			uploadProgressed = YES;
+		}
+		if ( downloadProgress ) {
+			assertThatDouble(downloadProgress.fractionCompleted, greaterThan(@0));
+			downloadProgressed = YES;
+		}
+		assertThat(routeName, equalTo(@"upload-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+	} finished:^(id<WebApiResponse>  _Nonnull response, NSError * _Nullable error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"upload-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+	assertThatBool(uploadProgressed, describedAs(@"Got upload progress", isTrue(), nil));
+	assertThatBool(downloadProgressed, describedAs(@"Got download progress", isTrue(), nil));
+}
+
+- (void)testRawDataUploadProgressNotifications {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSNumber *fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[fileURL path] error:nil][NSFileSize];
+	NSString *fileMD5 = [[[NSData dataWithContentsOfURL:fileURL] md5Digest] hexStringValue];
+	[self.http handleMethod:@"POST" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		NSData *bodyData = [request body];
+		NSString *md5 = [[bodyData md5Digest] hexStringValue];
+		assertThat(md5, equalTo(fileMD5));
+		assertThat([request header:@"Content-Length"], equalTo([NSString stringWithFormat:@"%llu", [fileSize unsignedLongLongValue]]));
+		assertThat([request header:@"Content-Type"], equalTo(@"image/png"));
+		assertThat([request header:@"Content-MD5"], equalTo(@"7166135eb596e03ad359f2dfb91f5ed4"));
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	id<WebApiRoute> route = [client routeForName:@"upload-image" error:nil];
+	NSString *routeURLString = [self httpURLForRelativePath:@"image"].absoluteString;
+	
+	__block BOOL willBegin = NO;
+	[self expectationForNotification:WebApiClientRequestWillBeginNotification object:route handler:^BOOL(NSNotification *note) {
+		NSURLRequest *req = [note userInfo][WebApiClientURLRequestNotificationKey];
+		NSURLResponse *res = [note userInfo][WebApiClientURLResponseNotificationKey];
+		assertThat(req.URL.absoluteString, equalTo(routeURLString));
+		assertThat(res, nilValue());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		willBegin = YES;
+		return YES;
+	}];
+	
+	__block BOOL didBegin = NO;
+	[self expectationForNotification:WebApiClientRequestDidBeginNotification object:route handler:^BOOL(NSNotification *note) {
+		didBegin = YES;
+		NSURLRequest *req = [note userInfo][WebApiClientURLRequestNotificationKey];
+		NSURLResponse *res = [note userInfo][WebApiClientURLResponseNotificationKey];
+		assertThat(req.URL.absoluteString, equalTo(routeURLString));
+		assertThat(res, nilValue());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		
+		// make sure task identifier is tracked appropriately
+		assertThat(client.activeTaskIdentifiers, hasCountOf(1));
+		return YES;
+	}];
+	
+	__block BOOL didProgress = NO;
+	[self expectationForNotification:WebApiClientRequestDidProgressNotification object:route handler:^BOOL(NSNotification *note) {
+		didProgress = YES;
+		NSURLRequest *req = [note userInfo][WebApiClientURLRequestNotificationKey];
+		NSProgress *progress = [note userInfo][WebApiClientProgressNotificationKey];
+		assertThat(req.URL.absoluteString, equalTo(routeURLString));
+		assertThat(progress, notNilValue());
+		assertThatDouble(progress.fractionCompleted, greaterThan(@0));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		
+		// make sure task identifier is released appropriately
+		assertThat(client.activeTaskIdentifiers, hasCountOf(1));
+		
+		return YES;
+	}];
+	
+	__block BOOL didSucceed = NO;
+	[self expectationForNotification:WebApiClientRequestDidSucceedNotification object:route handler:^BOOL(NSNotification *note) {
+		didSucceed = YES;
+		NSURLRequest *req = [note userInfo][WebApiClientURLRequestNotificationKey];
+		NSURLResponse *res = [note userInfo][WebApiClientURLResponseNotificationKey];
+		assertThat(req.URL.absoluteString, equalTo(routeURLString));
+		assertThat(res, notNilValue());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		
+		// make sure task identifier is released appropriately
+		assertThat(client.activeTaskIdentifiers, isEmpty());
+		
+		return YES;
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"upload-image" withPathVariables:nil parameters:nil data:r finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"upload-image"));
+		assertThatBool(willBegin, isTrue());
+		assertThatBool(didBegin, isTrue());
+		assertThatBool(didProgress, isTrue());
+		assertThatBool(didSucceed, isFalse());
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testFormPOST {
@@ -465,6 +598,105 @@
 		[requestExpectation fulfill];
 	}];
 	[self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testImageRequest {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	UIImage *image = [UIImage imageWithContentsOfFile:[fileURL path]];
+	[self.http handleMethod:@"GET" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		[response setStatusCode:200];
+		[response respondWithFile:fileURL.path async:YES];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"image" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, instanceOf([UIImage class]));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		
+		UIImage *img = response.responseObject;
+		assertThatInt((int)(image.size.width * image.scale), equalToInt((int)(img.size.width * img.scale)));
+		assertThatInt((int)(image.size.height * image.scale), equalToInt((int)(img.size.height * img.scale)));
+		
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+
+- (void)testImageDownload {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSNumber *fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[fileURL path] error:nil][NSFileSize];
+	NSString *fileMD5 = [[[NSData dataWithContentsOfURL:fileURL] md5Digest] hexStringValue];
+	[self.http handleMethod:@"GET" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		[response setStatusCode:200];
+		[response respondWithFile:fileURL.path async:YES];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"download-image" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, instanceOf([FileWebApiResource class]));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"download-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		
+		FileWebApiResource *resource = response.responseObject;
+		assertThat(resource, isNot(sameInstance(r)));
+		assertThat(resource.MIMEType, equalTo(@"image/png"));
+		assertThat(resource.MD5, equalTo(fileMD5));
+		assertThatLongLong(resource.length, equalTo(fileSize));
+		
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+- (void)testImageDownloadWithProgress {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSNumber *fileSize = [[NSFileManager defaultManager] attributesOfItemAtPath:[fileURL path] error:nil][NSFileSize];
+	NSString *fileMD5 = [[[NSData dataWithContentsOfURL:fileURL] md5Digest] hexStringValue];
+	[self.http handleMethod:@"GET" withPath:@"/image" block:^(RouteRequest *request, RouteResponse *response) {
+		[response setStatusCode:200];
+		[response respondWithFile:fileURL.path async:YES];
+	}];
+	
+	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	__block BOOL uploadProgressed = NO;
+	__block BOOL downloadProgressed = NO;
+	[client requestAPI:@"download-image" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_main_queue() progress:^(NSString * _Nonnull routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress) {
+		if ( uploadProgress ) {
+			uploadProgressed = YES;
+		}
+		if ( downloadProgress ) {
+			assertThatDouble(downloadProgress.fractionCompleted, greaterThan(@0));
+			downloadProgressed = YES;
+		}
+		assertThat(routeName, equalTo(@"download-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+	} finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		assertThat(response.responseObject, instanceOf([FileWebApiResource class]));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"download-image"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		
+		FileWebApiResource *resource = response.responseObject;
+		assertThat(resource, isNot(sameInstance(r)));
+		assertThat(resource.MIMEType, equalTo(@"image/png"));
+		assertThat(resource.MD5, equalTo(fileMD5));
+		assertThatLongLong(resource.length, equalTo(fileSize));
+		assertThat([resource URLValue], notNilValue());
+		
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+	assertThatBool(uploadProgressed, describedAs(@"There should be no upload progress for GET", isFalse(), nil));
+	assertThatBool(downloadProgressed, describedAs(@"Got download progress", isTrue(), nil));
 }
 
 @end

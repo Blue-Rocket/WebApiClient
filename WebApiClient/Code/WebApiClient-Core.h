@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Blue Rocket. Distributable under the terms of the Apache License, Version 2.0.
 //
 
+#import <WebApiClient/DataWebApiResource.h>
 #import <WebApiClient/FileWebApiResource.h>
 #import <WebApiClient/NSDictionary+WebApiClient.h>
 #import <WebApiClient/WebApiAuthorizationProvider.h>

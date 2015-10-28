@@ -65,4 +65,8 @@
 	return result;
 }
 
+- (nullable NSURL *)URLValue {
+	return nil;
+}
+
 @end

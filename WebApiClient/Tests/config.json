@@ -40,7 +40,7 @@
 			},
 			"saveDoc" : {
 				"method" : "PUT",
-				"path" : "document/:uniqueId"
+				"path" : "document/:uniqueId",
 			},
 			"saveDocGzip" : {
 				"method" : "PUT",
@@ -49,7 +49,8 @@
 			},
 			"file" : {
 				"method" : "POST",
-				"path" : "file/:name"
+				"path" : "file/:name",
+				"serializationName" : "form"
 			},
 			"form-post" : {
 				"method" : "POST",
@@ -66,6 +67,17 @@
 				"path" : "image",
 				"serializationName" : "none"
 			},
+			"image" : {
+				"method" : "GET",
+				"path" : "image",
+				"serializationName" : "none"
+			},
+			"download-image" : {
+				"method" : "GET",
+				"path" : "image",
+				"serializationName" : "none",
+				"saveAsResource" : true
+			},
 			"elsewhere" : {
 				"method" : "GET",
 				"path" : ":baseURL/yes/i/can"
@@ -77,6 +89,16 @@
 					"Accept-Encoding" : "gzip",
 					"X-Whoo" : "Hoo!"
 				}
+			},
+			"documentList" : {
+				"method" : "GET",
+				"path" : "documents/list",
+				"cacheTTL" : 600
+			},
+			"deleteDocument" : {
+				"method" : "DELETE",
+				"path" : "documents/:documentId",
+				"invalidatesCachedRouteNames" : ["documentList"]
 			}
 		}
 	}

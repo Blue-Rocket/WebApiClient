@@ -60,6 +60,11 @@ static CFStringRef CreateURLEncodedQueryParameterString(CFStringRef string) {
 	return [val boolValue];
 }
 
+- (BOOL)isSaveAsResource {
+	NSNumber *val = self[@"saveAsResource"];
+	return [val boolValue];
+}
+
 - (NSDictionary<NSString *, NSString *> *)requestHeaders {
 	return self[NSStringFromSelector(@selector(requestHeaders))];
 }
@@ -187,6 +192,10 @@ static CFStringRef CreateURLEncodedQueryParameterString(CFStringRef string) {
 
 - (void)setGzip:(BOOL)gzip {
 	[self setOrRemoveObject:@(gzip) forKey:@"gzip"];
+}
+
+- (void)setSaveAsResource:(BOOL)saveAsResource {
+	[self setOrRemoveObject:@(saveAsResource) forKey:@"saveAsResource"];
 }
 
 - (void)setRequestHeaders:(NSDictionary<NSString *,NSString *> *)requestHeaders {

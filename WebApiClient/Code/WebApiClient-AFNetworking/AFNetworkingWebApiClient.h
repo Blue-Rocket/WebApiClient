@@ -8,6 +8,10 @@
 
 #import "WebApiClientSupport.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol AFURLResponseSerialization;
+
 /**
  Implementation of @c WebApiClient using AFNetworking with NSURLSessionManager.
  
@@ -17,16 +21,12 @@
  */
 @interface AFNetworkingWebApiClient : WebApiClientSupport
 
-/** An array of active task identifiers, as @c NSNumber instances. */
-@property (nonatomic, readonly) NSArray *activeTaskIdentifiers;
+/** A URL response serialization object to use. This will default to one that accepts any type of data. */
+@property (nonatomic, strong) id<AFURLResponseSerialization> responseSerializer;
 
-/**
- Get a route associated with an active task identifer.
- 
- @param identifier The @c NSURLSessionTask identifier to get the route for.
- @return The route associated with the identifier, or @c nil if not available.
- @see activeTaskIdentifiers
- */
-- (id<WebApiRoute>)routeForActiveTaskIdentifier:(NSUInteger)identifier;
+/** An array of active task identifiers, as @c NSNumber instances. */
+@property (nonatomic, readonly) NSArray<NSNumber *> *activeTaskIdentifiers;
 
 @end
+
+NS_ASSUME_NONNULL_END

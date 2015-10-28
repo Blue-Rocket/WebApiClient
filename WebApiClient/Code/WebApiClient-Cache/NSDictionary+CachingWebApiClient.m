@@ -17,12 +17,21 @@
 	return [val doubleValue];
 }
 
+- (NSArray<NSString *> *)invalidatesCachedRouteNames {
+	id val = self[NSStringFromSelector(@selector(invalidatesCachedRouteNames))];
+	return ([val isKindOfClass:[NSArray class]] ? val : nil);
+}
+
 @end
 
 @implementation NSMutableDictionary (CachingWebApiRoute)
 
 - (void)setCacheTTL:(NSTimeInterval)ttl {
 	[self setOrRemoveObject:@(ttl) forKey:NSStringFromSelector(@selector(cacheTTL))];
+}
+
+- (void)setInvalidatesCachedRouteNames:(NSArray<NSString *> *)invalidatesCachedRouteNames {
+	[self setOrRemoveObject:invalidatesCachedRouteNames forKey:NSStringFromSelector(@selector(invalidatesCachedRouteNames))];
 }
 
 @end

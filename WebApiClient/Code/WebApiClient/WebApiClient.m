@@ -19,6 +19,8 @@ NSString * const WebApiClientRequestDidBeginNotification = @"WebApiClientRequest
 
 NSString * const WebApiClientRequestDidProgressNotification = @"WebApiClientRequestDidProgress";
 
+NSString * const WebApiClientResponseDidProgressNotification = @"WebApiClientResponseDidProgress";
+
 NSString * const WebApiClientRequestDidSucceedNotification = @"WebApiClientRequestDidSucceed";
 
 NSString * const WebApiClientRequestDidFailNotification = @"WebApiClientRequestDidFail";
@@ -28,3 +30,5 @@ NSString * const WebApiClientRequestDidCancelNotification = @"WebApiClientReques
 NSString * const WebApiClientURLRequestNotificationKey = @"request";
 
 NSString * const WebApiClientURLResponseNotificationKey = @"response";
+
+NSString * const WebApiClientProgressNotificationKey = @"progress";
