@@ -110,6 +110,9 @@
 	assertThat(contentType, startsWith(@"multipart/form-data"));
 	NSUInteger paramsIdx = [contentType rangeOfString:@";"].location;
 	assertThatUnsignedInteger(paramsIdx, greaterThan(@0));
+	if ( paramsIdx == NSNotFound ) {
+		return nil;
+	}
 	NSArray *contentParams = [[contentType substringFromIndex:(paramsIdx + 1)] componentsSeparatedByString:@";"];
 	assertThatUnsignedInteger(contentParams.count, greaterThan(@0));
 	NSString *boundaryParam = contentParams[[contentParams indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {

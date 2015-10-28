@@ -158,10 +158,6 @@
 
 - (AFHTTPRequestSerializer *)requestSerializationForRoute:(id<WebApiRoute>)route URL:(NSURL *)url parameters:(id)parameters data:(id)data error:(NSError * __autoreleasing *)error {
 	WebApiSerialization type = route.serialization;
-	if ( data != nil && (type != WebApiSerializationForm || type != WebApiSerializationNone) ) {
-		// for data uploads, need to serialize into the body
-		type = WebApiSerializationForm;
-	}
 	AFHTTPRequestSerializer *ser;
 	switch ( type ) {
 		case WebApiSerializationForm:
@@ -317,7 +313,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 			}
 		}
 		NSMutableURLRequest *req = nil;
-		if ( ![route.method isEqualToString:@"GET"] && ![route.method isEqualToString:@"HEAD"] && (route.serialization == WebApiSerializationForm || (route.serialization != WebApiSerializationNone && reqData != nil)) ) {
+		if ( ![route.method isEqualToString:@"GET"] && ![route.method isEqualToString:@"HEAD"] && route.serialization == WebApiSerializationForm ) {
 			req = [ser multipartFormRequestWithMethod:route.method URLString:[url absoluteString] parameters:reqParameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
 				if ( reqData ) {
 					[formData appendPartWithInputStream:reqData.inputStream name:reqData.name fileName:reqData.fileName length:reqData.length mimeType:reqData.MIMEType];
