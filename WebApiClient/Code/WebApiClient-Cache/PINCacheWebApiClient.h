@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Blue Rocket. Distributable under the terms of the Apache License, Version 2.0.
 //
 
-#import "WebApiClient.h"
+#import "SupportingWebApiClient.h"
 
 @class PINCache;
 @protocol SupportingWebApiClient;
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  mapping is configured for the route, the _mapped_ response object is cached and as such _that_
  object must conform to @c NSCoding.
  */
-@interface PINCacheWebApiClient : NSObject <WebApiClient>
+@interface PINCacheWebApiClient : NSObject <SupportingWebApiClient>
 
 /** The @c SupportingWebApiClient implementation to delegate all calls to. */
 @property (nonatomic, strong) id<SupportingWebApiClient> client;
