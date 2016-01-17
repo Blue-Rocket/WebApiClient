@@ -272,4 +272,26 @@ static id<WebApiClient> SharedGlobalClient;
 	}];
 }
 
+#pragma mark - SupportingWebApiClient
+
+- (nullable id<WebApiRoute>)routeForName:(NSString *)name error:(NSError * __nullable __autoreleasing *)error {
+	id<WebApiRoute> route = nil;
+	if ( [self.client respondsToSelector:@selector(routeForName:error:)] ) {
+		route = [self.client routeForName:name error:error];
+	}
+	return route;
+}
+
+- (NSURL *)URLForRoute:(id<WebApiRoute>)route
+		 pathVariables:(nullable id)pathVariables
+			parameters:(nullable id)parameters
+				 error:(NSError * __autoreleasing *)error {
+	NSURL *result = nil;
+	if ( [self.client respondsToSelector:@selector(URLForRoute:pathVariables:parameters:error:)] ) {
+		result = [self.client URLForRoute:route pathVariables:pathVariables parameters:parameters error:error];
+	}
+	return result;
+}
+
+
 @end
