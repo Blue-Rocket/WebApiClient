@@ -20,6 +20,8 @@
 
 @implementation AFNetworkingWebApiClient {
 	AFHTTPSessionManager *manager;
+	id<AFURLResponseSerialization> responseSerializer;
+	NSDictionary<NSString *, NSString *> *defaultSerializationAcceptableContentTypes;
 	NSLock *lock;
 	
 	// a mapping of NSURLSessionTask identifiers to associated task objects, to support notifications
@@ -29,11 +31,27 @@
 	dispatch_queue_t completionQueue;
 }
 
+@synthesize responseSerializer;
+@synthesize defaultSerializationAcceptableContentTypes;
+
 - (id)initWithEnvironment:(BREnvironment *)environment {
 	if ( (self = [super initWithEnvironment:environment]) ) {
 		tasks = [[NSMutableDictionary alloc] initWithCapacity:8];
 		lock = [[NSLock alloc] init];
 		lock.name = @"AFNetworkingApiClientLock";
+		
+		// let us accept any and all responses!
+		AFJSONResponseSerializer *jsonResponseSerializer = [AFJSONResponseSerializer serializer];
+		responseSerializer = [AFCompoundResponseSerializer compoundSerializerWithResponseSerializers:
+							  @[jsonResponseSerializer,
+								[AFImageResponseSerializer serializer],
+								[AFHTTPResponseSerializer serializer]]];
+
+		// support http://jsonapi.org/ for response Content-Type
+		NSMutableSet *jsonContentTypes = [NSMutableSet setWithSet:jsonResponseSerializer.acceptableContentTypes];
+		[jsonContentTypes addObject:WebApiClientJSONAPIContentType];
+		jsonResponseSerializer.acceptableContentTypes = jsonContentTypes;
+		
 		[self initializeURLSessionManager];
 	}
 	NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
@@ -61,17 +79,19 @@
 	NSString *callbackQueueName = [@"WebApiClient-" stringByAppendingString:[[self baseApiURL] absoluteString]];
 	completionQueue = dispatch_queue_create([callbackQueueName UTF8String], DISPATCH_QUEUE_CONCURRENT);
 	manager.completionQueue = completionQueue;
+	manager.responseSerializer = self.responseSerializer;
 	[manager setTaskDidSendBodyDataBlock:[self taskDidSendBodyDataBlock]];
 	[manager setDataTaskDidBecomeDownloadTaskBlock:[self dataTaskDidBecomeDownloadTaskBlock]];
 	[manager setDataTaskDidReceiveDataBlock:[self dataTaskDidReceiveDataBlock]];
 	[manager setDownloadTaskDidWriteDataBlock:[self downloadTaskDidWriteDataBlock]];
-	
-	// let us accept any and all responses!
-	AFCompoundResponseSerializer *compoundResponseSerializer = [AFCompoundResponseSerializer compoundSerializerWithResponseSerializers:
-																@[[AFJSONResponseSerializer serializer],
-																  [AFImageResponseSerializer serializer],
-																  [AFHTTPResponseSerializer serializer]]];
-	manager.responseSerializer = compoundResponseSerializer;
+}
+
+- (void)setResponseSerializer:(id<AFURLResponseSerialization>)value {
+	if ( responseSerializer == value ) {
+		return;
+	}
+	responseSerializer = value;
+	manager.responseSerializer = value;
 }
 
 - (void (^)(NSURLSession *session, NSURLSessionTask *task, int64_t bytesSent, int64_t totalBytesSent, int64_t totalBytesExpectedToSend))taskDidSendBodyDataBlock {
@@ -168,8 +188,14 @@
 		
 		case WebApiSerializationJSON:
 			ser = [AFJSONRequestSerializer serializer];
-			[ser setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+			[ser setValue:WebApiClientJSONContentType forHTTPHeaderField:@"Accept"];
 			break;
+	}
+	
+	// populate default Accept value, if configured for serialization type
+	NSString *acceptableContentType = self.defaultSerializationAcceptableContentTypes[[NSDictionary nameForWebApiSerialization:type]];
+	if ( acceptableContentType ) {
+		[ser setValue:acceptableContentType forHTTPHeaderField:@"Accept"];
 	}
 	
 	if ( ser && route.gzip ) {

@@ -27,6 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** An array of active task identifiers, as @c NSNumber instances. */
 @property (nonatomic, readonly) NSArray<NSNumber *> *activeTaskIdentifiers;
 
+/** 
+ A dictionary of @c WebApiSerialization name keys to acceptable HTTP @c Content-Type header values. This will
+ influence the @c Accept HTTP header value of requests. If you'd like to support json:api, you can configure 
+ this with the @c WebApiClientJSONAPIContentType, for example `@{ @"json" : @"application/vnd.api+json" }`.
+ */
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *defaultSerializationAcceptableContentTypes;
+
 @end
 
 NS_ASSUME_NONNULL_END

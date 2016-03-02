@@ -135,18 +135,43 @@
 
 - (void)testInvokeSimpleGET {
 	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat(request.headers[@"Accept"], equalTo(WebApiClientJSONContentType));
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
 	}];
 
-	__block BOOL called = NO;
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
 	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"test"));
 		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
-		called = YES;
+		[requestExpectation fulfill];
 	}];
-	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+- (void)respondWithJSONAPI:(NSString *)json response:(RouteResponse *)response status:(NSInteger)statusCode {
+	[response setStatusCode:statusCode];
+	[response setHeader:@"Content-Type" value:@"application/vnd.api+json; charset=utf-8"];
+	[response respondWithString:json encoding:NSUTF8StringEncoding];
+}
+
+- (void)testInvokeSimpleJSONAPI_GET {
+	client.defaultSerializationAcceptableContentTypes = @{[NSDictionary nameForWebApiSerialization:WebApiSerializationJSON] : WebApiClientJSONAPIContentType};
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat(request.headers[@"Accept"], equalTo(WebApiClientJSONAPIContentType));
+		[self respondWithJSONAPI:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testInvokeSimpleGETOnBackgroundThread {
@@ -624,7 +649,6 @@
 	
 	[self waitForExpectationsWithTimeout:5 handler:nil];
 }
-
 
 - (void)testImageDownload {
 	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
