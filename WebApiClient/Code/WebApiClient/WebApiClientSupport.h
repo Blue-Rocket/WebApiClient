@@ -46,7 +46,7 @@ extern NSString * const WebApiClientSupportAppIdDefaultHTTPHeaderName;
  @param environment The environment to use.
  @return The new instance.
  */
-- (id)initWithEnvironment:(BREnvironment *)environment;
+- (id)initWithEnvironment:(BREnvironment *)environment NS_DESIGNATED_INITIALIZER;
 
 /**
  Configure default routes in the receiver. Extending classes can override to customize the instance.
