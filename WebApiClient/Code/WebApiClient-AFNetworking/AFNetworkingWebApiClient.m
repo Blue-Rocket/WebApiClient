@@ -16,6 +16,7 @@
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
 #import "WebApiDataMapper.h"
+#import "WebApiErrorExtractor.h"
 #import "WebApiResource.h"
 
 @implementation AFNetworkingWebApiClient {
@@ -371,6 +372,9 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 			}
 			void (^handleResponse)(id, NSError *) = ^(id finalResponseObject, NSError *finalError) {
 				apiResponse.responseObject = finalResponseObject;
+				if ( self.errorExtractor ) {
+					finalError = [self.errorExtractor errorForResponse:apiResponse error:finalError];
+				}
 				doCallback(apiResponse, finalError);
 			};
 			

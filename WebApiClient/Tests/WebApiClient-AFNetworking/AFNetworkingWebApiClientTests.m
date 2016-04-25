@@ -14,6 +14,7 @@
 #import "AFNetworkingWebApiClient.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
+#import "JSONAPIErrorExtractor.h"
 #import "WebApiClientEnvironment.h"
 
 @interface AFNetworkingWebApiClientTests : BaseNetworkTestingSupport
@@ -131,6 +132,25 @@
 		called = YES;
 	}];
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
+}
+
+- (void)testInvokeError422JSONAPI {
+	client.errorExtractor = [JSONAPIErrorExtractor new];
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"errors\":[{\"code\":\"123\",\"detail\":\"Your request failed.\"}]}" response:response status:422];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThatInteger(response.statusCode, equalTo(@422));
+		assertThat(error, notNilValue());
+		assertThatInteger(error.code, equalToInteger(123));
+		assertThat(error.localizedDescription, equalTo(@"Your request failed."));
+		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testInvokeSimpleGET {
