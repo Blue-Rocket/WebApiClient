@@ -13,7 +13,18 @@
 
 NSString * const JSONAPIErrorExtractorDefaultErrorDomain = @"JSONAPIError";
 
-@implementation JSONAPIErrorExtractor
+@implementation JSONAPIErrorExtractor {
+	NSString *errorDomain;
+}
+
+@synthesize errorDomain;
+
+- (instancetype)init {
+	if ( (self = [super init]) ) {
+		errorDomain = JSONAPIErrorExtractorDefaultErrorDomain;
+	}
+	return self;
+}
 
 - (nullable NSError *)errorForResponse:(id<WebApiResponse>)response error:(nullable NSError *)error {
 	NSError *result = error;
