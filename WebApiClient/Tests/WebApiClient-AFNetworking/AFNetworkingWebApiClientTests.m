@@ -442,12 +442,12 @@
 	
 	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
-	__block BOOL uploadProgressed = NO;
+	__block NSProgress *upProgress = NO;
 	__block BOOL downloadProgressed = NO;
 	[client requestAPI:@"upload-image" withPathVariables:nil parameters:nil data:r queue:dispatch_get_main_queue() progress:^(NSString * _Nonnull routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress) {
-		if ( uploadProgress ) {
+		if ( uploadProgress && !upProgress ) {
 			assertThatDouble(uploadProgress.fractionCompleted, greaterThan(@0));
-			uploadProgressed = YES;
+			upProgress = uploadProgress;
 		}
 		if ( downloadProgress ) {
 			assertThatDouble(downloadProgress.fractionCompleted, greaterThan(@0));
@@ -464,7 +464,8 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:5 handler:nil];
-	assertThatBool(uploadProgressed, describedAs(@"Got upload progress", isTrue(), nil));
+	assertThat(upProgress, describedAs(@"Got upload progress", notNilValue(), nil));
+	assertThatDouble(upProgress.fractionCompleted, isNot(lessThan(@1.0)));
 	assertThatBool(downloadProgressed, describedAs(@"Got download progress", isTrue(), nil));
 }
 

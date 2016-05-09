@@ -103,6 +103,8 @@
 			prog.completedUnitCount = totalBytesSent;
 			clientTask.uploadProgress = prog;
 		}
+		clientTask.uploadProgress.totalUnitCount = totalBytesExpectedToSend;
+		clientTask.uploadProgress.completedUnitCount = totalBytesSent;
 		if ( clientTask ) {
 			[self handleProgressCallbackForClientTask:clientTask];
 			dispatch_async(dispatch_get_main_queue(), ^{
