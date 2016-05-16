@@ -9,9 +9,9 @@ The **Core** module provides a HTTP client framework based on _routes_ with supp
 The [WebApiClient](https://github.com/Blue-Rocket/WebApiClient/blob/master/WebApiClient/Code/WebApiClient/WebApiClient.h) protocol defines the main HTTP client entry point for applications to use. The API is purposefully simple and based on asynchronous block callbacks:
 
 ```objc
-- (void)requestAPI:(NSString *)name 
- withPathVariables:(id)pathVariables 
-        parameters:(id)parameters 
+- (void)requestAPI:(NSString *)name
+ withPathVariables:(id)pathVariables
+        parameters:(id)parameters
               data:(id<WebApiResource>)data
 		  finished:(void (^)(id<WebApiResponse> response, NSError *error))callback;
 ```
@@ -20,7 +20,7 @@ An example invocation of this API might look like this:
 
 ```objc
 // make a GET request to /documents/123
-[client requestAPI:@"doc" withPathVariables:@{@"uniqueId" : @123 } parameters:nil data:nil 
+[client requestAPI:@"doc" withPathVariables:@{@"uniqueId" : @123 } parameters:nil data:nil
           finished:^(id<WebApiResponse> response, NSError *error) {
 	if ( !error ) {
 		MyDocument *doc = response.responseObject;
@@ -35,9 +35,9 @@ An example invocation of this API might look like this:
 By default the callback block is called on the main thread (queue). If you prefer to have the callabck on a specific queue, you can use an alternate method that accepts a dispatch queue as a parameter. In that case, the passed in queue will be used for the callback:
 
 ```objc
-- (void)requestAPI:(NSString *)name 
- withPathVariables:(id)pathVariables 
-        parameters:(id)parameters 
+- (void)requestAPI:(NSString *)name
+ withPathVariables:(id)pathVariables
+        parameters:(id)parameters
               data:(id<WebApiResource>)data
              queue:(dispatch_queue_t)callbackQueue
           progress:(nullable WebApiClientRequestProgressBlock)progressCallback
@@ -49,8 +49,8 @@ By default the callback block is called on the main thread (queue). If you prefe
 The same method that accepts an explicit callback block shown in the previous section also accepts an optional `WebApiClientRequestProgressBlock`, which is defined as this:
 
 ```objc
-typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName, 
-                                                 NSProgress * _Nullable uploadProgress, 
+typedef void (^WebApiClientRequestProgressBlock)(NSString *routeName,
+                                                 NSProgress * _Nullable uploadProgress,
                                                  NSProgress * _Nullable downloadProgress);
 ```
 
@@ -219,8 +219,8 @@ You can configure a route to save the response data into a file, instead of the 
 Then the `responseObject` returned in the `WebApiResponse` will be a [WebApiResource][WebApiResource] which you can then move to an appropriate location as needed, for example:
 
 ```objc
-[client requestAPI:@"download" withPathVariables:nil parameters:nil data:nil 
-             queue:dispatch_get_main_queue() 
+[client requestAPI:@"download" withPathVariables:nil parameters:nil data:nil
+             queue:dispatch_get_main_queue()
           progress:nil
           finished:^(id<WebApiResponse> response, NSError *error) {
     if ( !error ) {
@@ -294,6 +294,50 @@ RKObjectMapper *userObjectMapper = ...;
 [dataMapper registerRequestObjectMapping:[userObjectMapper inverseMapping] forRouteName:@"login"];
 [dataMapper registerResponseObjectMapping:userObjectMapper forRouteName:@"login"];
 ```
+
+## Block-based encoding & mapping
+
+The `RestKitWebApiDataMapper` class also supports block-based mapping hooks for both request encoding and response mapping. The blocks are executed _after_ any configured `RKObjectMapper` has done its job on the request or response data.
+
+One useful example of this support is for wiring up parent-child relationship properties that are implied by the data. Imagine a `Person` class that has an array of child `Person` objects, and each child has a `parent` property that points to its parent `Person` instance:
+
+```objc
+@interface Person : NSObject
+
+@property (strong) NSString *name;
+@property (strong) NSArray<Person *> *children;
+@property (weak) Person *parent;
+
+@end
+```
+
+The server returns JSON like this:
+
+```json
+{
+  "name" : "John Doe",
+  "children" : [
+    { "name" : "Johnny Doe" },
+    { "name" : "Jane Doe" }
+  ]
+}
+```
+
+To populate each child's `parent` property with the **John Doe** object, a response mapping block could be configured like this:
+
+```objc
+[dataMapper registerResponseMappingBlock:^(id sourceObject, id<WebApiRoute> route, NSError * __autoreleasing *error) {
+	if ( [sourceObject isKindOfClass:[Person class]] ) {
+		// populate the Child -> Parent relationship
+		Person *parent = sourceObject;
+		for ( Person *child in parent.children ) {
+			child.parent = parent;
+		}
+	}
+	return sourceObject;
+} forRouteName:@"parent-child-tree"];
+```
+
 
 ## Route configuration
 
