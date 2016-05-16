@@ -14,6 +14,7 @@
 #import "AFNetworkingWebApiClient.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
+#import "JSONAPIErrorExtractor.h"
 #import "WebApiClientEnvironment.h"
 
 @interface AFNetworkingWebApiClientTests : BaseNetworkTestingSupport
@@ -133,20 +134,64 @@
 	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
 }
 
+- (void)testInvokeError422JSONAPI {
+	client.errorExtractor = [JSONAPIErrorExtractor new];
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"errors\":[{\"code\":\"123\",\"detail\":\"Your request failed.\"}]}" response:response status:422];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThatInteger(response.statusCode, equalTo(@422));
+		assertThat(error, notNilValue());
+		assertThatInteger(error.code, equalToInteger(123));
+		assertThat(error.localizedDescription, equalTo(@"Your request failed."));
+		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
 - (void)testInvokeSimpleGET {
 	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat(request.headers[@"Accept"], equalTo(WebApiClientJSONContentType));
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
 	}];
 
-	__block BOOL called = NO;
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
 	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
 		assertThat(error, nilValue());
 		assertThat(response.routeName, equalTo(@"test"));
 		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
-		called = YES;
+		[requestExpectation fulfill];
 	}];
-	assertThatBool([self processMainRunLoopAtMost:10 stop:&called], equalTo(@YES));
+	[self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
+- (void)respondWithJSONAPI:(NSString *)json response:(RouteResponse *)response status:(NSInteger)statusCode {
+	[response setStatusCode:statusCode];
+	[response setHeader:@"Content-Type" value:@"application/vnd.api+json; charset=utf-8"];
+	[response respondWithString:json encoding:NSUTF8StringEncoding];
+}
+
+- (void)testInvokeSimpleJSONAPI_GET {
+	client.defaultSerializationAcceptableContentTypes = @{[NSDictionary nameForWebApiSerialization:WebApiSerializationJSON] : WebApiClientJSONAPIContentType};
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		assertThat(request.headers[@"Accept"], equalTo(WebApiClientJSONAPIContentType));
+		[self respondWithJSONAPI:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
+	[client requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		assertThat(response.routeName, equalTo(@"test"));
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testInvokeSimpleGETOnBackgroundThread {
@@ -397,12 +442,12 @@
 	
 	FileWebApiResource *r = [[FileWebApiResource alloc] initWithURL:fileURL name:@"image.png" MIMEType:nil];
 	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"HTTP request"];
-	__block BOOL uploadProgressed = NO;
+	__block NSProgress *upProgress = NO;
 	__block BOOL downloadProgressed = NO;
 	[client requestAPI:@"upload-image" withPathVariables:nil parameters:nil data:r queue:dispatch_get_main_queue() progress:^(NSString * _Nonnull routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress) {
-		if ( uploadProgress ) {
+		if ( uploadProgress && !upProgress ) {
 			assertThatDouble(uploadProgress.fractionCompleted, greaterThan(@0));
-			uploadProgressed = YES;
+			upProgress = uploadProgress;
 		}
 		if ( downloadProgress ) {
 			assertThatDouble(downloadProgress.fractionCompleted, greaterThan(@0));
@@ -419,7 +464,8 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:5 handler:nil];
-	assertThatBool(uploadProgressed, describedAs(@"Got upload progress", isTrue(), nil));
+	assertThat(upProgress, describedAs(@"Got upload progress", notNilValue(), nil));
+	assertThatDouble(upProgress.fractionCompleted, isNot(lessThan(@1.0)));
 	assertThatBool(downloadProgressed, describedAs(@"Got download progress", isTrue(), nil));
 }
 
@@ -624,7 +670,6 @@
 	
 	[self waitForExpectationsWithTimeout:5 handler:nil];
 }
-
 
 - (void)testImageDownload {
 	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];

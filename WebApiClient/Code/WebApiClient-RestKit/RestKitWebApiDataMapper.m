@@ -17,9 +17,9 @@ NSString * const RestKitWebApiRoutePropertyRequestRootKeyPath = @"dataMapperRequ
 NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperResponseRootKeyPath";
 
 @implementation RestKitWebApiDataMapper {
-	NSMutableDictionary *requestRouteMappers;
+	NSMutableDictionary<NSString *, RKMapping *> *requestRouteMappers;
 	NSMutableDictionary *requestRouteBlockMappers;
-	NSMutableDictionary *responseRouteMappers;
+	NSMutableDictionary<NSString *, RKMapping *> *responseRouteMappers;
 	NSMutableDictionary *responseRouteBlockMappers;
 }
 
@@ -67,8 +67,8 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 	return dataSource;
 }
 
-- (RKObjectMapping *)requestObjectMappingForRoute:(id<WebApiRoute>)route object:(id)domainObject {
-	RKObjectMapping *objectMapper = requestRouteMappers[route.name];
+- (RKMapping *)requestObjectMappingForRoute:(id<WebApiRoute>)route object:(id)domainObject {
+	RKMapping *objectMapper = requestRouteMappers[route.name];
 	if ( !objectMapper ) {
 		// TODO: automatic, convention based lookup? Could base off of domainObject.class, for example.
 	}
@@ -79,8 +79,8 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 	return requestRouteBlockMappers[route.name];
 }
 
-- (RKObjectMapping *)responseObjectMappingForRoute:(id<WebApiRoute>)route data:(id)response {
-	RKObjectMapping *objectMapper = responseRouteMappers[route.name];
+- (RKMapping *)responseObjectMappingForRoute:(id<WebApiRoute>)route data:(id)response {
+	RKMapping *objectMapper = responseRouteMappers[route.name];
 	if ( !objectMapper ) {
 		// TODO: automatic, convention based lookup? Could base off of response data, for example.
 	}
@@ -110,7 +110,7 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 }
 
 - (id)performEncodingWithObject:(id)domainObject route:(id<WebApiRoute>)route error:(NSError *__autoreleasing *)error {
-	RKObjectMapping *objectMapping = [self requestObjectMappingForRoute:route object:domainObject];
+	RKMapping *objectMapping = [self requestObjectMappingForRoute:route object:domainObject];
 	RKMappingOperation *mappingOperation = [[RKMappingOperation alloc] initWithSourceObject:domainObject
 																		  destinationObject:[NSMutableDictionary new]
 																					mapping:objectMapping];
@@ -137,7 +137,7 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 }
 
 - (id)performMappingWithSourceObject:(id)sourceObject route:(id<WebApiRoute>)route error:(NSError *__autoreleasing *)error {
-	RKObjectMapping *objectMapping = [self responseObjectMappingForRoute:route data:sourceObject];
+	RKMapping *objectMapping = [self responseObjectMappingForRoute:route data:sourceObject];
 	id decodeSource = sourceObject;
 	if ( route[RestKitWebApiRoutePropertyResponseRootKeyPath] ) {
 		decodeSource = [sourceObject valueForKeyPath:route[RestKitWebApiRoutePropertyResponseRootKeyPath]];

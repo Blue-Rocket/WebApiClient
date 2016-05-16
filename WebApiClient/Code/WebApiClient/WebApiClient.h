@@ -51,6 +51,12 @@ extern NSString * const WebApiClientURLResponseNotificationKey;
 /** A notification user info key for a @c NSProgress object representing the progress of an API endpoint transaction. */
 extern NSString * const WebApiClientProgressNotificationKey;
 
+/** The Content-Type for JSON. */
+extern NSString * const WebApiClientJSONContentType;
+
+/** The Content-Type for json:api. */
+extern NSString * const WebApiClientJSONAPIContentType;
+
 @protocol WebApiResource;
 
 /**

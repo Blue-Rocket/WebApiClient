@@ -32,3 +32,7 @@ NSString * const WebApiClientURLRequestNotificationKey = @"request";
 NSString * const WebApiClientURLResponseNotificationKey = @"response";
 
 NSString * const WebApiClientProgressNotificationKey = @"progress";
+
+NSString * const WebApiClientJSONContentType = @"application/json";
+
+NSString * const WebApiClientJSONAPIContentType = @"application/vnd.api+json";

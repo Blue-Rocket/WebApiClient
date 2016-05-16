@@ -138,7 +138,7 @@
 	client.appId = @"MyTestId";
 	[client addAuthorizationHeadersToRequest:req forRoute:route];
 	NSDictionary *headers = [req allHTTPHeaderFields];
-	assertThat(headers, equalTo(@{ @"X-App-API-Key" : @"test_token",
+	assertThat(headers, equalTo(@{ @"X-Api-Key" : @"test_token",
 								   @"X-App-ID" : @"MyTestId"}));
 }
 
@@ -150,7 +150,7 @@
 	client.authorizationProvider = authProvider;
 	[client addAuthorizationHeadersToRequest:req forRoute:route];
 	NSDictionary *headers = [req allHTTPHeaderFields];
-	assertThat(headers, equalTo(@{ @"X-App-API-Key" : @"test_token",
+	assertThat(headers, equalTo(@{ @"X-Api-Key" : @"test_token",
 								   @"X-App-ID" : @"MyTestId",
 								   @"Authorization" : @"token foobar"}));
 }

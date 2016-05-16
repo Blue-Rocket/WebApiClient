@@ -10,6 +10,7 @@
 
 @protocol WebApiAuthorizationProvider;
 @protocol WebApiDataMapper;
+@protocol WebApiErrorExtractor;
 @class BREnvironment;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,10 +21,18 @@ extern NSString * const WebApiClientSupportAppApiKeyDefaultHTTPHeaderName;
 /** The HTTP header name to put the @c appId value in. */
 extern NSString * const WebApiClientSupportAppIdDefaultHTTPHeaderName;
 
+/**
+ An abstract implementation of @c SupportingWebApiClient, for concrete implementations to extend.
+ 
+ This class provides a set of core configuration and utility methods to help actual implementations of @c WebApiClient.
+ */
 @interface WebApiClientSupport : NSObject <SupportingWebApiClient>
 
 /** A provider of authorization details. */
 @property (nonatomic, weak, nullable) id<WebApiAuthorizationProvider> authorizationProvider;
+
+/** A global error extractor. */
+@property (nonatomic, strong, nullable) id<WebApiErrorExtractor> errorExtractor;
 
 /** An API key to add as a header value to each request. */
 @property (nonatomic, strong, nullable) NSString *appApiKey;
@@ -46,7 +55,7 @@ extern NSString * const WebApiClientSupportAppIdDefaultHTTPHeaderName;
  @param environment The environment to use.
  @return The new instance.
  */
-- (id)initWithEnvironment:(BREnvironment *)environment;
+- (id)initWithEnvironment:(BREnvironment *)environment NS_DESIGNATED_INITIALIZER;
 
 /**
  Configure default routes in the receiver. Extending classes can override to customize the instance.
