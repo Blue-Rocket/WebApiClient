@@ -71,4 +71,27 @@
 	CFRelease(digest);
 }
 
+- (void)testDecodeHexString {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSData *digest = CFBridgingRelease(WebApiClientMD5DigestCreateWithFilePath((__bridge CFStringRef)[fileURL path], 0));
+	NSData *decoded = CFBridgingRelease(WebApiClientDataCreateWithHexEncodedString(CFSTR("7166135eb596e03ad359f2dfb91f5ed4")));
+	assertThat(decoded, isNot(sameInstance(digest)));
+	assertThat(decoded, equalTo(digest));
+}
+
+- (void)testDecodeHexStringAllocated {
+	NSURL *fileURL = [self.bundle URLForResource:@"upload-icon-test.png" withExtension:nil];
+	NSData *digest = CFBridgingRelease(WebApiClientMD5DigestCreateWithFilePath((__bridge CFStringRef)[fileURL path], 0));
+	
+	// load up a ShiftJIS encoded string so that CFStringGetCStringPtr fails and we have to allocate a C string manually
+	NSError *error = nil;
+	NSString *notUTF = [NSString stringWithContentsOfURL:[self.bundle URLForResource:@"ShiftJIS-encoding.txt" withExtension:nil]
+												encoding:NSShiftJISStringEncoding error:&error];
+	assertThat(error, nilValue());
+	
+	NSData *decoded = CFBridgingRelease(WebApiClientDataCreateWithHexEncodedString((__bridge CFStringRef)notUTF));
+	assertThat(decoded, isNot(sameInstance(digest)));
+	assertThat(decoded, equalTo(digest));
+}
+
 @end

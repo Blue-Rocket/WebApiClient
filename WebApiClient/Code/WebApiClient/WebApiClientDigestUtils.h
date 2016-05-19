@@ -48,4 +48,14 @@ CFDataRef WebApiClientMD5DigestCreateWithFilePath(CFStringRef filePath, size_t b
  */
 CFStringRef WebApiClientHexEncodedStringCreateWithData(CFDataRef data);
 
+/**
+ Deccode a hex string into data.
+ 
+ @param data The string to decode.
+ 
+ @return The resulting data.
+ @since 1.1
+ */
+CFDataRef WebApiClientDataCreateWithHexEncodedString(CFStringRef data);
+
 #endif /* WebApiClientDigestUtils_h */
