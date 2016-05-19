@@ -15,6 +15,7 @@
 #import "AFNetworkingWebApiClientTask.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
+#import "WebApiClientDigestUtils.h"
 #import "WebApiDataMapper.h"
 #import "WebApiErrorExtractor.h"
 #import "WebApiResource.h"
@@ -355,8 +356,13 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 				req.HTTPBodyStream = reqData.inputStream;
 				[req setValue:reqData.MIMEType forHTTPHeaderField:@"Content-Type"];
 				[req setValue:[NSString stringWithFormat:@"%llu", (unsigned long long)reqData.length] forHTTPHeaderField:@"Content-Length"];
-				if ( reqData.MD5 ) {
-					[req setValue:reqData.MD5 forHTTPHeaderField:@"Content-MD5"];
+				NSString *md5hex = reqData.MD5;
+				if ( md5hex.length > 0 ) {
+					NSData *md5 = CFBridgingRelease(WebApiClientDataCreateWithHexEncodedString((__bridge CFStringRef)(md5hex)));
+					NSString *md5base64 = [md5 base64EncodedStringWithOptions:0];
+					if ( md5base64.length > 0 ) {
+						[req setValue:md5base64 forHTTPHeaderField:@"Content-MD5"];
+					}
 				}
 			}
 		}
