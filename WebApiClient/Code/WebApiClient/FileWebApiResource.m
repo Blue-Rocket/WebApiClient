@@ -17,7 +17,7 @@
 	NSString *name;
 	NSString *fileName;
 	NSString *MIMEType;
-	NSString *MD5;
+	NSData *md5;
 }
 
 @synthesize fileName;
@@ -57,10 +57,18 @@
 }
 
 - (NSString *)MD5 {
-	NSString *result = MD5;
+	NSData *digest = self.MD5Digest;
+	if ( digest ) {
+		return CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData((__bridge CFDataRef)digest));
+	}
+	return nil;
+}
+
+- (NSData *)MD5Digest {
+	NSData *result = md5;
 	if ( !result && fileName ) {
-		result = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData(WebApiClientMD5DigestCreateWithFilePath((__bridge CFStringRef)[url path], 0)));
-		MD5 = result;
+		result = CFBridgingRelease(WebApiClientMD5DigestCreateWithFilePath((__bridge CFStringRef)[url path], 0));
+		md5 = result;
 	}
 	return result;
 }
