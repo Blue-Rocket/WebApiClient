@@ -454,7 +454,12 @@
 		assertThat(error, nilValue());
 		[requestExpectation fulfill];
 	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
 
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
 	requestExpectation = [self expectationWithDescription:@"Request2"];
 	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:@{@"foo" : @"baz"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
 		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"baz"}));
@@ -463,9 +468,8 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:2 handler:nil];
-	
+
 	// process the main run loop to give time for the objects to be added to the caches
-	BOOL stop = NO;
 	[self processMainRunLoopAtMost:1 stop:&stop];
 	
 	// we should have two value in each cache
