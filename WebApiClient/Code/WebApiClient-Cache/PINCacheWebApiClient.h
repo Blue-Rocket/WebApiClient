@@ -8,6 +8,8 @@
 
 #import "SupportingWebApiClient.h"
 
+#import "CachingWebApiClient.h"
+
 @class PINCache;
 @protocol SupportingWebApiClient;
 
@@ -24,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  mapping is configured for the route, the _mapped_ response object is cached and as such _that_
  object must conform to @c NSCoding.
  */
-@interface PINCacheWebApiClient : NSObject <SupportingWebApiClient>
+@interface PINCacheWebApiClient : NSObject <CachingWebApiClient, SupportingWebApiClient>
 
 /** The @c SupportingWebApiClient implementation to delegate all calls to. */
 @property (nonatomic, strong) id<SupportingWebApiClient> client;

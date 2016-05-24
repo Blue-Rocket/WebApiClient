@@ -616,4 +616,58 @@
 	assertThat([removedEntries firstObject], startsWith(@"documentList:"));
 }
 
+- (void)testInvokeCachedRequestNoData {
+	XCTestExpectation *requestTestExpectation = [self expectationWithDescription:@"TestRequest"];
+	[cachingClient requestCachedAPI:@"test" withPathVariables:nil parameters:nil queue:dispatch_get_main_queue() finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response, nilValue());
+		assertThat(error, nilValue());
+		[requestTestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:1 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have two values in each cache, with two different cache keys
+	assertThat(cachedEntries, hasCountOf(0));
+	assertThat(cachedData, hasCountOf(0));
+}
+
+- (void)testInvokeCachedRequest {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	XCTestExpectation *requestTestExpectation = [self expectationWithDescription:@"TestRequest"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestTestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:1 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+
+	// now request cached data
+	requestTestExpectation = [self expectationWithDescription:@"CachedRequest"];
+	[cachingClient requestCachedAPI:@"test" withPathVariables:nil parameters:nil queue:dispatch_get_main_queue() finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestTestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:1 handler:nil];
+
+	// we should have two values in each cache, with two different cache keys
+	assertThat(cachedEntries, hasCountOf(1));
+	NSString *key1 = [cachedEntries firstObject][@"key"];
+	assertThat(key1, notNilValue());
+	
+	assertThat(cachedData, hasCountOf(1));
+	key1 = [cachedData firstObject][@"key"];
+	assertThat(key1, notNilValue());
+}
+
 @end

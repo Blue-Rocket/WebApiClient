@@ -168,6 +168,55 @@ static id<WebApiClient> SharedGlobalClient;
 	}
 }
 
+- (void)requestCachedAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters
+				   queue:(dispatch_queue_t)callbackQueue
+				finished:(void (^)(id<WebApiResponse> _Nullable, NSError * _Nullable))callback {
+	void (^doCallback)(id<WebApiResponse> _Nullable, NSError * _Nullable) = ^(id<WebApiResponse> _Nullable response, NSError * _Nullable error){
+		dispatch_async(callbackQueue, ^{
+			callback(response, error);
+		});
+	};
+	id<WebApiRoute> route = [self.client routeForName:name error:nil];
+	NSTimeInterval cacheTTL = 0;
+	NSString *cacheKey = nil;
+	if ( [route respondsToSelector:@selector(cacheTTL)] ) {
+		cacheTTL = ((id<CachingWebApiRoute>)route).cacheTTL;
+		if ( cacheTTL > 0 ) {
+			// look in cache for this data
+			cacheKey = [self cacheKeyForRoute:route pathVariables:pathVariables parameters:parameters];
+		}
+	}
+	if ( cacheKey ) {
+		[entryCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
+			WebApiClientCacheEntry *entry = object;
+			if ( entry ) {
+				if ( [NSDate timeIntervalSinceReferenceDate] < entry.expires ) {
+					// entry valid; return cached data
+					[dataCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
+						id<WebApiResponse> response = object;
+						if ( response ) {
+							doCallback(response, nil);
+						} else {
+							// cached data missing from cache; return nil
+							doCallback(nil, nil);
+						}
+					}];
+					return;
+				} else {
+					// entry expired: clean out entry from cache
+					[entryCache removeObjectForKey:cacheKey block:nil];
+					[dataCache removeObjectForKey:cacheKey block:nil];
+				}
+			}
+			
+			// not found in cache, or expired from cache
+			doCallback(nil, nil);
+		}];
+	} else {
+		doCallback(nil, nil);
+	}
+}
+
 - (void)requestAPI:(NSString * __nonnull)name withPathVariables:(nullable id)pathVariables parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data finished:(void (^ __nonnull)(id<WebApiResponse> __nonnull, NSError * __nullable))callback {
 	return [self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() progress:nil finished:callback];
@@ -192,7 +241,14 @@ static id<WebApiClient> SharedGlobalClient;
 			cacheKey = [self cacheKeyForRoute:route pathVariables:pathVariables parameters:parameters];
 		}
 	}
-	void (^delegateRequest)(void) = ^{
+
+	[self requestCachedAPI:name withPathVariables:pathVariables parameters:parameters queue:callbackQueue finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		if ( response != nil ) {
+			// found in cache: return immediately
+			doCallback(response, error);
+			return;
+		}
+		// not found in cache, or cache not supported
 		__weak PINCache *weakDataCache = dataCache;
 		__weak PINCache *weakEntryCache = entryCache;
 		[self.client requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:callbackQueue progress:progressCallback finished:^(id<WebApiResponse> __nonnull response, NSError * __nullable error) {
@@ -209,36 +265,7 @@ static id<WebApiClient> SharedGlobalClient;
 			}
 			doCallback(response, error);
 		}];
-	};
-	if ( cacheKey ) {
-		[entryCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
-			WebApiClientCacheEntry *entry = object;
-			if ( entry ) {
-				if ( [NSDate timeIntervalSinceReferenceDate] < entry.expires ) {
-					// entry valid; return cached data
-					[dataCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
-						id<WebApiResponse> response = object;
-						if ( response ) {
-							doCallback(response, nil);
-						} else {
-							// cached data missing from cache; make request
-							delegateRequest();
-						}
-					}];
-					return;
-				} else {
-					// entry expired: clean out entry from cache
-					[entryCache removeObjectForKey:cacheKey block:nil];
-					[dataCache removeObjectForKey:cacheKey block:nil];
-				}
-			}
-			
-			// not found in cache, or expired from cache
-			delegateRequest();
-		}];
-	} else {
-		delegateRequest();
-	}
+	}];
 }
 
 - (void)handleInvalidatedCachedDataForRoute:(id<WebApiRoute>)route {

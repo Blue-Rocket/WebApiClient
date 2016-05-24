@@ -81,6 +81,7 @@
 		C90D2CDF1CCD72D4009482EE /* JSONAPIError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONAPIError.m; sourceTree = "<group>"; };
 		C90D2CE11CCD7DB3009482EE /* JSONAPIErrorExtractorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONAPIErrorExtractorTests.m; sourceTree = "<group>"; };
 		C90D2CE31CCD7DCB009482EE /* JSONAPIErrorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONAPIErrorTests.m; sourceTree = "<group>"; };
+		C91DF45C1CF4125000CBEE32 /* CachingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachingWebApiClient.h; sourceTree = "<group>"; };
 		C942F63B1BD8862200E06A8C /* AFNetworkingWebApiClientTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkingWebApiClientTask.h; sourceTree = "<group>"; };
 		C942F63C1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkingWebApiClientTask.m; sourceTree = "<group>"; };
 		C96C03F91CEE72F000018798 /* ShiftJIS-encoding.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "ShiftJIS-encoding.txt"; sourceTree = "<group>"; };
@@ -274,6 +275,7 @@
 		C9ED94331BA8DA1D00DE842F /* WebApiClient-Cache */ = {
 			isa = PBXGroup;
 			children = (
+				C91DF45C1CF4125000CBEE32 /* CachingWebApiClient.h */,
 				C9ED94341BA8DA1D00DE842F /* CachingWebApiRoute.h */,
 				C9ED94351BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.h */,
 				C9ED94361BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m */,
