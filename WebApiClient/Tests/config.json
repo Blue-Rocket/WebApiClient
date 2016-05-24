@@ -23,12 +23,18 @@
 			"test" : {
 				"method" : "GET",
 				"path" : "test",
-				"cacheTTL" : 3,
+				"cacheTTL" : 3
+			},
+			"test-ignore-query" : {
+				"method" : "GET",
+				"path" : "test-query",
+				"cacheTTL" : 6,
+				"cacheIgnoreQueryParameters" : true
 			},
 			"doc" : {
 				"method" : "GET",
 				"path" : "document/:uniqueId",
-				"cacheTTL" : 3,
+				"cacheTTL" : 3
 			},
 			"docGzip" : {
 				"method" : "GET",

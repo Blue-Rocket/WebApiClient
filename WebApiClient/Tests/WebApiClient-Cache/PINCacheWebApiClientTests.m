@@ -441,6 +441,89 @@
 	assertThat(response.responseObject[@"success"], equalTo(@YES));
 }
 
+- (void)testInvokeGETWithDifferentQueryParameters {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		NSDictionary *queryParams = [request params];
+		assertThat(queryParams[@"foo"], notNilValue());
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"foo\":\"%@\"}", queryParams[@"foo"]] response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:@{@"foo" : @"bar"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"bar"}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+
+	requestExpectation = [self expectationWithDescription:@"Request2"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:@{@"foo" : @"baz"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"baz"}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have two value in each cache
+	assertThat(cachedEntries, hasCountOf(2));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(3));
+	
+	assertThat(cachedData, hasCountOf(2));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"bar"}));
+
+	response = [cachedData lastObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"baz"}));
+}
+
+- (void)testInvokeGETIgnoringDifferentQueryParameters {
+	__block NSUInteger httpInvocationCount = 0;
+	[self.http handleMethod:@"GET" withPath:@"/test-query" block:^(RouteRequest *request, RouteResponse *response) {
+		NSDictionary *queryParams = [request params];
+		assertThat(queryParams[@"foo"], notNilValue());
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"count\":%@}", @(++httpInvocationCount)] response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test-ignore-query" withPathVariables:nil parameters:@{@"foo" : @"bar"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"count" : @1}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// now repeat the request for the same route, but with DIFFERENT query parameters; the cached data should be returned
+	requestExpectation = [self expectationWithDescription:@"Request2"];
+	[cachingClient requestAPI:@"test-ignore-query" withPathVariables:nil parameters:@{@"foo" : @"baz"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"count" : @1}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// we should have just one value in cache
+	assertThat(cachedEntries, hasCountOf(1));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(6));
+	
+	assertThat(cachedData, hasCountOf(1));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"count" : @1}));
+}
+
 - (void)testInvokeGETWithQueryParameterObject {
 	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
 		NSDictionary *queryParams = [request params];

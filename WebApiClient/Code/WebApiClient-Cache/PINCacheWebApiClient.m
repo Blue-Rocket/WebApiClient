@@ -73,7 +73,9 @@ static id<WebApiClient> SharedGlobalClient;
 	}
 	[key appendString:[url path]];
 	
-	if ( [[url query] length] > 0 ) {
+	BOOL ignoreQueryParams = ([route respondsToSelector:@selector(isCacheIgnoreQueryParameters)]
+							  ? ((id<CachingWebApiRoute>)route).cacheIgnoreQueryParameters : NO);
+	if ( ignoreQueryParams == NO && [[url query] length] > 0 ) {
 		// add to key using ordered query terms so URLs with same properties, but in different order, result in same cache key
 		NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
 		NSArray *queryItems = [components queryItems];
