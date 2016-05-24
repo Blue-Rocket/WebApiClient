@@ -293,6 +293,20 @@ By default URL query parameters will be included when calculating the cache key 
 }
 ```
 
+## Checking for cached data
+
+The `CachingWebApiClient` API adds a method that can be used for testing if cached data is available:
+
+```objc
+- (void)requestCachedAPI:(NSString *)name
+       withPathVariables:(nullable id)pathVariables
+              parameters:(nullable id)parameters
+                   queue:(dispatch_queue_t)callbackQueue
+                finished:(void (^)(id<WebApiResponse> _Nullable response, NSError * _Nullable error))callback;
+```
+
+The callback will be passed a response only if the data was available in the cache. Sometimes its handy to know if something is already downloaded!
+
 
 # Module: RestKit
 
