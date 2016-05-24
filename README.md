@@ -275,6 +275,24 @@ You can also configure a route so that it invalidates any cached data for _other
 
 The `invalidatesCachedRouteNames` is configured as an array of route names that should be invalidated when that route is called successfully.
 
+## Ignoring route URL query parameters
+
+By default URL query parameters will be included when calculating the cache key for each route. Sometimes it can be useful to ignore the query parameters, however. For example, pre-signed Amazon S3 resource URLs contain authorization query parameters that change each time the same resource is requested. By configuring the route with `cacheIgnoreQueryParameters = YES` then the query parameters for that route will be **not** be included in the request's cache key:
+```json
+{
+  "webservice" : {
+    "api" : {
+      "info" : {
+        "method" : "GET",
+        "path" : "https://s3.amazon.com/info/foo.txt",
+        "cacheTTL" : 3600,
+        "cacheIgnoreQueryParameters" : true
+      }
+    }
+  }
+}
+```
+
 
 # Module: RestKit
 
