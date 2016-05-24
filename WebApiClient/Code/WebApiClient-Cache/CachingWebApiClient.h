@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Expands the @c WebApiClient API with additional methods relating to caching.
  
- @since 1.2
+ @since 1.1
  */
 @protocol CachingWebApiClient <WebApiClient>
 

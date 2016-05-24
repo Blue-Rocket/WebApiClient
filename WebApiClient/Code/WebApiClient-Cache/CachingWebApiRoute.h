@@ -26,7 +26,7 @@
 /** 
  Flag to indicate that URL query parameters should @b not be considered when calculating cache keys for routes.
  
- @since 1.2
+ @since 1.1
  */
 @property (nonatomic, readonly, getter=isCacheIgnoreQueryParameters) BOOL cacheIgnoreQueryParameters;
 
