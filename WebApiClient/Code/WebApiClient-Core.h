@@ -9,6 +9,7 @@
 #import <WebApiClient/DataWebApiResource.h>
 #import <WebApiClient/FileWebApiResource.h>
 #import <WebApiClient/NSDictionary+WebApiClient.h>
+#import <WebApiClient/RoutingWebApiClient.h>
 #import <WebApiClient/WebApiAuthorizationProvider.h>
 #import <WebApiClient/WebApiClient.h>
 #import <WebApiClient/WebApiClientDigestUtils.h>

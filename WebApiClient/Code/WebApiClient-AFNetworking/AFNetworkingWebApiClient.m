@@ -326,7 +326,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 		id<WebApiResource> reqData = data;
 		BOOL uploadStream = NO;
 		if ( parameters ) {
-			if ( dataMapper ) {
+			if ( dataMapper && ![route.method isEqualToString:@"GET"] && ![route.method isEqualToString:@"HEAD"] ) {
 				id encoded = [dataMapper performEncodingWithObject:parameters route:route error:&error];
 				if ( !encoded ) {
 					return doCallback(nil, error);
