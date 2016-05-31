@@ -206,6 +206,13 @@
 		ser = [AFgzipRequestSerializer serializerWithSerializer:ser];
 	}
 	
+	if ( data != nil && [ser.HTTPMethodsEncodingParametersInURI containsObject:route.method] == NO ) {
+		// we have a request body as well as request parameters; so allow the parameters to be encoded in the URL
+		NSMutableSet *allowed = [ser.HTTPMethodsEncodingParametersInURI mutableCopy];
+		[allowed addObject:route.method];
+		ser.HTTPMethodsEncodingParametersInURI = allowed;
+	}
+	
 	return ser;
 }
 
