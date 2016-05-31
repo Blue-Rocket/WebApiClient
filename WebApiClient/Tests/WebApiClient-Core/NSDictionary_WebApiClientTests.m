@@ -57,4 +57,26 @@
 	assertThatUnsignedInteger(route.serialization, equalToUnsignedInteger(0));
 }
 
+- (void)testDictionaryWithURLQueryParameters {
+	NSURL *url = [NSURL URLWithString:@"http://localhost/foo?a=b&c=%2Fpath%2Fsomewhere"];
+	NSURL *result = nil;
+	NSDictionary<NSString *, NSString *> *params = [NSDictionary dictionaryWithURLQueryParameters:url url:&result];
+	
+	assertThat(result, equalTo([NSURL URLWithString:@"http://localhost/foo"]));
+	assertThat(params, hasCountOf(2));
+	assertThat(params, equalTo(@{@"a" : @"b",
+								 @"c" : @"/path/somewhere",
+								 }));
+}
+
+- (void)testDictionaryWithNoURLQueryParameters {
+	NSURL *url = [NSURL URLWithString:@"http://localhost/foo"];
+	NSURL *result = nil;
+	NSDictionary<NSString *, NSString *> *params = [NSDictionary dictionaryWithURLQueryParameters:url url:&result];
+	
+	assertThat(result, sameInstance(url));
+	assertThat(params, nilValue());
+}
+
+
 @end
