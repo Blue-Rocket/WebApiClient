@@ -308,6 +308,39 @@
 	[self processMainRunLoopAtMost:2 stop:&stop];
 }
 
+- (void)testInvokeGETWithProgressCached {
+	[self testInvokeSimpleGET];
+	
+	XCTestExpectation *progressExpectation = [self expectationWithDescription:@"Progress"];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_main_queue()
+					 progress:^(NSString * _Nonnull routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress) {
+						 assertThatBool([NSThread isMainThread], describedAs(@"Progress should be on main thread", isTrue(), nil));
+						 assertThat(routeName, equalTo(@"test"));
+						 assertThat(uploadProgress, nilValue());
+						 assertThat(@(downloadProgress.totalUnitCount), greaterThan(@0));
+						 assertThat(@(downloadProgress.completedUnitCount), equalTo(@(downloadProgress.totalUnitCount)));
+						 [progressExpectation fulfill];
+	} finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		assertThat(response.responseObject[@"success"], equalTo(@YES));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should STILL have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	assertThat(cachedData, hasCountOf(1));
+	
+	// only ONE HTTP request processed
+	assertThatInt(count, equalToInt(1));
+}
+
 - (void)testInvokeGETWithPathVariable {
 	[self.http handleMethod:@"GET" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];

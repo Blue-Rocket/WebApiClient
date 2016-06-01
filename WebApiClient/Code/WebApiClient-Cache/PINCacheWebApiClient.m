@@ -245,6 +245,15 @@ static id<WebApiClient> SharedGlobalClient;
 	[self requestCachedAPI:name withPathVariables:pathVariables parameters:parameters queue:callbackQueue finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
 		if ( response != nil ) {
 			// found in cache: return immediately
+			if ( progressCallback ) {
+				int64_t totalUnits = [response.responseHeaders[@"Content-Length"] longLongValue];
+				if ( totalUnits < 1 ) {
+					totalUnits = 1;
+				}
+				NSProgress *downloadProgress = [NSProgress discreteProgressWithTotalUnitCount:totalUnits];
+				downloadProgress.completedUnitCount = totalUnits;
+				progressCallback(name, nil, downloadProgress);
+			}
 			doCallback(response, error);
 			return;
 		}
