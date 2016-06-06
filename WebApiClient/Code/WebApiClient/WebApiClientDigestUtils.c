@@ -14,11 +14,13 @@
 #define FileHashDefaultChunkSizeForReadingData 4096
 
 CFDataRef WebApiClientMD5DigestCreateWithString(CFStringRef string) {
+	CFDataRef result = NULL;
 	CFDataRef data = CFStringCreateExternalRepresentation(kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0);
 	if ( data ) {
-		data = WebApiClientMD5DigestCreateWithData(data);
+		result = WebApiClientMD5DigestCreateWithData(data);
+		CFRelease(data);
 	}
-	return data;
+	return result;
 }
 
 CFDataRef WebApiClientMD5DigestCreateWithData(CFDataRef data) {
