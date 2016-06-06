@@ -100,8 +100,9 @@ static id<WebApiClient> SharedGlobalClient;
 		}
 	}
 	
-	NSString *digest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key)));
-	return [NSString stringWithFormat:@"%@:%@", route.name, digest];
+	NSData *digest = CFBridgingRelease(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key));
+	NSString *hexDigest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData((__bridge CFDataRef)digest));
+	return [NSString stringWithFormat:@"%@:%@", route.name, hexDigest];
 }
 
 - (NSArray<NSHTTPCookie *> *)cookiesForAPI:(NSString *)name inCookieStorage:(NSHTTPCookieStorage *)cookieJar {
