@@ -16,14 +16,18 @@
 #import "WebApiClientCacheEntry.h"
 #import "WebApiClientDigestUtils.h"
 
+static NSString * const kKeyClassificationDelimiter = @"+";
+
 static id<WebApiClient> SharedGlobalClient;
 
 @implementation PINCacheWebApiClient {
 	PINCache *entryCache;
 	PINCache *dataCache;
+	NSString *keyDiscriminator;
 }
 
 @synthesize entryCache, dataCache;
+@synthesize keyDiscriminator;
 
 + (void)setSharedClient:(id<WebApiClient>)sharedClient {
 	SharedGlobalClient = sharedClient;
@@ -102,7 +106,11 @@ static id<WebApiClient> SharedGlobalClient;
 	
 	NSData *digest = CFBridgingRelease(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key));
 	NSString *hexDigest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData((__bridge CFDataRef)digest));
-	return [NSString stringWithFormat:@"%@+%@", route.name, hexDigest];
+	NSString *discriminator = self.keyDiscriminator;
+	NSArray *keyComponents = (discriminator.length > 0
+							  ? @[discriminator, route.name, hexDigest]
+							  : @[route.name, hexDigest]);
+	return [keyComponents componentsJoinedByString:kKeyClassificationDelimiter];
 }
 
 - (NSArray<NSHTTPCookie *> *)cookiesForAPI:(NSString *)name inCookieStorage:(NSHTTPCookieStorage *)cookieJar {
@@ -288,8 +296,11 @@ static id<WebApiClient> SharedGlobalClient;
 		return;
 	}
 	NSMutableSet<NSString *> *invalidCacheKeyPrefixes = [[NSMutableSet alloc] initWithCapacity:invalidatedRouteNames.count];
+	NSString *discriminator = self.keyDiscriminator;
 	for ( NSString *routeName in invalidatedRouteNames ) {
-		[invalidCacheKeyPrefixes addObject:[routeName stringByAppendingString:@":"]];
+		NSArray *keyComponents = (discriminator.length > 0 ? @[discriminator, routeName, @""] : @[routeName, @""]);
+		NSString *prefix = [keyComponents componentsJoinedByString:kKeyClassificationDelimiter];
+		[invalidCacheKeyPrefixes addObject:prefix];
 	}
 	[entryCache.memoryCache enumerateObjectsWithBlock:^(PINMemoryCache * _Nonnull cache, NSString * _Nonnull key, id  _Nullable object) {
 		for ( NSString *prefix in invalidCacheKeyPrefixes ) {

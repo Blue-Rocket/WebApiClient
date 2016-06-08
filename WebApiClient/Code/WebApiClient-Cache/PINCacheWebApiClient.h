@@ -38,6 +38,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) PINCache *dataCache;
 
 /**
+ An optional discriminator to add to all generated cache keys. This can be changed at runtime to support
+ different cache @em groups. For example in a multi-user app groups could be defined as the user unique
+ IDs so that each user has their own cache, and when switching between users this propery is updated to
+ the active user's ID.
+ 
+ @since 1.1.0
+ */
+@property (nonatomic, strong, nullable) NSString *keyDiscriminator;
+
+/**
  Set the shared client delegate to use.
  
  @param sharedClient The shared global client.
