@@ -102,7 +102,7 @@ static id<WebApiClient> SharedGlobalClient;
 	
 	NSData *digest = CFBridgingRelease(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key));
 	NSString *hexDigest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData((__bridge CFDataRef)digest));
-	return [NSString stringWithFormat:@"%@:%@", route.name, hexDigest];
+	return [NSString stringWithFormat:@"%@+%@", route.name, hexDigest];
 }
 
 - (NSArray<NSHTTPCookie *> *)cookiesForAPI:(NSString *)name inCookieStorage:(NSHTTPCookieStorage *)cookieJar {
