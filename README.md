@@ -377,6 +377,17 @@ that change each time the same resource is requested. By configuring the route w
 }
 ```
 
+## Cache groups for multi-user support
+
+[`PINCacheWebApiClient`][PINCacheWebApiClient] supports a `keyDiscriminator` property
+that can be changed at runtime to support isolating all cached route data into
+groups. The main use case for this is to support multi-user apps where route URLs do
+not contain user-identifying parameters, so when different users are signed in they
+don't see cached data from some other user. You can assign the active user's unique
+identifier to the `keyDiscriminator` property and then all cached data becomes
+user-specific. When a user logs out and a different user logs in, change the
+`keyDiscriminator` to the new user's identifier.
+
 ## Checking for cached data
 
 The [`CachingWebApiClient`][CachingWebApiClient] API adds a method that can be used
