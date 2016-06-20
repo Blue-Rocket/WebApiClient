@@ -22,6 +22,11 @@
 	return ([val isKindOfClass:[NSArray class]] ? val : nil);
 }
 
+- (BOOL)isCacheIgnoreQueryParameters {
+	NSNumber *val = self[@"cacheIgnoreQueryParameters"];
+	return [val boolValue];
+}
+
 @end
 
 @implementation NSMutableDictionary (CachingWebApiRoute)
@@ -32,6 +37,10 @@
 
 - (void)setInvalidatesCachedRouteNames:(NSArray<NSString *> *)invalidatesCachedRouteNames {
 	[self setOrRemoveObject:invalidatesCachedRouteNames forKey:NSStringFromSelector(@selector(invalidatesCachedRouteNames))];
+}
+
+- (void)setCacheIgnoreQueryParameters:(BOOL)cacheIgnoreQueryParameters {
+	[self setOrRemoveObject:@(cacheIgnoreQueryParameters) forKey:@"cacheIgnoreQueryParameters"];
 }
 
 @end

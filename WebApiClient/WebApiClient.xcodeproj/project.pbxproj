@@ -15,11 +15,13 @@
 		C90D2CE21CCD7DB3009482EE /* JSONAPIErrorExtractorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C90D2CE11CCD7DB3009482EE /* JSONAPIErrorExtractorTests.m */; };
 		C90D2CE41CCD7DCB009482EE /* JSONAPIErrorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C90D2CE31CCD7DCB009482EE /* JSONAPIErrorTests.m */; };
 		C942F63D1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m in Sources */ = {isa = PBXBuildFile; fileRef = C942F63C1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m */; };
+		C96C03FA1CEE734600018798 /* ShiftJIS-encoding.txt in Resources */ = {isa = PBXBuildFile; fileRef = C96C03F91CEE72F000018798 /* ShiftJIS-encoding.txt */; };
 		C96C6BA71BD7FD3000311868 /* WebApiClientDigestUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BA51BD7FD3000311868 /* WebApiClientDigestUtils.c */; };
 		C96C6BA91BD8011300311868 /* WebApiClientDigestUtilsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */; };
 		C96C6BAB1BD80ABF00311868 /* DataWebApiResourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */; };
 		C96C6BAD1BD80C2800311868 /* FileWebApiResourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C96C6BAC1BD80C2800311868 /* FileWebApiResourceTests.m */; };
 		C98F24901BD6D885000A6D6F /* upload-icon-test.png in Resources */ = {isa = PBXBuildFile; fileRef = C98F248F1BD6D87F000A6D6F /* upload-icon-test.png */; };
+		C98F53131CF7FFB4004E7183 /* RoutingWebApiClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C98F53121CF7FFB4004E7183 /* RoutingWebApiClient.m */; };
 		C9ED93F11BA8D86500DE842F /* libWebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9ED93E51BA8D86500DE842F /* libWebApiClient.a */; };
 		C9ED94481BA8DA1D00DE842F /* DataWebApiResource.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED941E1BA8DA1D00DE842F /* DataWebApiResource.m */; };
 		C9ED94491BA8DA1D00DE842F /* FileWebApiResource.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94201BA8DA1D00DE842F /* FileWebApiResource.m */; };
@@ -80,14 +82,18 @@
 		C90D2CDF1CCD72D4009482EE /* JSONAPIError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONAPIError.m; sourceTree = "<group>"; };
 		C90D2CE11CCD7DB3009482EE /* JSONAPIErrorExtractorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONAPIErrorExtractorTests.m; sourceTree = "<group>"; };
 		C90D2CE31CCD7DCB009482EE /* JSONAPIErrorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONAPIErrorTests.m; sourceTree = "<group>"; };
+		C91DF45C1CF4125000CBEE32 /* CachingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachingWebApiClient.h; sourceTree = "<group>"; };
 		C942F63B1BD8862200E06A8C /* AFNetworkingWebApiClientTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkingWebApiClientTask.h; sourceTree = "<group>"; };
 		C942F63C1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkingWebApiClientTask.m; sourceTree = "<group>"; };
+		C96C03F91CEE72F000018798 /* ShiftJIS-encoding.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "ShiftJIS-encoding.txt"; sourceTree = "<group>"; };
 		C96C6BA51BD7FD3000311868 /* WebApiClientDigestUtils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WebApiClientDigestUtils.c; sourceTree = "<group>"; };
 		C96C6BA61BD7FD3000311868 /* WebApiClientDigestUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiClientDigestUtils.h; sourceTree = "<group>"; };
 		C96C6BA81BD8011300311868 /* WebApiClientDigestUtilsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiClientDigestUtilsTests.m; sourceTree = "<group>"; };
 		C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataWebApiResourceTests.m; sourceTree = "<group>"; };
 		C96C6BAC1BD80C2800311868 /* FileWebApiResourceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileWebApiResourceTests.m; sourceTree = "<group>"; };
 		C98F248F1BD6D87F000A6D6F /* upload-icon-test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "upload-icon-test.png"; sourceTree = "<group>"; };
+		C98F53111CF7FFB4004E7183 /* RoutingWebApiClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoutingWebApiClient.h; sourceTree = "<group>"; };
+		C98F53121CF7FFB4004E7183 /* RoutingWebApiClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoutingWebApiClient.m; sourceTree = "<group>"; };
 		C9ED93E51BA8D86500DE842F /* libWebApiClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWebApiClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9ED93F01BA8D86500DE842F /* WebApiClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WebApiClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9ED941D1BA8DA1C00DE842F /* DataWebApiResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataWebApiResource.h; sourceTree = "<group>"; };
@@ -234,6 +240,8 @@
 				C9ED94201BA8DA1D00DE842F /* FileWebApiResource.m */,
 				C9ED94211BA8DA1D00DE842F /* NSDictionary+WebApiClient.h */,
 				C9ED94221BA8DA1D00DE842F /* NSDictionary+WebApiClient.m */,
+				C98F53111CF7FFB4004E7183 /* RoutingWebApiClient.h */,
+				C98F53121CF7FFB4004E7183 /* RoutingWebApiClient.m */,
 				C9ED94231BA8DA1D00DE842F /* SupportingWebApiClient.h */,
 				C9ED94761BA9450A00DE842F /* WebApiAuthorizationProvider.h */,
 				C9ED94241BA8DA1D00DE842F /* WebApiClient.h */,
@@ -272,6 +280,7 @@
 		C9ED94331BA8DA1D00DE842F /* WebApiClient-Cache */ = {
 			isa = PBXGroup;
 			children = (
+				C91DF45C1CF4125000CBEE32 /* CachingWebApiClient.h */,
 				C9ED94341BA8DA1D00DE842F /* CachingWebApiRoute.h */,
 				C9ED94351BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.h */,
 				C9ED94361BA8DA1D00DE842F /* NSDictionary+CachingWebApiClient.m */,
@@ -338,6 +347,7 @@
 		C9ED945E1BA8DA7500DE842F /* WebApiClient-Core */ = {
 			isa = PBXGroup;
 			children = (
+				C96C03F91CEE72F000018798 /* ShiftJIS-encoding.txt */,
 				C96C6BAA1BD80ABF00311868 /* DataWebApiResourceTests.m */,
 				C96C6BAC1BD80C2800311868 /* FileWebApiResourceTests.m */,
 				C9ED945F1BA8DA7500DE842F /* NSDictionary_WebApiClientTests.m */,
@@ -439,6 +449,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C96C03FA1CEE734600018798 /* ShiftJIS-encoding.txt in Resources */,
 				C98F24901BD6D885000A6D6F /* upload-icon-test.png in Resources */,
 				C9ED94721BA8DA7500DE842F /* Environment.plist in Resources */,
 				C9ED946C1BA8DA7500DE842F /* upload-test.txt in Resources */,
@@ -539,6 +550,7 @@
 				C90D2CDA1CCD70E0009482EE /* WebApiErrorExtractor.m in Sources */,
 				C9ED944C1BA8DA1D00DE842F /* WebApiClientEnvironment.m in Sources */,
 				C942F63D1BD8862200E06A8C /* AFNetworkingWebApiClientTask.m in Sources */,
+				C98F53131CF7FFB4004E7183 /* RoutingWebApiClient.m in Sources */,
 				C90D2CE01CCD72D4009482EE /* JSONAPIError.m in Sources */,
 				C9ED94481BA8DA1D00DE842F /* DataWebApiResource.m in Sources */,
 				C9ED94541BA8DA1D00DE842F /* RestKitWebApiDataMapper.m in Sources */,

@@ -15,6 +15,7 @@
 #import "AFNetworkingWebApiClientTask.h"
 #import "DataWebApiResource.h"
 #import "FileWebApiResource.h"
+#import "WebApiClientDigestUtils.h"
 #import "WebApiDataMapper.h"
 #import "WebApiErrorExtractor.h"
 #import "WebApiResource.h"
@@ -205,6 +206,13 @@
 		ser = [AFgzipRequestSerializer serializerWithSerializer:ser];
 	}
 	
+	if ( data != nil && [ser.HTTPMethodsEncodingParametersInURI containsObject:route.method] == NO ) {
+		// we have a request body as well as request parameters; so allow the parameters to be encoded in the URL
+		NSMutableSet *allowed = [ser.HTTPMethodsEncodingParametersInURI mutableCopy];
+		[allowed addObject:route.method];
+		ser.HTTPMethodsEncodingParametersInURI = allowed;
+	}
+	
 	return ser;
 }
 
@@ -325,7 +333,7 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 		id<WebApiResource> reqData = data;
 		BOOL uploadStream = NO;
 		if ( parameters ) {
-			if ( dataMapper ) {
+			if ( dataMapper && ![route.method isEqualToString:@"GET"] && ![route.method isEqualToString:@"HEAD"] ) {
 				id encoded = [dataMapper performEncodingWithObject:parameters route:route error:&error];
 				if ( !encoded ) {
 					return doCallback(nil, error);
@@ -355,8 +363,10 @@ static void * AFNetworkingWebApiClientTaskStateContext = &AFNetworkingWebApiClie
 				req.HTTPBodyStream = reqData.inputStream;
 				[req setValue:reqData.MIMEType forHTTPHeaderField:@"Content-Type"];
 				[req setValue:[NSString stringWithFormat:@"%llu", (unsigned long long)reqData.length] forHTTPHeaderField:@"Content-Length"];
-				if ( reqData.MD5 ) {
-					[req setValue:reqData.MD5 forHTTPHeaderField:@"Content-MD5"];
+				NSData *digest = reqData.MD5Digest;
+				NSString *md5base64 = [digest base64EncodedStringWithOptions:0];
+				if ( md5base64.length > 0 ) {
+					[req setValue:md5base64 forHTTPHeaderField:@"Content-MD5"];
 				}
 			}
 		}

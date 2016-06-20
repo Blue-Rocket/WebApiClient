@@ -8,6 +8,8 @@
 
 #import "SupportingWebApiClient.h"
 
+#import "CachingWebApiClient.h"
+
 @class PINCache;
 @protocol SupportingWebApiClient;
 
@@ -17,13 +19,14 @@ NS_ASSUME_NONNULL_BEGIN
  A @c WebApiClient that delegates all calls to another @c WebApiClient, caching the results based
  on the @c WebApiRoute @c cache property.
  
- @b Note that HTTP response data is cached based on URLs only, including query parameters.
+ @b Note that HTTP response data is cached based on URLs. Cache keys include URL query parameters,
+ unless the route defines the cacheIgnoreQueryParameters key with a truthy value.
  
  @b Note that all response objects must conform to @c NSCoding to work with @c PINCache. If any
  mapping is configured for the route, the _mapped_ response object is cached and as such _that_
  object must conform to @c NSCoding.
  */
-@interface PINCacheWebApiClient : NSObject <SupportingWebApiClient>
+@interface PINCacheWebApiClient : NSObject <CachingWebApiClient, SupportingWebApiClient>
 
 /** The @c SupportingWebApiClient implementation to delegate all calls to. */
 @property (nonatomic, strong) id<SupportingWebApiClient> client;
@@ -33,6 +36,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The cache used for actual response data. */
 @property (nonatomic, readonly) PINCache *dataCache;
+
+/**
+ An optional discriminator to add to all generated cache keys. This can be changed at runtime to support
+ different cache @em groups. For example in a multi-user app groups could be defined as the user unique
+ IDs so that each user has their own cache, and when switching between users this propery is updated to
+ the active user's ID.
+ 
+ @since 1.1.0
+ */
+@property (nonatomic, strong, nullable) NSString *keyDiscriminator;
 
 /**
  Set the shared client delegate to use.

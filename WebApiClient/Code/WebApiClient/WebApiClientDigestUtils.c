@@ -14,11 +14,13 @@
 #define FileHashDefaultChunkSizeForReadingData 4096
 
 CFDataRef WebApiClientMD5DigestCreateWithString(CFStringRef string) {
+	CFDataRef result = NULL;
 	CFDataRef data = CFStringCreateExternalRepresentation(kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0);
 	if ( data ) {
-		data = WebApiClientMD5DigestCreateWithData(data);
+		result = WebApiClientMD5DigestCreateWithData(data);
+		CFRelease(data);
 	}
-	return data;
+	return result;
 }
 
 CFDataRef WebApiClientMD5DigestCreateWithData(CFDataRef data) {
@@ -100,6 +102,40 @@ CFStringRef WebApiClientHexEncodedStringCreateWithData(CFDataRef data) {
 			}
 			result = CFStringCreateWithCString(kCFAllocatorDefault, (const char *)hash, kCFStringEncodingUTF8);
 		}
+	}
+	return result;
+}
+
+CFDataRef WebApiClientDataCreateWithHexEncodedString(CFStringRef string) {
+	CFIndex len = CFStringGetLength(string);
+	CFMutableDataRef result = CFDataCreateMutable(kCFAllocatorDefault, len / 2);
+	bool allocated = false;
+	char *str = (char *)CFStringGetCStringPtr(string, kCFStringEncodingUTF8);
+	if ( str == NULL ) {
+		CFIndex bufferSize = CFStringGetMaximumSizeForEncoding(len, kCFStringEncodingUTF8) + 1;
+		str = malloc(bufferSize);
+		if ( !str ) {
+			return result;
+		}
+		if ( !CFStringGetCString(string, str, bufferSize, kCFStringEncodingUTF8) ) {
+			free(str);
+			return result;
+		}
+		allocated = true;
+	}
+	CFIndex i;
+	unsigned char byte = 0;
+	size_t slen = strnlen(str, len);
+	slen -= (slen % 2); // if odd # of characters, truncate down
+	for ( i = 0; i < slen; i += 2 ) {
+		if ( sscanf(&str[i], "%2hhx", &byte) ) {
+			CFDataAppendBytes(result, &byte, 1);
+		} else {
+			break;
+		}
+	}
+	if ( allocated ) {
+		free(str);
 	}
 	return result;
 }

@@ -157,6 +157,79 @@
 	assertThatInt(count, equalToInt(1));
 }
 
+- (void)testInvokeSimpleGETCachedWithKeyDiscriminator {
+	cachingClient.keyDiscriminator = @"user1";
+	[self testInvokeSimpleGET];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		assertThat(response.responseObject[@"success"], equalTo(@YES));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should STILL have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	assertThat(cachedData, hasCountOf(1));
+	
+	// only ONE HTTP request processed
+	assertThatInt(count, equalToInt(1));
+}
+
+- (void)testInvokeSimpleGETCachedWithKeyDiscriminators {
+	[self.http handleMethod:@"GET" withPath:@"/documents/list" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"count\":%@}", @(++count)] response:response status:200];
+	}];
+	
+	void (^doGET)(int, int) = ^(int expectedCacheCount, int expectedResponseCountValue) {
+		XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+		[cachingClient requestAPI:@"documentList" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+			assertThat(response.responseObject[@"success"], equalTo(@YES));
+			assertThat(response.responseObject[@"count"], equalTo(@(expectedResponseCountValue)));
+			assertThat(error, nilValue());
+			[requestExpectation fulfill];
+		}];
+		[self waitForExpectationsWithTimeout:2 handler:nil];
+		
+		// process the main run loop to give time for the objects to be added to the caches
+		BOOL stop = NO;
+		[self processMainRunLoopAtMost:1 stop:&stop];
+		
+		assertThat(cachedEntries, hasCountOf(expectedCacheCount));
+		WebApiClientCacheEntry *entry = cachedEntries[(expectedResponseCountValue - 1)][@"value"];
+		assertThatInt((int)(entry.expires - entry.created), equalToInt(600));
+		
+		assertThat(cachedData, hasCountOf(expectedCacheCount));
+		id<WebApiResponse> response = cachedData[(expectedResponseCountValue - 1)][@"value"];
+		assertThatInt(response.statusCode, equalToInt(200));
+		assertThat(response.responseObject[@"success"], equalTo(@YES));
+		assertThat(response.responseObject[@"count"], equalTo(@(expectedResponseCountValue)));
+	};
+	
+
+	cachingClient.keyDiscriminator = @"user1";
+	doGET(1, 1);
+	
+	cachingClient.keyDiscriminator = @"user2";
+	doGET(2, 2);
+	
+	// repeat request for user2
+	doGET(2, 2);
+	
+	// switch user back to user1
+	cachingClient.keyDiscriminator = @"user1";
+	doGET(2, 1);
+	
+	// only 2 HTTP requests processed
+	assertThatInt(count, equalToInt(2));
+}
+
 - (void)testInvokeSimpleGETExpired {
 	[self testInvokeSimpleGET];
 	
@@ -308,6 +381,39 @@
 	[self processMainRunLoopAtMost:2 stop:&stop];
 }
 
+- (void)testInvokeGETWithProgressCached {
+	[self testInvokeSimpleGET];
+	
+	XCTestExpectation *progressExpectation = [self expectationWithDescription:@"Progress"];
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil queue:dispatch_get_main_queue()
+					 progress:^(NSString * _Nonnull routeName, NSProgress * _Nullable uploadProgress, NSProgress * _Nullable downloadProgress) {
+						 assertThatBool([NSThread isMainThread], describedAs(@"Progress should be on main thread", isTrue(), nil));
+						 assertThat(routeName, equalTo(@"test"));
+						 assertThat(uploadProgress, nilValue());
+						 assertThat(@(downloadProgress.totalUnitCount), greaterThan(@0));
+						 assertThat(@(downloadProgress.completedUnitCount), equalTo(@(downloadProgress.totalUnitCount)));
+						 [progressExpectation fulfill];
+	} finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		assertThatBool([NSThread isMainThread], describedAs(@"Should be on main thread", isTrue(), nil));
+		assertThat(response.responseObject[@"success"], equalTo(@YES));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:2 stop:&stop];
+	
+	// we should STILL have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	assertThat(cachedData, hasCountOf(1));
+	
+	// only ONE HTTP request processed
+	assertThatInt(count, equalToInt(1));
+}
+
 - (void)testInvokeGETWithPathVariable {
 	[self.http handleMethod:@"GET" withPath:@"/document/123" block:^(RouteRequest *request, RouteResponse *response) {
 		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
@@ -441,6 +547,93 @@
 	assertThat(response.responseObject[@"success"], equalTo(@YES));
 }
 
+- (void)testInvokeGETWithDifferentQueryParameters {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		NSDictionary *queryParams = [request params];
+		assertThat(queryParams[@"foo"], notNilValue());
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"foo\":\"%@\"}", queryParams[@"foo"]] response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:@{@"foo" : @"bar"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"bar"}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	requestExpectation = [self expectationWithDescription:@"Request2"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:@{@"foo" : @"baz"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"baz"}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+
+	// process the main run loop to give time for the objects to be added to the caches
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have two value in each cache
+	assertThat(cachedEntries, hasCountOf(2));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(3));
+	
+	assertThat(cachedData, hasCountOf(2));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"bar"}));
+
+	response = [cachedData lastObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"foo" : @"baz"}));
+}
+
+- (void)testInvokeGETIgnoringDifferentQueryParameters {
+	__block NSUInteger httpInvocationCount = 0;
+	[self.http handleMethod:@"GET" withPath:@"/test-query" block:^(RouteRequest *request, RouteResponse *response) {
+		NSDictionary *queryParams = [request params];
+		assertThat(queryParams[@"foo"], notNilValue());
+		[self respondWithJSON:[NSString stringWithFormat:@"{\"success\":true, \"count\":%@}", @(++httpInvocationCount)] response:response status:200];
+	}];
+	
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"test-ignore-query" withPathVariables:nil parameters:@{@"foo" : @"bar"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"count" : @1}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// now repeat the request for the same route, but with DIFFERENT query parameters; the cached data should be returned
+	requestExpectation = [self expectationWithDescription:@"Request2"];
+	[cachingClient requestAPI:@"test-ignore-query" withPathVariables:nil parameters:@{@"foo" : @"baz"} data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"count" : @1}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// we should have just one value in cache
+	assertThat(cachedEntries, hasCountOf(1));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(6));
+	
+	assertThat(cachedData, hasCountOf(1));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject, equalTo(@{@"success" : @YES, @"count" : @1}));
+}
+
 - (void)testInvokeGETWithQueryParameterObject {
 	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
 		NSDictionary *queryParams = [request params];
@@ -526,7 +719,139 @@
 	
 	// and now we should have deleted
 	assertThat(removedEntries, hasCountOf(1));
-	assertThat([removedEntries firstObject], startsWith(@"documentList:"));
+	assertThat([removedEntries firstObject], startsWith(@"documentList+"));
+}
+
+- (void)testInvalidatingRequestWithKeyDiscriminator {
+	cachingClient.keyDiscriminator = @"user1";
+	[self.http handleMethod:@"GET" withPath:@"/documents/list" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	// first get list, which should cache the results
+	XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"documentList" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have one value in each cache
+	assertThat(cachedEntries, hasCountOf(1));
+	WebApiClientCacheEntry *entry = [cachedEntries firstObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(600));
+	
+	assertThat(cachedData, hasCountOf(1));
+	id<WebApiResponse> response = [cachedData firstObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+	
+	// now "log out" by switching to user2
+	cachingClient.keyDiscriminator = @"user2";
+	
+	// get the same list, which should cache the results (one a different key)
+	requestExpectation = [self expectationWithDescription:@"Request"];
+	[cachingClient requestAPI:@"documentList" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have TWO values in each cache, one for each "user"
+	assertThat(cachedEntries, hasCountOf(2));
+	entry = [cachedEntries lastObject][@"value"];
+	assertThatInt((int)(entry.expires - entry.created), equalToInt(600));
+	
+	assertThat(cachedData, hasCountOf(2));
+	response = [cachedData lastObject][@"value"];
+	assertThatInt(response.statusCode, equalToInt(200));
+	assertThat(response.responseObject[@"success"], equalTo(@YES));
+	
+	// and nothing deleted yet
+	assertThat(removedEntries, hasCountOf(0));
+	
+	// now, call DELETE endpoint, which should invalidate and remove that cached data for user2 only
+	[self.http handleMethod:@"DELETE" withPath:@"/documents/123" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	XCTestExpectation *deleteExpectation = [self expectationWithDescription:@"Delete"];
+	[cachingClient requestAPI:@"deleteDocument" withPathVariables:@{@"documentId" : @123} parameters:nil data:nil finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[deleteExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:2 handler:nil];
+	
+	stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// and now we should have deleted
+	assertThat(removedEntries, hasCountOf(1));
+	assertThat([removedEntries firstObject], startsWith(@"user2+documentList+"));
+}
+
+- (void)testInvokeCachedRequestNoData {
+	XCTestExpectation *requestTestExpectation = [self expectationWithDescription:@"TestRequest"];
+	[cachingClient requestCachedAPI:@"test" withPathVariables:nil parameters:nil queue:dispatch_get_main_queue() finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response, nilValue());
+		assertThat(error, nilValue());
+		[requestTestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:1 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+	
+	// we should have two values in each cache, with two different cache keys
+	assertThat(cachedEntries, hasCountOf(0));
+	assertThat(cachedData, hasCountOf(0));
+}
+
+- (void)testInvokeCachedRequest {
+	[self.http handleMethod:@"GET" withPath:@"/test" block:^(RouteRequest *request, RouteResponse *response) {
+		[self respondWithJSON:@"{\"success\":true}" response:response status:200];
+	}];
+	
+	XCTestExpectation *requestTestExpectation = [self expectationWithDescription:@"TestRequest"];
+	[cachingClient requestAPI:@"test" withPathVariables:nil parameters:nil data:nil finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestTestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:1 handler:nil];
+	
+	// process the main run loop to give time for the objects to be added to the caches
+	BOOL stop = NO;
+	[self processMainRunLoopAtMost:1 stop:&stop];
+
+	// now request cached data
+	requestTestExpectation = [self expectationWithDescription:@"CachedRequest"];
+	[cachingClient requestCachedAPI:@"test" withPathVariables:nil parameters:nil queue:dispatch_get_main_queue() finished:^(id<WebApiResponse> response, NSError *error) {
+		assertThat(response.responseObject, equalTo(@{@"success" : @YES}));
+		assertThat(error, nilValue());
+		[requestTestExpectation fulfill];
+	}];
+	[self waitForExpectationsWithTimeout:1 handler:nil];
+
+	// we should have two values in each cache, with two different cache keys
+	assertThat(cachedEntries, hasCountOf(1));
+	NSString *key1 = [cachedEntries firstObject][@"key"];
+	assertThat(key1, notNilValue());
+	
+	assertThat(cachedData, hasCountOf(1));
+	key1 = [cachedData firstObject][@"key"];
+	assertThat(key1, notNilValue());
 }
 
 @end

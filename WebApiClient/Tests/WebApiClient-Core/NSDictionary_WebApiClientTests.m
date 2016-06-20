@@ -3,7 +3,7 @@
 //  BRFCore
 //
 //  Created by Matt on 24/08/15.
-//  Copyright (c) 2015 Blue Rocket, Inc. All rights reserved.
+//  Copyright (c) 2015 Blue Rocket, Inc. Distributable under the terms of the Apache License, Version 2.0.
 //
 
 #import "BaseTestingSupport.h"
@@ -56,5 +56,27 @@
 	route.serializationName = @"blahblah";
 	assertThatUnsignedInteger(route.serialization, equalToUnsignedInteger(0));
 }
+
+- (void)testDictionaryWithURLQueryParameters {
+	NSURL *url = [NSURL URLWithString:@"http://localhost/foo?a=b&c=%2Fpath%2Fsomewhere"];
+	NSURL *result = nil;
+	NSDictionary<NSString *, NSString *> *params = [NSDictionary dictionaryWithURLQueryParameters:url url:&result];
+	
+	assertThat(result, equalTo([NSURL URLWithString:@"http://localhost/foo"]));
+	assertThat(params, hasCountOf(2));
+	assertThat(params, equalTo(@{@"a" : @"b",
+								 @"c" : @"/path/somewhere",
+								 }));
+}
+
+- (void)testDictionaryWithNoURLQueryParameters {
+	NSURL *url = [NSURL URLWithString:@"http://localhost/foo"];
+	NSURL *result = nil;
+	NSDictionary<NSString *, NSString *> *params = [NSDictionary dictionaryWithURLQueryParameters:url url:&result];
+	
+	assertThat(result, sameInstance(url));
+	assertThat(params, nilValue());
+}
+
 
 @end

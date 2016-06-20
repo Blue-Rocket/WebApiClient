@@ -19,6 +19,29 @@ static CFStringRef CreateURLEncodedQueryParameterString(CFStringRef string) {
 
 @implementation NSDictionary (WebApiClient)
 
++ (nullable NSDictionary<NSString *, NSString *> *)dictionaryWithURLQueryParameters:(NSURL *)url
+																				url:(NSURL * __autoreleasing _Nullable * _Nullable)urlWithoutQueryParameters {
+	
+	NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+	NSArray<NSURLQueryItem *> *queryItems = urlComponents.queryItems;
+	
+	NSMutableDictionary<NSString *, id> *parameters = [[NSMutableDictionary alloc] initWithCapacity:queryItems.count];
+	for ( NSURLQueryItem *item in queryItems ) {
+		parameters[item.name] = item.value;
+	}
+
+	if ( urlWithoutQueryParameters ) {
+		if ( parameters.count > 0 ) {
+			urlComponents.queryItems = nil;
+			*urlWithoutQueryParameters = urlComponents.URL;
+		} else {
+			*urlWithoutQueryParameters = url;
+		}
+	}
+	
+	return (parameters.count > 0 ? parameters : nil);
+}
+
 #pragma mark - WebApiRoute
 
 - (NSString *)name {

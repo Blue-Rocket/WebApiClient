@@ -16,14 +16,18 @@
 #import "WebApiClientCacheEntry.h"
 #import "WebApiClientDigestUtils.h"
 
+static NSString * const kKeyClassificationDelimiter = @"+";
+
 static id<WebApiClient> SharedGlobalClient;
 
 @implementation PINCacheWebApiClient {
 	PINCache *entryCache;
 	PINCache *dataCache;
+	NSString *keyDiscriminator;
 }
 
 @synthesize entryCache, dataCache;
+@synthesize keyDiscriminator;
 
 + (void)setSharedClient:(id<WebApiClient>)sharedClient {
 	SharedGlobalClient = sharedClient;
@@ -73,7 +77,9 @@ static id<WebApiClient> SharedGlobalClient;
 	}
 	[key appendString:[url path]];
 	
-	if ( [[url query] length] > 0 ) {
+	BOOL ignoreQueryParams = ([route respondsToSelector:@selector(isCacheIgnoreQueryParameters)]
+							  ? ((id<CachingWebApiRoute>)route).cacheIgnoreQueryParameters : NO);
+	if ( ignoreQueryParams == NO && [[url query] length] > 0 ) {
 		// add to key using ordered query terms so URLs with same properties, but in different order, result in same cache key
 		NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
 		NSArray *queryItems = [components queryItems];
@@ -98,8 +104,13 @@ static id<WebApiClient> SharedGlobalClient;
 		}
 	}
 	
-	NSString *digest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key)));
-	return [NSString stringWithFormat:@"%@:%@", route.name, digest];
+	NSData *digest = CFBridgingRelease(WebApiClientMD5DigestCreateWithString((__bridge CFStringRef)key));
+	NSString *hexDigest = CFBridgingRelease(WebApiClientHexEncodedStringCreateWithData((__bridge CFDataRef)digest));
+	NSString *discriminator = self.keyDiscriminator;
+	NSArray *keyComponents = (discriminator.length > 0
+							  ? @[discriminator, route.name, hexDigest]
+							  : @[route.name, hexDigest]);
+	return [keyComponents componentsJoinedByString:kKeyClassificationDelimiter];
 }
 
 - (NSArray<NSHTTPCookie *> *)cookiesForAPI:(NSString *)name inCookieStorage:(NSHTTPCookieStorage *)cookieJar {
@@ -166,6 +177,55 @@ static id<WebApiClient> SharedGlobalClient;
 	}
 }
 
+- (void)requestCachedAPI:(NSString *)name withPathVariables:(id)pathVariables parameters:(id)parameters
+				   queue:(dispatch_queue_t)callbackQueue
+				finished:(void (^)(id<WebApiResponse> _Nullable, NSError * _Nullable))callback {
+	void (^doCallback)(id<WebApiResponse> _Nullable, NSError * _Nullable) = ^(id<WebApiResponse> _Nullable response, NSError * _Nullable error){
+		dispatch_async(callbackQueue, ^{
+			callback(response, error);
+		});
+	};
+	id<WebApiRoute> route = [self.client routeForName:name error:nil];
+	NSTimeInterval cacheTTL = 0;
+	NSString *cacheKey = nil;
+	if ( [route respondsToSelector:@selector(cacheTTL)] ) {
+		cacheTTL = ((id<CachingWebApiRoute>)route).cacheTTL;
+		if ( cacheTTL > 0 ) {
+			// look in cache for this data
+			cacheKey = [self cacheKeyForRoute:route pathVariables:pathVariables parameters:parameters];
+		}
+	}
+	if ( cacheKey ) {
+		[entryCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
+			WebApiClientCacheEntry *entry = object;
+			if ( entry ) {
+				if ( [NSDate timeIntervalSinceReferenceDate] < entry.expires ) {
+					// entry valid; return cached data
+					[dataCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
+						id<WebApiResponse> response = object;
+						if ( response ) {
+							doCallback(response, nil);
+						} else {
+							// cached data missing from cache; return nil
+							doCallback(nil, nil);
+						}
+					}];
+					return;
+				} else {
+					// entry expired: clean out entry from cache
+					[entryCache removeObjectForKey:cacheKey block:nil];
+					[dataCache removeObjectForKey:cacheKey block:nil];
+				}
+			}
+			
+			// not found in cache, or expired from cache
+			doCallback(nil, nil);
+		}];
+	} else {
+		doCallback(nil, nil);
+	}
+}
+
 - (void)requestAPI:(NSString * __nonnull)name withPathVariables:(nullable id)pathVariables parameters:(nullable id)parameters
 			  data:(nullable id<WebApiResource>)data finished:(void (^ __nonnull)(id<WebApiResponse> __nonnull, NSError * __nullable))callback {
 	return [self requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:dispatch_get_main_queue() progress:nil finished:callback];
@@ -190,7 +250,23 @@ static id<WebApiClient> SharedGlobalClient;
 			cacheKey = [self cacheKeyForRoute:route pathVariables:pathVariables parameters:parameters];
 		}
 	}
-	void (^delegateRequest)(void) = ^{
+
+	[self requestCachedAPI:name withPathVariables:pathVariables parameters:parameters queue:callbackQueue finished:^(id<WebApiResponse>  _Nullable response, NSError * _Nullable error) {
+		if ( response != nil ) {
+			// found in cache: return immediately
+			if ( progressCallback ) {
+				int64_t totalUnits = [response.responseHeaders[@"Content-Length"] longLongValue];
+				if ( totalUnits < 1 ) {
+					totalUnits = 1;
+				}
+				NSProgress *downloadProgress = [NSProgress discreteProgressWithTotalUnitCount:totalUnits];
+				downloadProgress.completedUnitCount = totalUnits;
+				progressCallback(name, nil, downloadProgress);
+			}
+			doCallback(response, error);
+			return;
+		}
+		// not found in cache, or cache not supported
 		__weak PINCache *weakDataCache = dataCache;
 		__weak PINCache *weakEntryCache = entryCache;
 		[self.client requestAPI:name withPathVariables:pathVariables parameters:parameters data:data queue:callbackQueue progress:progressCallback finished:^(id<WebApiResponse> __nonnull response, NSError * __nullable error) {
@@ -207,36 +283,7 @@ static id<WebApiClient> SharedGlobalClient;
 			}
 			doCallback(response, error);
 		}];
-	};
-	if ( cacheKey ) {
-		[entryCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
-			WebApiClientCacheEntry *entry = object;
-			if ( entry ) {
-				if ( [NSDate timeIntervalSinceReferenceDate] < entry.expires ) {
-					// entry valid; return cached data
-					[dataCache objectForKey:cacheKey block:^(PINCache *cache, NSString *key, id __nullable object) {
-						id<WebApiResponse> response = object;
-						if ( response ) {
-							doCallback(response, nil);
-						} else {
-							// cached data missing from cache; make request
-							delegateRequest();
-						}
-					}];
-					return;
-				} else {
-					// entry expired: clean out entry from cache
-					[entryCache removeObjectForKey:cacheKey block:nil];
-					[dataCache removeObjectForKey:cacheKey block:nil];
-				}
-			}
-			
-			// not found in cache, or expired from cache
-			delegateRequest();
-		}];
-	} else {
-		delegateRequest();
-	}
+	}];
 }
 
 - (void)handleInvalidatedCachedDataForRoute:(id<WebApiRoute>)route {
@@ -249,8 +296,11 @@ static id<WebApiClient> SharedGlobalClient;
 		return;
 	}
 	NSMutableSet<NSString *> *invalidCacheKeyPrefixes = [[NSMutableSet alloc] initWithCapacity:invalidatedRouteNames.count];
+	NSString *discriminator = self.keyDiscriminator;
 	for ( NSString *routeName in invalidatedRouteNames ) {
-		[invalidCacheKeyPrefixes addObject:[routeName stringByAppendingString:@":"]];
+		NSArray *keyComponents = (discriminator.length > 0 ? @[discriminator, routeName, @""] : @[routeName, @""]);
+		NSString *prefix = [keyComponents componentsJoinedByString:kKeyClassificationDelimiter];
+		[invalidCacheKeyPrefixes addObject:prefix];
 	}
 	[entryCache.memoryCache enumerateObjectsWithBlock:^(PINMemoryCache * _Nonnull cache, NSString * _Nonnull key, id  _Nullable object) {
 		for ( NSString *prefix in invalidCacheKeyPrefixes ) {
