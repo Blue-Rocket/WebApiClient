@@ -1,6 +1,13 @@
 # Change Log
 
-## [1.1.0](https://github.com/Blue-Rocket/WebApiClient/tree/1.1.0) (2016-06-09)
+## [1.1.1](https://github.com/Blue-Rocket/WebApiClient/tree/1.1.1) (2016-06-20)
+[Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.1.0...1.1.1)
+
+**Implemented enhancements:**
+
+- Support encoding ObjC nil values into JSON null [\#3](https://github.com/Blue-Rocket/WebApiClient/issues/3)
+
+## [1.1.0](https://github.com/Blue-Rocket/WebApiClient/tree/1.1.0) (2016-06-20)
 [Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.0.0...1.1.0)
 
 **Implemented enhancements:**
