@@ -11,10 +11,14 @@
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <RestKit/ObjectMapping.h>
 #import <RestKit/ObjectMapping/RKObjectMappingOperationDataSource.h>
+#import <RestKit/ObjectMapping/RKPropertyInspector.h>
 #import "WebApiRoute.h"
 
 NSString * const RestKitWebApiRoutePropertyRequestRootKeyPath = @"dataMapperRequestRootKeyPath";
 NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperResponseRootKeyPath";
+
+@interface RestKitWebApiDataMapper () <RKMappingOperationDelegate>
+@end
 
 @implementation RestKitWebApiDataMapper {
 	NSMutableDictionary<NSString *, RKMapping *> *requestRouteMappers;
@@ -116,6 +120,7 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 																					mapping:objectMapping];
 	id<RKMappingOperationDataSource> dataSource = [self dataSourceForMappingOperation:mappingOperation];
 	mappingOperation.dataSource = dataSource;
+	mappingOperation.delegate = self;
 	[mappingOperation start];
 	if ( mappingOperation.error ) {
 		if ( error ) {
@@ -147,6 +152,7 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 																					mapping:objectMapping];
 	id<RKMappingOperationDataSource> dataSource = [self dataSourceForMappingOperation:mappingOperation];
 	mappingOperation.dataSource = dataSource;
+	mappingOperation.delegate = self;
 	[mappingOperation start];
 	if ( mappingOperation.error ) {
 		if ( error ) {
@@ -164,6 +170,55 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 	log4Debug(@"Mapped %@ into %@", sourceObject, result);
 	
 	return result;
+}
+
+#pragma mark - RKMappingOperationDelegate
+
+// the following is adapted from RKObjectParameterization.m, which is part of RestKit/Network and thus not available here
+
+- (void)mappingOperation:(RKMappingOperation *)operation didSetValue:(id)value forKeyPath:(NSString *)keyPath usingMapping:(RKAttributeMapping *)mapping {
+	id transformedValue = nil;
+	if ( value == nil ) {
+		// Serialize nil values as null
+		if ( mapping.objectMapping.assignsDefaultValueForMissingAttributes ) {
+			transformedValue = [NSNull null];
+		}
+	} else if ([value isKindOfClass:[NSDate class]]) {
+		[mapping.valueTransformer transformValue:value toValue:&transformedValue ofClass:[NSString class] error:nil];
+	} else if ([value isKindOfClass:[NSDecimalNumber class]]) {
+		// Precision numbers are serialized as strings to work around Javascript notation limits
+		transformedValue = [(NSDecimalNumber *)value stringValue];
+	} else if ([value isKindOfClass:[NSSet class]]) {
+		// NSSets are not natively serializable, so let's just turn it into an NSArray
+		transformedValue = [value allObjects];
+	} else if ([value isKindOfClass:[NSOrderedSet class]]) {
+		// NSOrderedSets are not natively serializable, so let's just turn it into an NSArray
+		transformedValue = [value array];
+	} else {
+		Class propertyClass = RKPropertyInspectorGetClassForPropertyAtKeyPathOfObject(mapping.sourceKeyPath, operation.sourceObject);
+		if ([propertyClass isSubclassOfClass:NSClassFromString(@"__NSCFBoolean")] || [propertyClass isSubclassOfClass:NSClassFromString(@"NSCFBoolean")]) {
+			transformedValue = @([value boolValue]);
+		}
+	}
+	
+	if (transformedValue) {
+		log4Debug(@"Serialized %@ value at keyPath to %@ (%@)", NSStringFromClass([value class]), NSStringFromClass([transformedValue class]), value);
+		[operation.destinationObject setValue:transformedValue forKeyPath:keyPath];
+	}
+}
+
+- (BOOL)mappingOperation:(RKMappingOperation *)operation shouldSetValue:(id)value forKeyPath:(NSString *)keyPath usingMapping:(RKPropertyMapping *)propertyMapping {
+	NSArray *keyPathComponents = [keyPath componentsSeparatedByString:@"."];
+	id currentValue = operation.destinationObject;
+	for (NSString *key in keyPathComponents) {
+		id value = [currentValue valueForKey:key];
+		if (value == nil) {
+			value = [NSMutableDictionary new];
+			[currentValue setValue:value forKey:key];
+		}
+		currentValue = value;
+	}
+	return YES;
 }
 
 @end
