@@ -152,7 +152,6 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 																					mapping:objectMapping];
 	id<RKMappingOperationDataSource> dataSource = [self dataSourceForMappingOperation:mappingOperation];
 	mappingOperation.dataSource = dataSource;
-	mappingOperation.delegate = self;
 	[mappingOperation start];
 	if ( mappingOperation.error ) {
 		if ( error ) {
