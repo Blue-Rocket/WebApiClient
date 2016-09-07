@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'WebApiClient'
-  s.version      = '1.1.3'
+  s.version      = '1.2.0'
   s.summary      = 'A HTTP client API based on configured routes.'
 
   s.description        = <<-DESC
@@ -56,7 +56,7 @@ Pod::Spec.new do |s|
   s.subspec 'RestKit' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-RestKit.h', 'WebApiClient/Code/WebApiClient-RestKit'
     sp.dependency 'WebApiClient/Core'
-    sp.dependency 'RestKit/ObjectMapping', '>= 0.24', '< 0.27'
+    sp.dependency 'RestKit/ObjectMapping', '~> 0.27'
     sp.dependency 'TransformerKit/String', '~> 0.5'
   end
 
