@@ -10,8 +10,8 @@
 
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
 #import <RestKit/ObjectMapping.h>
-#import <RestKit/ObjectMapping/RKObjectMappingOperationDataSource.h>
-#import <RestKit/ObjectMapping/RKPropertyInspector.h>
+#import <RestKit/RKObjectMappingOperationDataSource.h>
+#import <RestKit/RKPropertyInspector.h>
 #import "WebApiRoute.h"
 
 NSString * const RestKitWebApiRoutePropertyRequestRootKeyPath = @"dataMapperRequestRootKeyPath";
