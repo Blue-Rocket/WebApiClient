@@ -56,7 +56,7 @@ Pod::Spec.new do |s|
   s.subspec 'RestKit' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-RestKit.h', 'WebApiClient/Code/WebApiClient-RestKit'
     sp.dependency 'WebApiClient/Core'
-    sp.dependency 'RestKit/ObjectMapping', '>= 0.24', '< 0.27'
+    sp.dependency 'RestKit/ObjectMapping', '~> 0.27'
     sp.dependency 'TransformerKit/String', '~> 0.5'
   end
 

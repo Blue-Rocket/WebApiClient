@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		829E84144DC23B6D266B1595 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */; };
-		950E0B6676F12C92DE0509B8 /* libPods-WebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */; };
+		B8868E04987BFAB47C404DD0 /* libPods-WebApiClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DF9D76E71F595D93881C5C1D /* libPods-WebApiClient.a */; };
 		C90D2CDA1CCD70E0009482EE /* WebApiErrorExtractor.m in Sources */ = {isa = PBXBuildFile; fileRef = C90D2CD91CCD70E0009482EE /* WebApiErrorExtractor.m */; };
 		C90D2CDD1CCD7207009482EE /* JSONAPIErrorExtractor.m in Sources */ = {isa = PBXBuildFile; fileRef = C90D2CDC1CCD7207009482EE /* JSONAPIErrorExtractor.m */; };
 		C90D2CE01CCD72D4009482EE /* JSONAPIError.m in Sources */ = {isa = PBXBuildFile; fileRef = C90D2CDF1CCD72D4009482EE /* JSONAPIError.m */; };
@@ -44,6 +43,7 @@
 		C9ED946F1BA8DA7500DE842F /* BaseNetworkTestingSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94611BA8DA7500DE842F /* BaseNetworkTestingSupport.m */; };
 		C9ED94701BA8DA7500DE842F /* BaseTestingSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED94641BA8DA7500DE842F /* BaseTestingSupport.m */; };
 		C9ED94721BA8DA7500DE842F /* Environment.plist in Resources */ = {isa = PBXBuildFile; fileRef = C9ED94671BA8DA7500DE842F /* Environment.plist */; };
+		F0A4A4134786FCB82707A615 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C567302EB01A1805C309F0C9 /* libPods-WebApiClient-WebApiClientTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,11 +69,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2F4030A860DEFE73C54FCEE5 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.debug.xcconfig"; sourceTree = "<group>"; };
-		33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.release.xcconfig"; sourceTree = "<group>"; };
-		AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.release.xcconfig"; sourceTree = "<group>"; };
-		B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.debug.xcconfig"; sourceTree = "<group>"; };
+		70BC9B2F045BF31CD28394D6 /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		7D68BEC4055E520BECE4EB38 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient-WebApiClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		8A33F6A3578E9794FFD9C3F1 /* Pods-WebApiClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.debug.xcconfig"; sourceTree = "<group>"; };
+		C567302EB01A1805C309F0C9 /* libPods-WebApiClient-WebApiClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient-WebApiClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C90D2CD81CCD6DBB009482EE /* WebApiErrorExtractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiErrorExtractor.h; sourceTree = "<group>"; };
 		C90D2CD91CCD70E0009482EE /* WebApiErrorExtractor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebApiErrorExtractor.m; sourceTree = "<group>"; };
 		C90D2CDB1CCD7207009482EE /* JSONAPIErrorExtractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONAPIErrorExtractor.h; sourceTree = "<group>"; };
@@ -146,7 +145,8 @@
 		C9ED94731BA8DC5600DE842F /* WebApiClient.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; name = WebApiClient.podspec; path = ../WebApiClient.podspec; sourceTree = "<group>"; };
 		C9ED94741BA8DCC400DE842F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C9ED94761BA9450A00DE842F /* WebApiAuthorizationProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebApiAuthorizationProvider.h; sourceTree = "<group>"; };
-		F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient-WebApiClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF9D76E71F595D93881C5C1D /* libPods-WebApiClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WebApiClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF0C9499D5AC97EBF7D5BEDD /* Pods-WebApiClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WebApiClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,7 +154,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				950E0B6676F12C92DE0509B8 /* libPods-WebApiClient.a in Frameworks */,
+				B8868E04987BFAB47C404DD0 /* libPods-WebApiClient.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,22 +163,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9ED93F11BA8D86500DE842F /* libWebApiClient.a in Frameworks */,
-				829E84144DC23B6D266B1595 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */,
+				F0A4A4134786FCB82707A615 /* libPods-WebApiClient-WebApiClientTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A5583B26C3BE1AD6BD75D13D /* Pods */ = {
+		228D0340F29BA0790A2C4A4E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */,
-				ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */,
-				2F4030A860DEFE73C54FCEE5 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */,
-				AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */,
+				DF9D76E71F595D93881C5C1D /* libPods-WebApiClient.a */,
+				C567302EB01A1805C309F0C9 /* libPods-WebApiClient-WebApiClientTests.a */,
 			);
-			name = Pods;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		C9ED93DC1BA8D86500DE842F = {
@@ -188,8 +186,8 @@
 				C9ED941B1BA8DA1C00DE842F /* Code */,
 				C9ED93F41BA8D86500DE842F /* Tests */,
 				C9ED93E61BA8D86500DE842F /* Products */,
-				A5583B26C3BE1AD6BD75D13D /* Pods */,
-				E31BD3F30C244A15DBAC1806 /* Frameworks */,
+				CB00C396940AAF1B33FDEAB7 /* Pods */,
+				228D0340F29BA0790A2C4A4E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -357,13 +355,15 @@
 			path = "WebApiClient-Core";
 			sourceTree = "<group>";
 		};
-		E31BD3F30C244A15DBAC1806 /* Frameworks */ = {
+		CB00C396940AAF1B33FDEAB7 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				33E76DF429E1CDE9B70F5113 /* libPods-WebApiClient.a */,
-				F79A886C5B94DB93D710D2BF /* libPods-WebApiClient-WebApiClientTests.a */,
+				8A33F6A3578E9794FFD9C3F1 /* Pods-WebApiClient.debug.xcconfig */,
+				EF0C9499D5AC97EBF7D5BEDD /* Pods-WebApiClient.release.xcconfig */,
+				7D68BEC4055E520BECE4EB38 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */,
+				70BC9B2F045BF31CD28394D6 /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */,
 			);
-			name = Frameworks;
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -373,11 +373,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C9ED93F91BA8D86500DE842F /* Build configuration list for PBXNativeTarget "WebApiClient" */;
 			buildPhases = (
-				35E3F33E88DD9CDFEE6163B2 /* Check Pods Manifest.lock */,
+				2B368441B79C5AC7B22C7778 /* [CP] Check Pods Manifest.lock */,
 				C9ED93E11BA8D86500DE842F /* Sources */,
 				C9ED93E21BA8D86500DE842F /* Frameworks */,
 				C9ED93E31BA8D86500DE842F /* CopyFiles */,
-				AAF1896B578B01909C152E15 /* Copy Pods Resources */,
+				6D1D12ED15501CCE1CD9330D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -392,12 +392,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C9ED93FC1BA8D86500DE842F /* Build configuration list for PBXNativeTarget "WebApiClientTests" */;
 			buildPhases = (
-				A1473EC4B93142BCF298360F /* Check Pods Manifest.lock */,
+				1CB47B3D442182131B461F0E /* [CP] Check Pods Manifest.lock */,
 				C9ED93EC1BA8D86500DE842F /* Sources */,
 				C9ED93ED1BA8D86500DE842F /* Frameworks */,
 				C9ED93EE1BA8D86500DE842F /* Resources */,
-				7C06BE01B0919FBCA205A074 /* Copy Pods Resources */,
-				6A763F6A941E989D34CCD4C9 /* Embed Pods Frameworks */,
+				87357906A9A094E2E0B39B7E /* [CP] Embed Pods Frameworks */,
+				14401E49C92FF3D2F0DBA4D2 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -460,44 +460,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		35E3F33E88DD9CDFEE6163B2 /* Check Pods Manifest.lock */ = {
+		14401E49C92FF3D2F0DBA4D2 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		6A763F6A941E989D34CCD4C9 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7C06BE01B0919FBCA205A074 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -505,14 +475,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A1473EC4B93142BCF298360F /* Check Pods Manifest.lock */ = {
+		1CB47B3D442182131B461F0E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -520,19 +490,49 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		AAF1896B578B01909C152E15 /* Copy Pods Resources */ = {
+		2B368441B79C5AC7B22C7778 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		6D1D12ED15501CCE1CD9330D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WebApiClient/Pods-WebApiClient-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		87357906A9A094E2E0B39B7E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WebApiClient-WebApiClientTests/Pods-WebApiClient-WebApiClientTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -673,7 +673,7 @@
 		};
 		C9ED93FA1BA8D86500DE842F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B88552573CA71B7BE8D6D297 /* Pods-WebApiClient.debug.xcconfig */;
+			baseConfigurationReference = 8A33F6A3578E9794FFD9C3F1 /* Pods-WebApiClient.debug.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -682,7 +682,7 @@
 		};
 		C9ED93FB1BA8D86500DE842F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ACAEC222E7360778270304FA /* Pods-WebApiClient.release.xcconfig */;
+			baseConfigurationReference = EF0C9499D5AC97EBF7D5BEDD /* Pods-WebApiClient.release.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -691,7 +691,7 @@
 		};
 		C9ED93FD1BA8D86500DE842F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2F4030A860DEFE73C54FCEE5 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */;
+			baseConfigurationReference = 7D68BEC4055E520BECE4EB38 /* Pods-WebApiClient-WebApiClientTests.debug.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -711,7 +711,7 @@
 		};
 		C9ED93FE1BA8D86500DE842F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AD8F8A0A39E39AC1F4CD8DFD /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */;
+			baseConfigurationReference = 70BC9B2F045BF31CD28394D6 /* Pods-WebApiClient-WebApiClientTests.release.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
