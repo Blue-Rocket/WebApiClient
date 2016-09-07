@@ -1,5 +1,18 @@
 # Change Log
 
+## [1.2.0](https://github.com/Blue-Rocket/WebApiClient/tree/1.2.0) (2016-09-07)
+[Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.1.3...1.2.0)
+
+**Implemented enhancements:**
+
+- RestKit 0.27 fails to compile  [\#4](https://github.com/Blue-Rocket/WebApiClient/issues/4)
+
+## [1.1.3](https://github.com/Blue-Rocket/WebApiClient/tree/1.1.3) (2016-09-07)
+[Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.1.2...1.1.3)
+
+## [1.1.2](https://github.com/Blue-Rocket/WebApiClient/tree/1.1.2) (2016-06-20)
+[Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.1.1...1.1.2)
+
 ## [1.1.1](https://github.com/Blue-Rocket/WebApiClient/tree/1.1.1) (2016-06-20)
 [Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.1.0...1.1.1)
 
