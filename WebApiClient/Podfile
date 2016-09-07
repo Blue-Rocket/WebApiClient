@@ -21,7 +21,9 @@ target :WebApiClient do
 		pod 'OCHamcrest',			'~> 4.1'
 		pod 'OCMock',				'~> 3.1'
 		pod 'CocoaHTTPServer',		'~> 2.3'
-		pod 'RoutingHTTPServer', 	'~> 1.0'
+		
+		# Pull in a patched version of RoutingHTTPServer
+		pod 'RoutingHTTPServer', 	:git => 'https://github.com/Blue-Rocket/RoutingHTTPServer.git', :branch => 'feature/unsafe-unretained-connection-fix'
 	end
 
 end
