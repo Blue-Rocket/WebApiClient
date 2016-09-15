@@ -30,10 +30,17 @@ extern NSString * const RestKitWebApiRoutePropertyRequestRootKeyPath;
  */
 extern NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath;
 
+/** 
+ Error code when a route has a @c RestKitWebApiRoutePropertyResponseRootKeyPath value configured but
+ the response body does not contain that key path. The error will include the localized message 
+ @c web.api.mapping.missingResponseRootKeyPath.
+ */
+extern const NSInteger RestKitWebApiDataMapperErrorResponseRootKeyPathMissing;
+
 /**
  A @c WebApiDataMapper that uses RestKit to handle data mapping to/from native objects.
  
- A single shared instance of this class
+ A single shared instance of this class is typically used for all routes in an application.
  */
 @interface RestKitWebApiDataMapper : NSObject <WebApiDataMapper, WebApiSingletonDataMapper>
 

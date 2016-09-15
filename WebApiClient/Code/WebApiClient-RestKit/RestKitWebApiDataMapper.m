@@ -9,13 +9,17 @@
 #import "RestKitWebApiDataMapper.h"
 
 #import <BRCocoaLumberjack/BRCocoaLumberjack.h>
+#import <BRLocalize/Core.h>
 #import <RestKit/ObjectMapping.h>
 #import <RestKit/RKObjectMappingOperationDataSource.h>
 #import <RestKit/RKPropertyInspector.h>
+#import "WebApiClient.h"
 #import "WebApiRoute.h"
 
 NSString * const RestKitWebApiRoutePropertyRequestRootKeyPath = @"dataMapperRequestRootKeyPath";
 NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperResponseRootKeyPath";
+
+const NSInteger RestKitWebApiDataMapperErrorResponseRootKeyPathMissing = 3000;
 
 @interface RestKitWebApiDataMapper () <RKMappingOperationDelegate>
 @end
@@ -146,6 +150,13 @@ NSString * const RestKitWebApiRoutePropertyResponseRootKeyPath = @"dataMapperRes
 	id decodeSource = sourceObject;
 	if ( route[RestKitWebApiRoutePropertyResponseRootKeyPath] ) {
 		decodeSource = [sourceObject valueForKeyPath:route[RestKitWebApiRoutePropertyResponseRootKeyPath]];
+		if ( decodeSource == nil ) {
+			if ( error ) {
+				*error = [NSError errorWithDomain:WebApiClientErrorDomain code:RestKitWebApiDataMapperErrorResponseRootKeyPathMissing userInfo:
+						  @{@"name" : route.name, NSLocalizedDescriptionKey : [@"{web.api.mapping.missingResponseRootKeyPath}" localizedString] }];
+			}
+			return nil;
+		}
 	}
 	RKMappingOperation *mappingOperation = [[RKMappingOperation alloc] initWithSourceObject:decodeSource
 																		  destinationObject:nil

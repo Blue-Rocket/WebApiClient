@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.2.1](https://github.com/Blue-Rocket/WebApiClient/tree/1.2.1) (2016-09-15)
+[Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.2.0...1.2.1)
+
+**Closed issues:**
+
+- NSInternalInconsistencyException thrown if response does not contain configured root key path [\#5](https://github.com/Blue-Rocket/WebApiClient/issues/5)
+
 ## [1.2.0](https://github.com/Blue-Rocket/WebApiClient/tree/1.2.0) (2016-09-07)
 [Full Changelog](https://github.com/Blue-Rocket/WebApiClient/compare/1.1.3...1.2.0)
 
