@@ -200,7 +200,7 @@ static NSString * const kRoutePropertyDataMapperInstance = @"_dataMapper";
 		}
 	}
 	if ( mapper && [route conformsToProtocol:@protocol(MutableWebApiRoute)] ) {
-		route[kRoutePropertyDataMapperInstance] = mapper;
+        ((id<MutableWebApiRoute>)route)[kRoutePropertyDataMapperInstance] = mapper;
 	}
 	return mapper;
 }
