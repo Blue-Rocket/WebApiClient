@@ -90,6 +90,30 @@ DEPENDENCIES:
   - SOCKit (~> 1.1)
   - TransformerKit/String (~> 0.5)
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - AFgzipRequestSerializer
+    - AFNetworking
+    - BRCocoaLumberjack
+    - BREnvironment
+    - BRLocalize
+    - CocoaAsyncSocket
+    - CocoaHTTPServer
+    - CocoaLumberjack
+    - Godzippa
+    - ImageEffects
+    - ISO8601DateFormatterValueTransformer
+    - MAObjCRuntime
+    - Masonry
+    - OCHamcrest
+    - OCMock
+    - PINCache
+    - RestKit
+    - RKValueTransformers
+    - SOCKit
+    - TransformerKit
+    - TransitionKit
+
 EXTERNAL SOURCES:
   RoutingHTTPServer:
     :branch: feature/unsafe-unretained-connection-fix
@@ -124,6 +148,6 @@ SPEC CHECKSUMS:
   TransformerKit: 0a235de1030a23d47c86706c0316b4a0c7105d73
   TransitionKit: 9ceccda4cd0cdc0a05ef85eb235e5a3292c3c250
 
-PODFILE CHECKSUM: e14db1ca876383d00afafd6850b621c1307e0243
+PODFILE CHECKSUM: 43a8bcda37ccda47a392aa0d845ce45b7245a50d
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.5.0
