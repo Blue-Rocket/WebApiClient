@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'WebApiClient'
-  s.version      = '1.2.2'
+  s.version      = '1.2.3'
   s.summary      = 'A HTTP client API based on configured routes.'
 
   s.description        = <<-DESC
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.license            = { :type => 'Apache License, Version 2.0', :file => 'LICENSE' }
   s.author             = { 'Matt Magoffin' => 'matt@bluerocket.us' }
   s.social_media_url   = 'http://twitter.com/bluerocketinc'
-  s.platform           = :ios, '8.0'
+  s.platform           = :ios, '9.3'
   s.source             = { :git => 'https://github.com/Blue-Rocket/WebApiClient.git',
                            :tag => s.version.to_s }
   
