@@ -34,6 +34,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |sp|
     sp.source_files = 'WebApiClient/Code/WebApiClient-Core.h', 'WebApiClient/Code/WebApiClient'
     sp.dependency 'BRCocoaLumberjack', '~> 2.0'
+    sp.dependency 'CocoaLumberjack'
     sp.dependency 'BREnvironment',     '~> 1.1'
 	sp.dependency 'BRLocalize/Core'
 	sp.dependency 'MAObjCRuntime',     '~> 0.0.1'
