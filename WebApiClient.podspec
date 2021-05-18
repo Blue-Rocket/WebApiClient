@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'WebApiClient'
-  s.version      = '1.2.5'
+  s.version      = '1.2.6'
   s.summary      = 'A HTTP client API based on configured routes.'
 
   s.description        = <<-DESC
